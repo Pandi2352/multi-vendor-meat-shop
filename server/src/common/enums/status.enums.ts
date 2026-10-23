@@ -74,3 +74,11 @@ export enum DeliveryStatus {
   FAILED = 'FAILED',
   RETURNED = 'RETURNED',
 }
+
+export enum SettlementStatus {
+  PENDING = 'PENDING',
+  PROCESSING = 'PROCESSING',
+  SETTLED = 'SETTLED',
+  FAILED = 'FAILED',
+}
+

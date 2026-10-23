@@ -12,10 +12,13 @@ import { OrdersPage } from '@/features/orders/pages/orders-page';
 import { OrderDetailPage } from '@/features/orders/pages/order-detail-page';
 import { ShopCataloguePage } from '@/features/shops/pages/shop-catalogue-page';
 import { HomePage } from '@/pages/home-page';
+import { DistrictProvider, useDistrict } from '@/context/district-context';
+import { TN_DISTRICTS } from '@/constants/tn-districts';
 import type { CheckoutQuoteResponse } from '@/features/cart/api/cart.api';
 
 function Header({ onOpenCart }: { onOpenCart: () => void }) {
   const { data: cart } = useCart();
+  const { selectedDistrict, setSelectedDistrict } = useDistrict();
   const itemCount = cart?.itemCount || 0;
 
   return (
@@ -32,9 +35,21 @@ function Header({ onOpenCart }: { onOpenCart: () => void }) {
         </Link>
 
         <div className="flex items-center gap-2 sm:gap-3">
-          <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-border bg-surface-muted text-xs text-muted">
-            <MapPin className="h-3.5 w-3.5 text-primary" />
-            <span>Chennai, TN</span>
+          {/* 38 Tamil Nadu Districts Selector */}
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md border border-border bg-surface-muted text-xs">
+            <MapPin className="h-3.5 w-3.5 text-primary shrink-0" />
+            <select
+              value={selectedDistrict}
+              onChange={(e) => setSelectedDistrict(e.target.value)}
+              className="bg-transparent text-xs font-semibold text-text focus:outline-none cursor-pointer pr-1"
+              aria-label="Select Tamil Nadu District"
+            >
+              {TN_DISTRICTS.map((d) => (
+                <option key={d.code} value={d.nameEn} className="bg-surface text-text">
+                  {d.nameEn} ({d.nameTa})
+                </option>
+              ))}
+            </select>
           </div>
 
           <Link to="/orders">
@@ -112,7 +127,9 @@ export function App() {
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
         <BrowserRouter>
-          <StorefrontApp />
+          <DistrictProvider>
+            <StorefrontApp />
+          </DistrictProvider>
         </BrowserRouter>
       </QueryClientProvider>
     </ErrorBoundary>

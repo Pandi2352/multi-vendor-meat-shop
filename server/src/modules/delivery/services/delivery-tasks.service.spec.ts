@@ -47,12 +47,16 @@ describe('DeliveryTasksService', () => {
         address: { line1: '45 Anna Salai', pincode: '600017', district: 'Chennai' },
       }),
     };
+    const finance = {
+      recordOrderDelivered: vi.fn().mockResolvedValue({}),
+    };
 
     service = new DeliveryTasksService(
       taskRepo as unknown as DeliveryTaskRepository,
       orderRepo as unknown as OrderRepository,
       eventRepo as unknown as OrderEventRepository,
       shops as never,
+      finance as never,
     );
   });
 

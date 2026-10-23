@@ -25,3 +25,9 @@ export enum LedgerEntryType {
   PAYOUT = 'PAYOUT',
   REVERSAL = 'REVERSAL',
 }
+
+export enum LedgerDirection {
+  CREDIT = 'CREDIT',
+  DEBIT = 'DEBIT',
+}
+

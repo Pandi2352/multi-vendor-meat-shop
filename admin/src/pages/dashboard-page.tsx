@@ -13,9 +13,16 @@ import { Button } from '@/components/ui';
 interface DashboardPageProps {
   onOpenVendorOrders: () => void;
   onOpenDelivery: () => void;
+  onOpenInventory: () => void;
+  onOpenSettlements: () => void;
 }
 
-export function DashboardPage({ onOpenVendorOrders, onOpenDelivery }: DashboardPageProps) {
+export function DashboardPage({
+  onOpenVendorOrders,
+  onOpenDelivery,
+  onOpenInventory,
+  onOpenSettlements,
+}: DashboardPageProps) {
   return (
     <div className="space-y-8">
       {/* Welcome & Overview */}
@@ -102,10 +109,22 @@ export function DashboardPage({ onOpenVendorOrders, onOpenDelivery }: DashboardP
             >
               Live Preparation Queue
             </Button>
-            <Button variant="outline" size="sm" fullWidth leftIcon={<PackageCheck className="h-4 w-4" />}>
+            <Button
+              variant="outline"
+              size="sm"
+              fullWidth
+              onClick={onOpenInventory}
+              leftIcon={<PackageCheck className="h-4 w-4" />}
+            >
               Daily Stock Ledger
             </Button>
-            <Button variant="secondary" size="sm" fullWidth leftIcon={<TrendingUp className="h-4 w-4" />}>
+            <Button
+              variant="secondary"
+              size="sm"
+              fullWidth
+              onClick={onOpenSettlements}
+              leftIcon={<TrendingUp className="h-4 w-4" />}
+            >
               Settlements & Payouts
             </Button>
           </div>

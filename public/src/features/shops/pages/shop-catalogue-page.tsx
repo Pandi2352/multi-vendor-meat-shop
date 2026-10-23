@@ -6,19 +6,31 @@ import { formatINR } from '@/utils';
 import { useCategoriesTree } from '@/features/categories/api/use-categories';
 import { useShopProducts } from '@/features/products/api/use-products';
 import { ProductCard } from '@/features/products/components/product-card';
+import { useDistrict } from '@/context/district-context';
+import { CUT_FILTER_OPTIONS } from '@/constants/tn-districts';
 import { useShopDetail } from '../api/use-shops';
 
 export function ShopCataloguePage() {
   const { shopId } = useParams<{ shopId: string }>();
   const navigate = useNavigate();
+  const { selectedCut, setSelectedCut } = useDistrict();
   const [selectedCatId, setSelectedCatId] = useState<string | undefined>(undefined);
 
   const { data: shop, isLoading: shopLoading } = useShopDetail(shopId || '');
   const { data: categories } = useCategoriesTree();
-  const { data: products, isLoading: productsLoading } = useShopProducts(
+  const { data: rawProducts = [], isLoading: productsLoading } = useShopProducts(
     shopId || '',
     selectedCatId,
   );
+
+  const products = rawProducts.filter((product) => {
+    if (!selectedCut || selectedCut === 'ALL') return true;
+    const cutKeyword = selectedCut.toLowerCase().replace('_cut', '').replace('_', ' ');
+    return (
+      product.name.toLowerCase().includes(cutKeyword) ||
+      (product.description && product.description.toLowerCase().includes(cutKeyword))
+    );
+  });
 
   if (shopLoading) {
     return <div className="max-w-6xl mx-auto px-4 py-16 text-center text-sm text-muted">Loading shop catalogue...</div>;
@@ -97,7 +109,7 @@ export function ShopCataloguePage() {
               : 'bg-surface text-muted border-border hover:border-text hover:text-text'
           }`}
         >
-          All Fresh Cuts
+          All Categories
         </button>
         {categories?.map((cat) => (
           <button
@@ -113,6 +125,28 @@ export function ShopCataloguePage() {
             {cat.name}
           </button>
         ))}
+      </div>
+
+      {/* Cut Style filter chips */}
+      <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs">
+        <span className="text-muted text-[11px] font-medium mr-1 whitespace-nowrap">Cut Style:</span>
+        {CUT_FILTER_OPTIONS.map((c) => {
+          const isSelected = selectedCut === c.code;
+          return (
+            <button
+              key={c.code}
+              type="button"
+              onClick={() => setSelectedCut(c.code)}
+              className={`px-2.5 py-1 rounded-md text-[11px] whitespace-nowrap border font-medium transition-colors ${
+                isSelected
+                  ? 'border-primary bg-primary/10 text-primary'
+                  : 'border-border bg-surface text-muted hover:text-text hover:border-primary/40'
+              }`}
+            >
+              {c.label}
+            </button>
+          );
+        })}
       </div>
 
       {/* Products Grid */}

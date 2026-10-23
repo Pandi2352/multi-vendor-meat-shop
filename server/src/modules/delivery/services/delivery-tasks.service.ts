@@ -5,6 +5,7 @@ import { generateOtp, safeCompare, sha256 } from '#common/utils';
 import type { PaginatedResult } from '#common/dto';
 import { OrderRepository, OrderEventRepository } from '#modules/orders';
 import { ShopsService } from '#modules/shops';
+import { FinanceService } from '#modules/finance';
 import { DeliveryTaskRepository } from '../repositories/delivery-task.repository.js';
 import type { DeliveryTask } from '../schemas/delivery-task.schema.js';
 import type { AssignDeliveryTaskDto } from '../dto/assign-delivery-task.dto.js';
@@ -20,6 +21,7 @@ export class DeliveryTasksService {
     private readonly orderRepo: OrderRepository,
     private readonly eventRepo: OrderEventRepository,
     private readonly shops: ShopsService,
+    private readonly finance: FinanceService,
   ) {}
 
   async createOrGetTaskForOrder(orderId: string): Promise<DeliveryTaskResponseDto> {
@@ -155,6 +157,16 @@ export class DeliveryTasksService {
       await this.orderRepo.updateByIdOrThrow(order._id, {
         status: OrderStatus.DELIVERED,
         payment,
+      });
+
+      const totalAmountPaise =
+        order.totals?.totalPaise ?? task.codAmountPaise;
+
+      await this.finance.recordOrderDelivered({
+        orderId: order._id,
+        orderNumber: order.orderNumber,
+        shopId: order.shopId,
+        totalAmountPaise,
       });
 
       await this.eventRepo.create({

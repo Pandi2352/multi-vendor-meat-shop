@@ -5,6 +5,7 @@ import { formatINR, formatWeight } from '@/utils';
 import type { CheckoutQuoteResponse } from '@/features/cart/api/cart.api';
 import { useCreateOrder } from '../api/use-orders';
 import type { OrderResponse } from '../api/orders.api';
+import { AddressSelector, type SelectedAddressData } from '@/features/addresses';
 
 interface CheckoutModalProps {
   isOpen: boolean;
@@ -15,9 +16,13 @@ interface CheckoutModalProps {
 
 export function CheckoutModal({ isOpen, onClose, quote, onOrderPlaced }: CheckoutModalProps) {
   const createOrder = useCreateOrder();
-  const [addressText, setAddressText] = useState('12 Gandhi Road, T. Nagar');
-  const [pincode, setPincode] = useState('600017');
-  const [district, setDistrict] = useState('Chennai');
+  const [addressData, setAddressData] = useState<SelectedAddressData>({
+    text: '12 Gandhi Road, T. Nagar',
+    pincode: '600017',
+    district: 'Chennai',
+    label: 'Home',
+    location: { lat: 13.0418, lng: 80.2341 },
+  });
   const [customerNotes, setCustomerNotes] = useState('');
   const [error, setError] = useState<string | null>(null);
 
@@ -27,7 +32,7 @@ export function CheckoutModal({ isOpen, onClose, quote, onOrderPlaced }: Checkou
     e.preventDefault();
     setError(null);
 
-    if (addressText.trim().length < 5) {
+    if (addressData.text.trim().length < 5) {
       setError('Please provide a complete delivery address');
       return;
     }
@@ -35,11 +40,11 @@ export function CheckoutModal({ isOpen, onClose, quote, onOrderPlaced }: Checkou
     try {
       const order = await createOrder.mutateAsync({
         deliveryAddress: {
-          text: addressText.trim(),
-          pincode: pincode.trim(),
-          district: district.trim(),
-          location: { lat: 13.0418, lng: 80.2341 },
-          label: 'Home',
+          text: addressData.text.trim(),
+          pincode: addressData.pincode.trim(),
+          district: addressData.district.trim(),
+          location: addressData.location || { lat: 13.0418, lng: 80.2341 },
+          label: addressData.label || 'Home',
         },
         customerNotes: customerNotes.trim() || undefined,
         paymentMethod: 'COD',
@@ -74,42 +79,10 @@ export function CheckoutModal({ isOpen, onClose, quote, onOrderPlaced }: Checkou
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-xs font-semibold text-text mb-1">
-              Delivery Address (Street, Building, Flat)
-            </label>
-            <input
-              type="text"
-              required
-              value={addressText}
-              onChange={(e) => setAddressText(e.target.value)}
-              className="w-full rounded-md border border-border bg-surface px-3 py-2 text-sm text-text focus:outline-none focus:ring-2 focus:ring-primary/40"
-              placeholder="e.g. Flat 3A, 42 Anna Salai"
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs font-semibold text-text mb-1">Pincode</label>
-              <input
-                type="text"
-                required
-                value={pincode}
-                onChange={(e) => setPincode(e.target.value)}
-                className="w-full rounded-md border border-border bg-surface px-3 py-2 text-sm text-text focus:outline-none focus:ring-2 focus:ring-primary/40"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-semibold text-text mb-1">District / City</label>
-              <input
-                type="text"
-                required
-                value={district}
-                onChange={(e) => setDistrict(e.target.value)}
-                className="w-full rounded-md border border-border bg-surface px-3 py-2 text-sm text-text focus:outline-none focus:ring-2 focus:ring-primary/40"
-              />
-            </div>
-          </div>
+          <AddressSelector
+            selectedAddress={addressData}
+            onSelect={(addr) => setAddressData(addr)}
+          />
 
           <div>
             <label className="block text-xs font-semibold text-text mb-1">Delivery Notes (Optional)</label>

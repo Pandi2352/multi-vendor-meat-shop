@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { OrdersModule } from '#modules/orders';
 import { ShopsModule } from '#modules/shops';
+import { FinanceModule } from '#modules/finance';
 import { DeliveryTask, DeliveryTaskSchema } from './schemas/delivery-task.schema.js';
 import { DeliveryTaskRepository } from './repositories/delivery-task.repository.js';
 import { DeliveryTasksService } from './services/delivery-tasks.service.js';
@@ -15,6 +16,7 @@ import { AdminDeliveryController } from './controllers/admin-delivery.controller
     ]),
     OrdersModule,
     ShopsModule,
+    FinanceModule,
   ],
   controllers: [DeliveryTasksController, AdminDeliveryController],
   providers: [DeliveryTaskRepository, DeliveryTasksService],

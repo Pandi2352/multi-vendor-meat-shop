@@ -360,8 +360,10 @@ modules/<feature>/
 
 ### B15. Constants & types (`src/constants/`, `src/types/`)
 - [ ] Enums mirrored from generated API types (roles, statuses, units, categories) — never retyped by hand
-- [ ] `status-config.ts` — label key + tone for every status enum
-- [ ] `tn-districts.ts`
+- [x] `status-config.ts` — label key + tone for every status enum
+- [x] `tn-districts.ts` — 38 Tamil Nadu districts in English and Tamil
+- [x] `finance` — `commissions`, `settlements`, `ledger_entries` modules & double-entry ledger portal
+- [x] `addresses` — customer address book with TN district selection and pincode validation
 - [ ] `pagination.ts` defaults, `upload.ts` limits
 - [ ] `types/api.generated.ts` (generated), `types/common.ts` (`ID = string`, `Paginated<T>`, `ApiResponse<T>`, `SelectOption`)
 
