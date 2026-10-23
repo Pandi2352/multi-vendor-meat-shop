@@ -4,7 +4,7 @@ export interface MenuLinesIconProps extends SVGProps<SVGSVGElement> {
   strokeWidth?: number;
 }
 
-/** Brand menu icon: two full-width lines and a shorter third line, rounded ends. Same API as lucide icons. */
+/** Brand menu icon: two full-width lines and a shorter third line, round line caps. Same API as lucide icons. */
 export function MenuLinesIcon({ strokeWidth = 2.2, ...props }: MenuLinesIconProps) {
   return (
     <svg

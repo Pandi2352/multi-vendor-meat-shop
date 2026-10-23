@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Headers, HttpCode, HttpStatus, Ip, Post } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { SwaggerTag } from '#common/constants';
-import { ApiCreatedEnvelope, ApiOkEnvelope, ApiStandardResponses, Auth, CurrentUser, Public } from '#common/decorators';
+import { ApiOkEnvelope, ApiStandardResponses, Auth, CurrentUser, Public } from '#common/decorators';
 import { UserResponseDto, UsersService } from '#modules/users';
 import { AuthService } from '../services/auth.service.js';
 import { SendOtpDto } from '../dto/send-otp.dto.js';
