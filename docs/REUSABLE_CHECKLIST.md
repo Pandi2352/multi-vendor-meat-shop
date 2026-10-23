@@ -180,7 +180,9 @@ Server facts: NestJS 12 is **ESM-only** → relative imports end in `.js`, cross
 - [ ] `PricingService` — line total, delivery fee rules, coupon discount, tax, commission 🧪
 - [x] `InventoryService.reserve/release/commit` — atomic conditional update + movement log 🧪
 - [ ] `LedgerService.post(entries[])` — append-only, balanced entries, reversal instead of edit 🧪
-- [ ] `OrderSnapshot` builder 🧪
+- [x] `OrderSnapshot` builder (`OrderRepository`, `OrderEventRepository`, `OrderTotals`) 🧪
+- [x] `OrderNumberService` — sequential atomic `TN-YYYYMMDD-XXXX` counter generator 🧪
+- [x] `ORDER_STATUS_MACHINE` — transitions and permitted actor roles for order lifecycle 🧪
 - [ ] `AuditService.log(actor, action, entity, before?, after?)`
 - [ ] `NotificationDispatcher.send(userId, type, payload)`
 - [ ] `ServiceabilityService.check(shopId, coordinates)` — radius/zone + open hours

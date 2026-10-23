@@ -90,6 +90,16 @@ export const ERROR_CATALOG: Readonly<Record<E, ErrorDefinition>> = {
   [E.SLOT_FULL]: { status: HttpStatus.CONFLICT, message: 'Selected delivery slot is full' },
   [E.COUPON_INVALID]: { status: HttpStatus.UNPROCESSABLE_ENTITY, message: 'Coupon is not valid' },
 
+  [E.ORDER_NOT_FOUND]: { status: HttpStatus.NOT_FOUND, message: 'Order not found' },
+  [E.ORDER_NOT_CANCELLABLE]: {
+    status: HttpStatus.UNPROCESSABLE_ENTITY,
+    message: 'Order cannot be cancelled in its current state',
+  },
+  [E.ORDER_INVALID_STATE]: {
+    status: HttpStatus.CONFLICT,
+    message: 'Order is in an invalid state for this action',
+  },
+
   [E.PAYMENT_FAILED]: { status: HttpStatus.PAYMENT_REQUIRED, message: 'Payment failed' },
   [E.PAYMENT_SIGNATURE_INVALID]: {
     status: HttpStatus.BAD_REQUEST,

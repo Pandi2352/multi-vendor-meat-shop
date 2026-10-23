@@ -5,9 +5,11 @@ import { LoggerModule } from '#infra/logger';
 import { MailModule } from '#infra/mail';
 import { AppThrottlerModule } from '#infra/throttler';
 import { AuthModule } from '#modules/auth';
+import { CartModule } from '#modules/cart';
 import { CategoriesModule } from '#modules/categories';
 import { HealthModule } from '#modules/health';
 import { InventoryModule } from '#modules/inventory';
+import { OrdersModule } from '#modules/orders';
 import { ProductsModule } from '#modules/products';
 import { ShopsModule } from '#modules/shops';
 import { UsersModule } from '#modules/users';
@@ -29,6 +31,8 @@ import { APP_PROVIDERS } from './app.providers.js';
     CategoriesModule,
     ProductsModule,
     InventoryModule,
+    CartModule,
+    OrdersModule,
   ],
   providers: APP_PROVIDERS,
 })

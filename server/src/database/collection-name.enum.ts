@@ -27,4 +27,5 @@ export enum CollectionName {
   NOTIFICATIONS = 'notifications',
   AUDIT_LOGS = 'audit_logs',
   IDEMPOTENCY_RECORDS = 'idempotency_records',
+  COUNTERS = 'counters',
 }
