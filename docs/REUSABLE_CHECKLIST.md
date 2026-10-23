@@ -95,13 +95,13 @@ Server facts: NestJS 12 is **ESM-only** → relative imports end in `.js`, cross
 - [x] `@ApiOkEnvelope(Dto)` / `@ApiCreatedEnvelope(Dto)` / `@ApiEnvelope(Dto, { isArray })`
 - [x] `@ApiPaginatedResponse(Dto)`
 - [x] ~~`@ApiListQuery()`~~ — not needed: `@Query() q: ListQueryDto` documents page/limit/sort/q automatically
-- [ ] `@Auth(...roles)` — composite JWT guard + roles + `@ApiBearerAuth` (Phase 2, AuthModule)
+- [x] `@Auth(...roles)` — composite JWT guard + roles + `@ApiBearerAuth` (Phase 2, AuthModule)
 - [ ] `@CurrentShop()` — vendor's shop from the token, never the body (Phase 2)
 - [ ] `@IdempotencyKey()` — with the idempotency interceptor (checkout phase)
 - [ ] `@Audit(action, entityType)` — with the AuditModule
 
 ### A9. Guards (`src/common/guards/`) ⭐
-- [ ] `jwt-auth.guard.ts` — global, respects `@Public()` (Phase 2)
+- [x] `jwt-auth.guard.ts` — global, respects `@Public()` (Phase 2)
 - [x] `roles.guard.ts` — 401 without user, 403 on wrong role (e2e)
 - [x] `permissions.guard.ts` — requires every listed permission (e2e)
 - [ ] `shop-ownership.guard.ts` — resource's `shopId` must belong to current vendor 🧪
@@ -155,10 +155,10 @@ Server facts: NestJS 12 is **ESM-only** → relative imports end in `.js`, cross
 - [x] **state machine**: `createStateMachine(name, transitions)` → `canTransition`, `assertTransition`, `nextStates` (actor-aware)
 
 ### A14. Auth building blocks (`src/modules/auth/`) ⭐ — Phase 2
-- [ ] `TokenService` — sign/verify access & refresh, token family, rotation, reuse detection 🧪
-- [ ] `SessionService` — store hashed refresh tokens, revoke one / all, TTL index
-- [ ] `OtpService` — generate, hash, verify, attempt limits, resend cooldown 🧪
-- [ ] `JwtStrategy` — payload `{ sub, role, permissions, shopId? }`
+- [x] `TokenService` — sign/verify access & refresh, token family, rotation, reuse detection 🧪
+- [x] `SessionService` (RefreshSessionRepository) — store hashed refresh tokens, revoke one / all, TTL index
+- [x] `OtpService` — generate, hash, verify, attempt limits, resend cooldown, email delivery 🧪
+- [x] `JwtAuthGuard` — reads Bearer token, respects `@Public()`, sets `req.user`
 - [x] `AuthUser` / `AppRequest` interfaces (`common/interfaces`)
 
 ### A15. Infrastructure adapters (`src/infra/`) — interface + provider swap
@@ -171,7 +171,7 @@ Server facts: NestJS 12 is **ESM-only** → relative imports end in `.js`, cross
 - [ ] **storage**: `StorageService` interface → Cloudinary / S3 adapters
 - [ ] **file validation**: `ParseFilePipe` preset (mime + size), `@UploadImages(max)`
 - [ ] **sms**: `SmsService` interface + provider + console provider for dev
-- [ ] **email**: `MailService` interface + template renderer
+- [x] **email**: `MailService` with Nodemailer SMTP transport
 - [ ] **push**: `PushService` interface (FCM/Web Push)
 - [ ] **payment**: `PaymentProvider` interface → Razorpay adapter
 - [ ] **maps** (later): `GeocodingService` interface

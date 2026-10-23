@@ -1,0 +1,36 @@
+import { Global, Module } from '@nestjs/common';
+import { MongooseModule } from '@nestjs/mongoose';
+import { UsersModule } from '#modules/users';
+import { MailModule } from '#infra/mail';
+import { OtpChallenge, OtpChallengeSchema } from './schemas/otp-challenge.schema.js';
+import { RefreshSession, RefreshSessionSchema } from './schemas/refresh-session.schema.js';
+import { OtpChallengeRepository } from './repositories/otp-challenge.repository.js';
+import { RefreshSessionRepository } from './repositories/refresh-session.repository.js';
+import { TokenService } from './services/token.service.js';
+import { OtpService } from './services/otp.service.js';
+import { AuthService } from './services/auth.service.js';
+import { JwtAuthGuard } from './guards/jwt-auth.guard.js';
+import { AuthController } from './controllers/auth.controller.js';
+
+@Global()
+@Module({
+  imports: [
+    MongooseModule.forFeature([
+      { name: OtpChallenge.name, schema: OtpChallengeSchema },
+      { name: RefreshSession.name, schema: RefreshSessionSchema },
+    ]),
+    UsersModule,
+    MailModule,
+  ],
+  controllers: [AuthController],
+  providers: [
+    OtpChallengeRepository,
+    RefreshSessionRepository,
+    TokenService,
+    OtpService,
+    AuthService,
+    JwtAuthGuard,
+  ],
+  exports: [TokenService, AuthService, JwtAuthGuard],
+})
+export class AuthModule {}

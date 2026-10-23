@@ -58,6 +58,13 @@ export class EnvironmentVariables {
   @ToInt() @IsInt() @Min(1) THROTTLE_TTL_SECONDS = 60;
   @ToInt() @IsInt() @Min(1) THROTTLE_LIMIT = 120;
 
+  // SMTP Mail
+  @IsString() SMTP_HOST = 'smtp.gmail.com';
+  @ToInt() @IsInt() @Min(1) @Max(65535) SMTP_PORT = 587;
+  @IsString() SMTP_USER = 'mvp.bose2352@gmail.com';
+  @IsString() SMTP_PASS = 'nvdi gggi ghqb rpmk';
+  @IsString() MAIL_FROM = 'NovaShop <mvp.bose2352@gmail.com>';
+
   // Swagger
   @ToBoolean() @IsBoolean() SWAGGER_ENABLED = true;
   @IsString() SWAGGER_PATH = 'docs';
