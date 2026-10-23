@@ -4,6 +4,7 @@ export * from './button';
 export * from './dialog';
 export * from './dropdown';
 export * from './error-state';
+export * from './icon';
 export * from './kbd';
 export * from './spinner';
 export * from './tooltip';

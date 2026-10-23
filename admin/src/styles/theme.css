@@ -49,6 +49,12 @@
 }
 
 @layer base {
+  /* UI scale: everything is in rem, so this one value sizes text, spacing, icons and layout together.
+     93.75% = 15px with default browser settings (still follows the user's own font-size preference). */
+  html {
+    font-size: 93.75%;
+  }
+
   /* Tailwind v4 resets buttons to the default cursor; every interactive element gets a pointer. */
   a[href],
   button:not(:disabled),

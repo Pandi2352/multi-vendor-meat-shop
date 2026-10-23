@@ -13,7 +13,7 @@ export function SidebarIcon({ icon: Icon, active, className }: SidebarIconProps)
       aria-hidden="true"
       strokeWidth={1.9}
       className={cn(
-        'h-[18px] w-[18px] shrink-0 transition-colors',
+        'h-[1.125rem] w-[1.125rem] shrink-0 transition-colors',
         active ? 'text-primary' : 'text-muted group-hover:text-text',
         className,
       )}

@@ -3,7 +3,7 @@ import { cva } from 'class-variance-authority';
 /** Shared sizing so the sidebar, its skeleton and anything aligned to it stay in sync. */
 export const SIDEBAR_WIDTH = {
   expanded: 'w-64',
-  collapsed: 'w-[72px]',
+  collapsed: 'w-[4.5rem]',
   mobile: 'w-72',
 } as const;
 

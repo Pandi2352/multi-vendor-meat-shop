@@ -77,7 +77,7 @@ export function SidebarGroup({ item, collapsed }: SidebarGroupProps) {
         />
       </button>
       {open && (
-        <div id={panelId} className="ml-[21px] mt-0.5 flex flex-col gap-0.5 border-l border-border py-0.5 pl-3">
+        <div id={panelId} className="ml-[1.3125rem] mt-0.5 flex flex-col gap-0.5 border-l border-border py-0.5 pl-3">
           <ChildLinks items={item.children} />
         </div>
       )}
