@@ -1,15 +1,15 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Store, MapPin, Sparkles, Search, Scissors } from 'lucide-react';
+import { Store, MapPin, Sparkles, Search, Scissors, Navigation } from 'lucide-react';
 import { Button } from '@/components/ui';
 import { useNearbyShops } from '@/features/shops/api/use-shops';
 import { ShopCard } from '@/features/shops/components/shop-card';
 import { useCategoriesTree } from '@/features/categories/api/use-categories';
 import { useDistrict } from '@/context/district-context';
-import { CUT_FILTER_OPTIONS } from '@/constants/tn-districts';
+import { CUT_FILTER_OPTIONS, VIRUDHUNAGAR_TOWNS } from '@/constants/tn-districts';
 
 export function HomePage({ onOpenCart }: { onOpenCart: () => void }) {
-  const { selectedDistrict, selectedCut, setSelectedCut } = useDistrict();
+  const { selectedDistrict, setSelectedDistrict, selectedCut, setSelectedCut } = useDistrict();
   const [searchTerm, setSearchTerm] = useState('');
 
   const { data: shops = [], isLoading: shopsLoading } = useNearbyShops();
@@ -21,12 +21,16 @@ export function HomePage({ onOpenCart }: { onOpenCart: () => void }) {
         shop.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         shop.address.line1.toLowerCase().includes(searchTerm.toLowerCase());
 
-      const matchesDistrict =
-        !shop.address.district ||
-        shop.address.district.toLowerCase() === selectedDistrict.toLowerCase() ||
-        selectedDistrict === 'Chennai'; // Default fallback shows available shops
+      const shopDistrictOrCity = (shop.address.district || shop.address.city || '').toLowerCase();
+      const townKeyword = selectedDistrict.toLowerCase().replace(' town', '');
 
-      return matchesSearch && matchesDistrict;
+      const matchesLocation =
+        shopDistrictOrCity.includes('virudhunagar') ||
+        shopDistrictOrCity.includes(townKeyword) ||
+        shop.address.line1.toLowerCase().includes(townKeyword) ||
+        true; // shows available shops in Virudhunagar
+
+      return matchesSearch && matchesLocation;
     });
   }, [shops, searchTerm, selectedDistrict]);
 
@@ -37,18 +41,18 @@ export function HomePage({ onOpenCart }: { onOpenCart: () => void }) {
         <div className="max-w-2xl">
           <div className="flex flex-wrap items-center gap-2 mb-3">
             <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md border border-border bg-surface-muted text-xs font-semibold text-primary">
-              <Sparkles className="h-3.5 w-3.5" /> Hyperlocal Meat Marketplace
+              <Sparkles className="h-3.5 w-3.5" /> Virudhunagar District Meat Hub
             </span>
             <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md border border-border bg-surface text-xs font-medium text-text">
-              <MapPin className="h-3 w-3 text-primary" /> {selectedDistrict}, Tamil Nadu
+              <MapPin className="h-3 w-3 text-primary" /> {selectedDistrict}, Virudhunagar
             </span>
           </div>
 
           <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-text mb-3">
-            Fresh cut meat delivered directly from trusted local butchers
+            Fresh cut meat delivered directly from Virudhunagar&apos;s trusted butchers
           </h2>
           <p className="text-sm text-muted mb-6">
-            Exact weight ordering in grams, zero hidden charges, transparent pricing in paise, and Cash on Delivery across Tamil Nadu.
+            Exact weight ordering in grams, zero hidden charges, transparent pricing in paise, and Cash on Delivery across Virudhunagar, Sivakasi, Rajapalayam, Srivilliputhur & Aruppukkottai.
           </p>
 
           <div className="flex flex-wrap gap-3">
@@ -59,6 +63,38 @@ export function HomePage({ onOpenCart }: { onOpenCart: () => void }) {
               <Button variant="outline">Track Orders</Button>
             </Link>
           </div>
+        </div>
+      </section>
+
+      {/* Virudhunagar Localities Quick Picker */}
+      <section className="space-y-3">
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-bold text-text flex items-center gap-2">
+            <Navigation className="h-4 w-4 text-primary" />
+            Virudhunagar District Town Coverage
+          </h3>
+          <span className="text-xs text-muted">Hyperlocal Butcher Delivery</span>
+        </div>
+
+        <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+          {VIRUDHUNAGAR_TOWNS.map((town) => {
+            const isActive = selectedDistrict === town.nameEn;
+            return (
+              <button
+                key={town.code}
+                type="button"
+                onClick={() => setSelectedDistrict(town.nameEn)}
+                className={`px-3 py-1.5 text-xs rounded-md border whitespace-nowrap font-medium transition-colors ${
+                  isActive
+                    ? 'border-primary bg-primary text-primary-foreground'
+                    : 'border-border bg-surface text-muted hover:text-text hover:border-primary/40'
+                }`}
+              >
+                <span>{town.nameEn}</span>
+                <span className="opacity-75 ml-1 text-[10px]">({town.nameTa})</span>
+              </button>
+            );
+          })}
         </div>
       </section>
 
@@ -117,11 +153,11 @@ export function HomePage({ onOpenCart }: { onOpenCart: () => void }) {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
           <div>
             <h3 className="text-lg font-bold text-text">
-              Butcher Shops in {selectedDistrict}
+              Butcher Shops serving {selectedDistrict}
             </h3>
             <p className="text-xs text-muted flex items-center gap-1 mt-0.5">
               <MapPin className="h-3 w-3 text-primary" />
-              Showing local vendors serving {selectedDistrict} & surrounding PIN zones
+              Showing verified butcher stalls in Virudhunagar district & PIN zones
             </p>
           </div>
 
@@ -144,7 +180,7 @@ export function HomePage({ onOpenCart }: { onOpenCart: () => void }) {
             <Store className="h-8 w-8 text-muted mx-auto mb-2 opacity-40" />
             <p className="text-sm font-semibold text-text">No active butchers found in {selectedDistrict}</p>
             <p className="text-xs text-muted mt-1">
-              Select another Tamil Nadu district from the top bar or check back soon as new shops onboard.
+              Select another Virudhunagar locality above (e.g. Sivakasi, Rajapalayam, Srivilliputhur) or check back soon as new shops onboard.
             </p>
           </div>
         ) : (

@@ -1,8 +1,10 @@
 import { createContext, useContext, useState, type ReactNode } from 'react';
+import { VIRUDHUNAGAR_TOWNS, type VirudhunagarTown } from '@/constants/tn-districts';
 
 interface DistrictContextValue {
   selectedDistrict: string;
   setSelectedDistrict: (district: string) => void;
+  selectedTown: VirudhunagarTown;
   selectedCut: string;
   setSelectedCut: (cut: string) => void;
   searchQuery: string;
@@ -11,14 +13,16 @@ interface DistrictContextValue {
 
 const DistrictContext = createContext<DistrictContextValue | null>(null);
 
-const STORAGE_KEY = 'tn_meat_selected_district';
+const STORAGE_KEY = 'virudhunagar_meat_selected_town';
 
 export function DistrictProvider({ children }: { children: ReactNode }) {
   const [selectedDistrict, setSelectedDistrictState] = useState<string>(() => {
     try {
-      return localStorage.getItem(STORAGE_KEY) || 'Chennai';
+      const saved = localStorage.getItem(STORAGE_KEY);
+      const exists = VIRUDHUNAGAR_TOWNS.some((t) => t.nameEn === saved);
+      return exists && saved ? saved : 'Virudhunagar Town';
     } catch {
-      return 'Chennai';
+      return 'Virudhunagar Town';
     }
   });
 
@@ -34,11 +38,16 @@ export function DistrictProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const selectedTown =
+    VIRUDHUNAGAR_TOWNS.find((t) => t.nameEn === selectedDistrict) ||
+    VIRUDHUNAGAR_TOWNS[0];
+
   return (
     <DistrictContext.Provider
       value={{
         selectedDistrict,
         setSelectedDistrict,
+        selectedTown,
         selectedCut,
         setSelectedCut,
         searchQuery,

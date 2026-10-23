@@ -13,7 +13,7 @@ import { OrderDetailPage } from '@/features/orders/pages/order-detail-page';
 import { ShopCataloguePage } from '@/features/shops/pages/shop-catalogue-page';
 import { HomePage } from '@/pages/home-page';
 import { DistrictProvider, useDistrict } from '@/context/district-context';
-import { TN_DISTRICTS } from '@/constants/tn-districts';
+import { VIRUDHUNAGAR_TOWNS } from '@/constants/tn-districts';
 import type { CheckoutQuoteResponse } from '@/features/cart/api/cart.api';
 
 function Header({ onOpenCart }: { onOpenCart: () => void }) {
@@ -26,25 +26,25 @@ function Header({ onOpenCart }: { onOpenCart: () => void }) {
       <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-3">
           <div className="h-9 w-9 rounded-md bg-primary flex items-center justify-center text-primary-foreground font-bold">
-            TN
+            VNR
           </div>
           <div>
-            <h1 className="text-base font-semibold leading-tight text-text">Tamil Nadu Meat Shop</h1>
-            <p className="text-xs text-muted">Fresh & Hyperlocal Marketplace</p>
+            <h1 className="text-base font-semibold leading-tight text-text">Virudhunagar Meat Shop</h1>
+            <p className="text-xs text-muted">Virudhunagar District Hyperlocal Marketplace</p>
           </div>
         </Link>
 
         <div className="flex items-center gap-2 sm:gap-3">
-          {/* 38 Tamil Nadu Districts Selector */}
+          {/* Virudhunagar Towns / Taluks Selector */}
           <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md border border-border bg-surface-muted text-xs">
             <MapPin className="h-3.5 w-3.5 text-primary shrink-0" />
             <select
               value={selectedDistrict}
               onChange={(e) => setSelectedDistrict(e.target.value)}
               className="bg-transparent text-xs font-semibold text-text focus:outline-none cursor-pointer pr-1"
-              aria-label="Select Tamil Nadu District"
+              aria-label="Select Virudhunagar Town or Locality"
             >
-              {TN_DISTRICTS.map((d) => (
+              {VIRUDHUNAGAR_TOWNS.map((d) => (
                 <option key={d.code} value={d.nameEn} className="bg-surface text-text">
                   {d.nameEn} ({d.nameTa})
                 </option>
@@ -114,8 +114,8 @@ function StorefrontApp() {
 
       <footer className="border-t border-border bg-surface mt-auto py-6">
         <div className="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted">
-          <p>© 2026 Tamil Nadu Meat Marketplace. All rights reserved.</p>
-          <p>Made for Tamil Nadu with clean meat standards & FSSAI compliance.</p>
+          <p>© 2026 Virudhunagar Meat Marketplace (விருதுநகர்). All rights reserved.</p>
+          <p>Serving Virudhunagar, Sivakasi, Rajapalayam, Srivilliputhur, Aruppukkottai & Sattur.</p>
         </div>
       </footer>
     </div>

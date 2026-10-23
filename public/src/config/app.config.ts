@@ -1,5 +1,5 @@
 export const APP_CONFIG = {
-  appName: 'Tamil Nadu Meat Marketplace',
+  appName: 'Virudhunagar Meat Marketplace',
   currency: 'INR',
   currencySymbol: '₹',
   timezone: 'Asia/Kolkata',

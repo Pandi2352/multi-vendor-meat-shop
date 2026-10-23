@@ -53,7 +53,7 @@ export function DashboardPage({
           {
             title: 'Active Butcher Shops',
             val: '42 live',
-            sub: 'Across 5 districts',
+            sub: 'Virudhunagar district',
             icon: Store,
             color: 'text-primary',
           },

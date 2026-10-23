@@ -17,11 +17,11 @@ interface CheckoutModalProps {
 export function CheckoutModal({ isOpen, onClose, quote, onOrderPlaced }: CheckoutModalProps) {
   const createOrder = useCreateOrder();
   const [addressData, setAddressData] = useState<SelectedAddressData>({
-    text: '12 Gandhi Road, T. Nagar',
-    pincode: '600017',
-    district: 'Chennai',
+    text: '15 Madurai Road, Virudhunagar Town',
+    pincode: '626001',
+    district: 'Virudhunagar',
     label: 'Home',
-    location: { lat: 13.0418, lng: 80.2341 },
+    location: { lat: 9.568, lng: 77.9624 },
   });
   const [customerNotes, setCustomerNotes] = useState('');
   const [error, setError] = useState<string | null>(null);

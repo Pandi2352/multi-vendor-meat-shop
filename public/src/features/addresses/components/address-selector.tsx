@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Briefcase, Check, Home, Plus, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui';
-import { TN_DISTRICTS } from '@/constants/tn-districts';
+import { VIRUDHUNAGAR_TOWNS } from '@/constants/tn-districts';
 import {
   useAddresses,
   useCreateAddress,
@@ -30,10 +30,18 @@ export function AddressSelector({ selectedAddress, onSelect }: AddressSelectorPr
   const [isAddingNew, setIsAddingNew] = useState(false);
   const [label, setLabel] = useState<'HOME' | 'WORK' | 'OTHER'>('HOME');
   const [text, setText] = useState('');
-  const [pincode, setPincode] = useState('600017');
-  const [district, setDistrict] = useState(selectedAddress.district || 'Chennai');
+  const [selectedTownCode, setSelectedTownCode] = useState(VIRUDHUNAGAR_TOWNS[0].code);
+  const [pincode, setPincode] = useState(VIRUDHUNAGAR_TOWNS[0].pincode);
   const [isDefault, setIsDefault] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const handleTownChange = (code: string) => {
+    setSelectedTownCode(code);
+    const town = VIRUDHUNAGAR_TOWNS.find((t) => t.code === code);
+    if (town) {
+      setPincode(town.pincode);
+    }
+  };
 
   const handleSaveNew = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,15 +56,17 @@ export function AddressSelector({ selectedAddress, onSelect }: AddressSelectorPr
       return;
     }
 
+    const town = VIRUDHUNAGAR_TOWNS.find((t) => t.code === selectedTownCode) || VIRUDHUNAGAR_TOWNS[0];
+
     try {
       const created = await createMutation.mutateAsync({
         label,
-        text: text.trim(),
+        text: `${text.trim()}, ${town.nameEn}`,
         pincode: pincode.trim(),
-        district,
+        district: 'Virudhunagar',
         isDefault,
-        lat: 13.0418,
-        lng: 80.2341,
+        lat: 9.568,
+        lng: 77.9624,
       });
 
       onSelect({
@@ -83,7 +93,7 @@ export function AddressSelector({ selectedAddress, onSelect }: AddressSelectorPr
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <label className="block text-xs font-semibold text-text">
-          Select Delivery Address (Tamil Nadu)
+          Select Delivery Address (Virudhunagar District)
         </label>
         <button
           type="button"
@@ -125,35 +135,35 @@ export function AddressSelector({ selectedAddress, onSelect }: AddressSelectorPr
               required
               value={text}
               onChange={(e) => setText(e.target.value)}
-              placeholder="e.g. 15 Anna Salai, Opp Post Office"
+              placeholder="e.g. 15 Madurai Road, Opp Old Bus Stand"
               className="w-full text-xs rounded-md border border-border bg-surface px-3 py-2 text-text focus:outline-none focus:border-primary"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <label className="block text-xs text-muted mb-1">TN District (38 Districts)</label>
+              <label className="block text-xs text-muted mb-1">Virudhunagar Town / Taluk</label>
               <select
-                value={district}
-                onChange={(e) => setDistrict(e.target.value)}
+                value={selectedTownCode}
+                onChange={(e) => handleTownChange(e.target.value)}
                 className="w-full text-xs rounded-md border border-border bg-surface px-2.5 py-2 text-text focus:outline-none focus:border-primary"
               >
-                {TN_DISTRICTS.map((d) => (
-                  <option key={d.code} value={d.nameEn}>
+                {VIRUDHUNAGAR_TOWNS.map((d) => (
+                  <option key={d.code} value={d.code}>
                     {d.nameEn} ({d.nameTa})
                   </option>
                 ))}
               </select>
             </div>
             <div>
-              <label className="block text-xs text-muted mb-1">PIN Code (6 Digits)</label>
+              <label className="block text-xs text-muted mb-1">PIN Code</label>
               <input
                 type="text"
                 required
                 maxLength={6}
                 value={pincode}
                 onChange={(e) => setPincode(e.target.value)}
-                placeholder="600017"
+                placeholder="626001"
                 className="w-full text-xs rounded-md border border-border bg-surface px-3 py-2 text-text focus:outline-none focus:border-primary"
               />
             </div>
@@ -187,15 +197,14 @@ export function AddressSelector({ selectedAddress, onSelect }: AddressSelectorPr
         <div className="text-xs text-muted text-center py-3">Loading saved addresses...</div>
       ) : addresses.length === 0 ? (
         <div className="rounded-md border border-dashed border-border p-3 text-center text-xs text-muted">
-          No saved addresses found. Click &quot;Add New Address&quot; above to add your Tamil Nadu delivery address.
+          No saved addresses found. Click &quot;Add New Address&quot; above to add your Virudhunagar delivery address.
         </div>
       ) : (
         <div className="space-y-2 max-h-48 overflow-y-auto">
           {addresses.map((addr: SavedAddress) => {
             const isSelected =
               selectedAddress.text === addr.text &&
-              selectedAddress.pincode === addr.pincode &&
-              selectedAddress.district === addr.district;
+              selectedAddress.pincode === addr.pincode;
 
             return (
               <div

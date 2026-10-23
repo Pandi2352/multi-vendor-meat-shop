@@ -1,49 +1,96 @@
+export interface VirudhunagarTown {
+  code: string;
+  nameEn: string;
+  nameTa: string;
+  pincode: string;
+  description: string;
+}
+
+export const VIRUDHUNAGAR_TOWNS: VirudhunagarTown[] = [
+  {
+    code: 'VIRUDHUNAGAR_TOWN',
+    nameEn: 'Virudhunagar Town',
+    nameTa: 'விருதுநகர் டவுன்',
+    pincode: '626001',
+    description: 'Bazaar, Madurai Road, Ramamoorthy Road & Collectorate',
+  },
+  {
+    code: 'SIVAKASI',
+    nameEn: 'Sivakasi',
+    nameTa: 'சிவகாசி',
+    pincode: '626123',
+    description: 'Car Street, Thiruthangal Road & Sattur Road',
+  },
+  {
+    code: 'RAJAPALAYAM',
+    nameEn: 'Rajapalayam',
+    nameTa: 'ராஜபாளையம்',
+    pincode: '626117',
+    description: 'Tenkasi Road, PACR Salai & Gandhi Grounds',
+  },
+  {
+    code: 'ARUPPUKKOTTAI',
+    nameEn: 'Aruppukkottai',
+    nameTa: 'அருப்புக்கோட்டை',
+    pincode: '626101',
+    description: 'Chokkalingapuram, Thirunagaram & Pandal Kudi Rd',
+  },
+  {
+    code: 'SRIVILLIPUTHUR',
+    nameEn: 'Srivilliputhur',
+    nameTa: 'ஸ்ரீவில்லிபுத்தூர்',
+    pincode: '626125',
+    description: 'Andal Sannathi, Madurai Highway & Mada Veedhi',
+  },
+  {
+    code: 'SATTUR',
+    nameEn: 'Sattur',
+    nameTa: 'சாத்தூர்',
+    pincode: '626203',
+    description: 'Kovilpatti Road & Main Bazaar',
+  },
+  {
+    code: 'THIRUTHANGAL',
+    nameEn: 'Thiruthangal',
+    nameTa: 'திருத்தங்கல்',
+    pincode: '626130',
+    description: 'Annamalaiyar Colony & Sivakasi Link',
+  },
+  {
+    code: 'KARIAPATTI',
+    nameEn: 'Kariapatti',
+    nameTa: 'காரியாபட்டி',
+    pincode: '626106',
+    description: 'Madurai-Aruppukkottai Bypass',
+  },
+  {
+    code: 'WATRAP',
+    nameEn: 'Watrap',
+    nameTa: 'வத்திராயிருப்பு',
+    pincode: '626132',
+    description: 'Maharajapuram & Foothills',
+  },
+  {
+    code: 'TIRUCHULI',
+    nameEn: 'Tiruchuli',
+    nameTa: 'திருச்சுழி',
+    pincode: '626129',
+    description: 'Bhuminathar Sannathi & Kamuthi Road',
+  },
+];
+
 export interface TnDistrict {
   code: string;
   nameEn: string;
   nameTa: string;
 }
 
-export const TN_DISTRICTS: TnDistrict[] = [
-  { code: 'CHENNAI', nameEn: 'Chennai', nameTa: 'சென்னை' },
-  { code: 'COIMBATORE', nameEn: 'Coimbatore', nameTa: 'கோயம்புத்தூர்' },
-  { code: 'MADURAI', nameEn: 'Madurai', nameTa: 'மதுரை' },
-  { code: 'TIRUCHIRAPPALLI', nameEn: 'Tiruchirappalli', nameTa: 'திருச்சிராப்பள்ளி' },
-  { code: 'SALEM', nameEn: 'Salem', nameTa: 'சேலம்' },
-  { code: 'TIRUNELVELI', nameEn: 'Tirunelveli', nameTa: 'திருநெல்வேலி' },
-  { code: 'TIRUPPUR', nameEn: 'Tiruppur', nameTa: 'திருப்பூர்' },
-  { code: 'ERODE', nameEn: 'Erode', nameTa: 'ஈரோடு' },
-  { code: 'VELLORE', nameEn: 'Vellore', nameTa: 'வேலூர்' },
-  { code: 'THOOTHUKUDI', nameEn: 'Thoothukudi', nameTa: 'தூத்துக்குடி' },
-  { code: 'DINDIGUL', nameEn: 'Dindigul', nameTa: 'திண்டுக்கல்' },
-  { code: 'THANJAVUR', nameEn: 'Thanjavur', nameTa: 'தஞ்சாவூர்' },
-  { code: 'RANIPET', nameEn: 'Ranipet', nameTa: 'இராணிப்பேட்டை' },
-  { code: 'VIRUDHUNAGAR', nameEn: 'Virudhunagar', nameTa: 'விருதுநகர்' },
-  { code: 'KARUR', nameEn: 'Karur', nameTa: 'கரூர்' },
-  { code: 'NILGIRIS', nameEn: 'Nilgiris', nameTa: 'நீலகிரி' },
-  { code: 'KRISHNAGIRI', nameEn: 'Krishnagiri', nameTa: 'கிருஷ்ணகிரி' },
-  { code: 'KANCHEEPURAM', nameEn: 'Kancheepuram', nameTa: 'காஞ்சிபுரம்' },
-  { code: 'CHENGALPATTU', nameEn: 'Chengalpattu', nameTa: 'செங்கல்பட்டு' },
-  { code: 'TIRUVALLUR', nameEn: 'Tiruvallur', nameTa: 'திருவள்ளூர்' },
-  { code: 'CUDDALORE', nameEn: 'Cuddalore', nameTa: 'கடலூர்' },
-  { code: 'NAGAPATTINAM', nameEn: 'Nagapattinam', nameTa: 'நாகப்பட்டினம்' },
-  { code: 'MAYILADUTHURAI', nameEn: 'Mayiladuthurai', nameTa: 'மயிலாடுதுறை' },
-  { code: 'TIRUVARUR', nameEn: 'Tiruvarur', nameTa: 'திருவாரூர்' },
-  { code: 'PUDUKKOTTAI', nameEn: 'Pudukkottai', nameTa: 'புதுக்கோட்டை' },
-  { code: 'SIVAGANGA', nameEn: 'Sivaganga', nameTa: 'சிவகங்கை' },
-  { code: 'RAMANATHAPURAM', nameEn: 'Ramanathapuram', nameTa: 'இராமநாதபுரம்' },
-  { code: 'THENI', nameEn: 'Theni', nameTa: 'தேனி' },
-  { code: 'TENKASI', nameEn: 'Tenkasi', nameTa: 'தென்காசி' },
-  { code: 'KANNIYAKUMARI', nameEn: 'Kanniyakumari', nameTa: 'கன்னியாகுமரி' },
-  { code: 'NAMAKKAL', nameEn: 'Namakkal', nameTa: 'நாமக்கல்' },
-  { code: 'DHARMAPURI', nameEn: 'Dharmapuri', nameTa: 'தருமபுரி' },
-  { code: 'TIRUPATHUR', nameEn: 'Tirupathur', nameTa: 'திருப்பத்தூர்' },
-  { code: 'TIRUVANNAMALAI', nameEn: 'Tiruvannamalai', nameTa: 'திருவண்ணாமலை' },
-  { code: 'VILUPPURAM', nameEn: 'Viluppuram', nameTa: 'விழுப்புரம்' },
-  { code: 'KALLAKURICHI', nameEn: 'Kallakurichi', nameTa: 'கள்ளக்குறிச்சி' },
-  { code: 'PERAMBALUR', nameEn: 'Perambalur', nameTa: 'பெரம்பலூர்' },
-  { code: 'ARIYALUR', nameEn: 'Ariyalur', nameTa: 'அரியலூர்' },
-];
+// Maps towns as localities for compatibility
+export const TN_DISTRICTS: TnDistrict[] = VIRUDHUNAGAR_TOWNS.map((t) => ({
+  code: t.code,
+  nameEn: t.nameEn,
+  nameTa: t.nameTa,
+}));
 
 export interface CutFilterOption {
   code: string;

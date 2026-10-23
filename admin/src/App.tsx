@@ -36,13 +36,13 @@ export function App() {
             <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
               <div className="flex items-center gap-3 cursor-pointer" onClick={() => setView('DASHBOARD')}>
                 <div className="h-9 w-9 rounded-md bg-primary flex items-center justify-center text-primary-foreground font-bold">
-                  TN
+                  VNR
                 </div>
                 <div>
                   <h1 className="text-sm font-semibold leading-tight text-text">
-                    TN Meat Marketplace — Operations Portal
+                    Virudhunagar Meat Marketplace — Operations Portal
                   </h1>
-                  <p className="text-xs text-muted">Admin • Vendor Hub • Delivery Fleet</p>
+                  <p className="text-xs text-muted">Virudhunagar District • Vendor Hub • Delivery Fleet</p>
                 </div>
               </div>
 
@@ -130,8 +130,8 @@ export function App() {
           {/* Footer */}
           <footer className="border-t border-border bg-surface py-5 mt-auto">
             <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted">
-              <p>© 2026 Tamil Nadu Meat Marketplace — Operations Hub</p>
-              <p>API v1 connected • UUID v7 ids • Integer paise/grams precision</p>
+              <p>© 2026 Virudhunagar Meat Marketplace — Operations Hub</p>
+              <p>Virudhunagar • Sivakasi • Rajapalayam • Aruppukkottai • Srivilliputhur</p>
             </div>
           </footer>
         </div>
