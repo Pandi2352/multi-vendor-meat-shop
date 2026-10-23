@@ -60,7 +60,7 @@ Key docs:
 - API types come from the generated OpenAPI types (`npm run gen:api`), not hand-written copies.
 
 ### 6. Naming
-- Files: `kebab-case.ts`. Classes/components: `PascalCase`. Functions/vars: `camelCase`. Constants/enums: `UPPER_SNAKE` values in `PascalCase` enums.
+- Files: `kebab-case.ts`. Classes/components: `PascalCase`. Exception: the admin shell in `admin/src/components/layout/{navbar,sidebar}/` uses PascalCase file names (`Navbar.tsx`, `SidebarLink.tsx`, `sidebarStyles.ts`) — keep that folder consistent with itself. Functions/vars: `camelCase`. Constants/enums: `UPPER_SNAKE` values in `PascalCase` enums.
 - Mongo collections: `snake_case` plural (`inventory_movements`). Fields: `camelCase`.
 - API routes: `/api/v1/<kebab-plural>`. Role-scoped prefixes: `/vendor/...`, `/admin/...`, `/delivery/...`.
 

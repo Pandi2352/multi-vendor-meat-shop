@@ -296,12 +296,19 @@ modules/<feature>/
 - [ ] `ExportButton` (CSV)
 
 ### B8. Layout (`src/components/layout/`) ⭐
-- [ ] `AppShell`, `Sidebar` (config-driven, permission-aware), `Topbar`, `MobileBottomNav` (storefront)
+- [x] admin `AdminLayout` — docked sidebar (collapsible to an icon rail, remembered per browser) + sticky navbar; drawer below `lg`
+- [x] admin `layout/sidebar/*` — `Sidebar`, `SidebarBrand`, `SidebarNav`, `SidebarSection`, `SidebarGroup` (expandable), `SidebarLink` (badges, Soon), `SidebarFlyout` (collapsed hover/focus panels), `SidebarIcon`, `SidebarFooter`, `sidebarStyles.ts`
+- [x] admin `layout/navbar/*` — `Navbar` (breadcrumb), `SidebarToggle`, `SearchTrigger` (Ctrl/⌘+K page search), `QuickCreateMenu`, `NotificationsMenu` (empty state until an API exists), `UserMenu`
+- [x] admin `config/nav.config.ts` + `nav.utils.ts` — one nav list drives sidebar, breadcrumb, search and coming-soon routes
+- [ ] Sidebar permission filtering (needs admin auth)
+- [ ] `MobileBottomNav` (storefront)
 - [ ] `PageHeader` (title, description, breadcrumbs, actions slot)
 - [ ] `PageContainer`, `Section`, `Stack`, `Inline`, `Grid`
 - [ ] Layouts: `AuthLayout`, `CustomerLayout` (public), `VendorLayout`, `AdminLayout`, `DeliveryLayout` (admin app)
 - [x] `ErrorBoundary` + `RouteErrorPage`, `NotFoundPage`, `ForbiddenPage`, `MaintenancePage` (ServerErrorPage)
-- [ ] `PageLoader` (Suspense fallback)
+- [x] admin Suspense fallback inside `AdminLayout`; `ComingSoonPage` for unbuilt nav entries
+- [x] admin primitives added: `Dropdown` (+ `DropdownItem`, `DropdownLabel`, `DropdownSeparator`), `Dialog`, `Avatar`, `Kbd`, Button `size="icon"`
+- [x] admin hooks: `useClickOutside`, `useEscapeKey`, `useHotkey`, `useMediaQuery`/`useIsDesktop`, `usePersistedState`, `useCurrentUser` (placeholder until auth); `lib/storage.ts`
 
 ### B9. Forms (`src/components/form/` + `src/utils/validation/`) ⭐
 - [ ] `Form` wrapper (RHF `FormProvider` + submit handling + server error mapping)

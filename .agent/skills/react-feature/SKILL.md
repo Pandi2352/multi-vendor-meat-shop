@@ -96,6 +96,12 @@ export function ProductForm({ defaultValues, onSubmit }: ProductFormProps) {
 - `FormPrice` shows ₹ and stores paise; `FormWeight` shows kg/g and stores grams.
 - Server validation errors map to fields via `Form` (uses `applyServerErrors`).
 
+## Adding an admin page (sidebar, breadcrumb, search)
+1. Add the path to `admin/src/config/routes.ts`.
+2. Add one entry to `NAV_SECTIONS` in `admin/src/config/nav.config.ts` (`type: 'link'`, or a child of a `type: 'group'`). The sidebar, collapsed flyouts, navbar breadcrumb and Ctrl+K search all read from it. Mark unbuilt pages `soon: true` — they get a "coming soon" route automatically.
+3. Register the page element in `admin/src/app/router.tsx` (inside the `AdminLayout` children) and remove `soon`.
+4. Pages render inside `AdminLayout` (`components/layout/AdminLayout.tsx`) — never add another header, sidebar or page-width container. Callback-style pages get an adapter in `app/route-elements.tsx`.
+
 ## Rules
 - Filters, pagination and sort live in the URL (`useUrlState`) so pages are shareable and back-button safe.
 - Display through `utils/format` and `components/domain` (`PriceText`, `WeightText`, `OrderStatusBadge`).
