@@ -49,6 +49,12 @@ export const sidebarActiveIndicator = 'absolute inset-y-1.5 left-0 w-[3px] round
 export const sidebarSectionLabel =
   'px-3 pb-1.5 pt-5 text-[11px] font-semibold uppercase tracking-wider text-muted/70 first:pt-2';
 
-export const sidebarFlyoutPanel = 'fixed z-50 min-w-48 rounded-md border border-border bg-surface p-1';
+export const sidebarFlyoutPanel =
+  'fixed z-50 min-w-52 rounded-md border border-border bg-surface p-1.5 motion-safe:animate-pop-in';
 
-export const sidebarFlyoutTitle = 'px-2.5 pb-1 pt-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted';
+/** Bordered arrow on the panel's left edge, pointing at the collapsed icon. */
+export const sidebarFlyoutArrow =
+  'absolute left-0 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rotate-45 border-b border-l border-border bg-surface';
+
+export const sidebarFlyoutTitle =
+  'relative mb-1 flex items-center gap-2 border-b border-border px-2.5 pb-2 pt-1 text-xs font-semibold text-text';

@@ -6,3 +6,4 @@ export * from './dropdown';
 export * from './error-state';
 export * from './kbd';
 export * from './spinner';
+export * from './tooltip';

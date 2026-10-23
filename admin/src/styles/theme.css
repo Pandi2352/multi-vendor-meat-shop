@@ -27,5 +27,92 @@
   --color-info: #1d4ed8;
   --color-info-soft: #dbeafe;
 
+  /* Dark chip used by tooltips — the one deliberately inverted surface. */
+  --color-tooltip: #1c1917;
+  --color-tooltip-foreground: #fafaf9;
+  --color-tooltip-muted: #a8a29e;
+  --color-tooltip-accent: #fca5a5;
+
+  --color-scrollbar: #d6d3d1;
+  --color-scrollbar-hover: #a8a29e;
+
   --font-sans: "Inter", "Noto Sans Tamil", ui-sans-serif, system-ui, sans-serif;
+
+  --animate-pop-in: pop-in 140ms cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  @keyframes pop-in {
+    from {
+      opacity: 0;
+      scale: 0.96;
+    }
+  }
+}
+
+@layer base {
+  /* Tailwind v4 resets buttons to the default cursor; every interactive element gets a pointer. */
+  a[href],
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  [role="menuitem"],
+  [role="option"],
+  [role="tab"],
+  summary,
+  select,
+  label[for],
+  input[type="checkbox"],
+  input[type="radio"],
+  input[type="file"],
+  input[type="range"] {
+    cursor: pointer;
+  }
+
+  button:disabled,
+  [aria-disabled="true"],
+  input:disabled,
+  select:disabled,
+  textarea:disabled {
+    cursor: not-allowed;
+  }
+
+  /* Scrollbars: thin, rounded thumb, transparent track. Chromium/Safari use the pseudo-elements;
+     Firefox (no ::-webkit-scrollbar) falls back to the standard properties. */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background-color: var(--color-scrollbar);
+    background-clip: content-box;
+    border: 3px solid transparent;
+    border-radius: var(--radius-md);
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: var(--color-scrollbar-hover);
+  }
+  ::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+
+  @supports not selector(::-webkit-scrollbar) {
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: var(--color-scrollbar) transparent;
+    }
+  }
+}
+
+/* Scrollbar that stays hidden until the container is hovered or focused (sidebar nav, menus).
+   Uses the standard properties: Chromium repaints them on :hover, unlike ::-webkit-scrollbar. */
+@utility scrollbar-subtle {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+  transition: scrollbar-color 150ms ease;
+
+  &:hover,
+  &:focus-within {
+    scrollbar-color: var(--color-scrollbar) transparent;
+  }
 }

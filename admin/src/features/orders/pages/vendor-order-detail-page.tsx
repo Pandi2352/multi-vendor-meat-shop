@@ -51,7 +51,7 @@ export function VendorOrderDetailPage({ orderId, onBack }: VendorOrderDetailPage
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="w-full space-y-6">
       <div className="flex items-center justify-between">
         <Button variant="outline" size="sm" onClick={onBack} leftIcon={<ArrowLeft className="h-4 w-4" />}>
           Back to Queue

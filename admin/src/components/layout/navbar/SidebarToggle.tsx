@@ -1,5 +1,5 @@
 import { Menu, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
-import { Button } from '@/components/ui';
+import { Button, Tooltip } from '@/components/ui';
 
 interface SidebarToggleProps {
   collapsed: boolean;
@@ -13,8 +13,10 @@ export function SidebarToggle({ collapsed, isDesktop, onToggle }: SidebarToggleP
   const Icon = isDesktop ? (collapsed ? PanelLeftOpen : PanelLeftClose) : Menu;
 
   return (
-    <Button variant="ghost" size="icon" onClick={onToggle} aria-label={label} title={label} className="text-muted">
-      <Icon className="h-5 w-5" strokeWidth={1.9} />
-    </Button>
+    <Tooltip content={label} side="bottom">
+      <Button variant="ghost" size="icon" onClick={onToggle} aria-label={label} className="text-muted">
+        <Icon className="h-5 w-5" strokeWidth={1.9} />
+      </Button>
+    </Tooltip>
   );
 }

@@ -308,6 +308,9 @@ modules/<feature>/
 - [x] `ErrorBoundary` + `RouteErrorPage`, `NotFoundPage`, `ForbiddenPage`, `MaintenancePage` (ServerErrorPage)
 - [x] admin Suspense fallback inside `AdminLayout`; `ComingSoonPage` for unbuilt nav entries
 - [x] admin primitives added: `Dropdown` (+ `DropdownItem`, `DropdownLabel`, `DropdownSeparator`), `Dialog`, `Avatar`, `Kbd`, Button `size="icon"`
+- [x] admin `Tooltip` — dark chip + arrow, `side` top/right/bottom/left, optional `shortcut` keys, portaled, hides on scroll. Use it instead of `title=` attributes
+- [x] admin theme base layer: pointer cursor on every interactive element (not-allowed when disabled), custom rounded scrollbars, `scrollbar-subtle` utility (thumb shows on hover), `animate-pop-in`
+- [x] admin content area is full width (no centered max-width wrapper) — pages must not add their own `max-w-* mx-auto` page container
 - [x] admin hooks: `useClickOutside`, `useEscapeKey`, `useHotkey`, `useMediaQuery`/`useIsDesktop`, `usePersistedState`, `useCurrentUser` (placeholder until auth); `lib/storage.ts`
 
 ### B9. Forms (`src/components/form/` + `src/utils/validation/`) ⭐

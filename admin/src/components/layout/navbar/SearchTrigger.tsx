@@ -1,7 +1,7 @@
 import { useMemo, useState, type KeyboardEvent } from 'react';
 import { CornerDownLeft, Search } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { Badge, Button, Dialog, Kbd } from '@/components/ui';
+import { Badge, Button, Dialog, Kbd, Tooltip } from '@/components/ui';
 import { searchNav, type FlatNavEntry } from '@/config/nav.utils';
 import { isMacPlatform, useHotkey } from '@/hooks';
 import { cn } from '@/lib/cn';
@@ -48,9 +48,11 @@ export function SearchTrigger() {
         <Kbd>{modKey}</Kbd>
         <Kbd>K</Kbd>
       </button>
-      <Button variant="ghost" size="icon" onClick={openSearch} aria-label="Search" className="text-muted md:hidden">
-        <Search className="h-5 w-5" strokeWidth={1.9} />
-      </Button>
+      <Tooltip content="Search" shortcut={[modKey, 'K']} side="bottom" className="md:hidden">
+        <Button variant="ghost" size="icon" onClick={openSearch} aria-label="Search" className="text-muted">
+          <Search className="h-5 w-5" strokeWidth={1.9} />
+        </Button>
+      </Tooltip>
 
       <Dialog open={open} onClose={() => setOpen(false)} title="Search pages" hideTitle position="top">
         <div className="flex items-center gap-3 border-b border-border px-4">
@@ -69,7 +71,7 @@ export function SearchTrigger() {
           />
           <Kbd>Esc</Kbd>
         </div>
-        <ul role="listbox" aria-label="Pages" className="max-h-80 overflow-y-auto p-1.5">
+        <ul role="listbox" aria-label="Pages" className="scrollbar-subtle max-h-80 overflow-y-auto p-1.5">
           {results.length === 0 && <li className="px-3 py-8 text-center text-sm text-muted">No pages match “{query}”.</li>}
           {results.map((entry, index) => (
             <li key={entry.to} role="option" aria-selected={index === activeIndex}>

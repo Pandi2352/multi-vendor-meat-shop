@@ -1,27 +1,28 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
-import { cn } from '@/lib/cn';
-import { sidebarFlyoutPanel, sidebarFlyoutTitle } from './sidebarStyles';
+import { sidebarFlyoutArrow, sidebarFlyoutPanel, sidebarFlyoutTitle } from './sidebarStyles';
 
 interface SidebarFlyoutProps {
   /** Only active while the sidebar is collapsed. */
   enabled: boolean;
   title: string;
-  /** Extra panel content (e.g. a group's child links). Without it the flyout is a label tooltip. */
-  content?: ReactNode;
+  /** Panel body, e.g. a group's child links. */
+  content: ReactNode;
   children: ReactNode;
 }
 
-const HIDE_DELAY_MS = 120;
+const HIDE_DELAY_MS = 140;
+const GAP_PX = 12;
 
 /**
- * Panel to the right of a collapsed sidebar item, shown on hover or keyboard focus.
- * Rendered in a portal with fixed positioning so the scrolling nav never clips it.
+ * Light panel to the right of a collapsed sidebar group, opened on hover or keyboard focus.
+ * Stays open while the pointer travels into it. Portaled so the scrolling nav never clips it.
+ * (Plain links use the dark `Tooltip` instead.)
  */
 export function SidebarFlyout({ enabled, title, content, children }: SidebarFlyoutProps) {
   const anchorRef = useRef<HTMLDivElement>(null);
   const hideTimer = useRef<number | undefined>(undefined);
-  const [position, setPosition] = useState<{ top: number; left: number } | null>(null);
+  const [position, setPosition] = useState<{ top: number; left: number; arrowTop: number } | null>(null);
 
   useEffect(() => () => window.clearTimeout(hideTimer.current), []);
   useEffect(() => {
@@ -33,7 +34,7 @@ export function SidebarFlyout({ enabled, title, content, children }: SidebarFlyo
   const show = () => {
     window.clearTimeout(hideTimer.current);
     const rect = anchorRef.current?.getBoundingClientRect();
-    if (rect) setPosition({ top: rect.top, left: rect.right + 10 });
+    if (rect) setPosition({ top: rect.top - 4, left: rect.right + GAP_PX, arrowTop: rect.height / 2 + 4 });
   };
   const hide = () => {
     hideTimer.current = window.setTimeout(() => setPosition(null), HIDE_DELAY_MS);
@@ -48,11 +49,12 @@ export function SidebarFlyout({ enabled, title, content, children }: SidebarFlyo
             style={{ top: position.top, left: position.left }}
             onMouseEnter={show}
             onMouseLeave={hide}
-            className={cn(sidebarFlyoutPanel, !content && 'min-w-0 whitespace-nowrap')}
+            className={sidebarFlyoutPanel}
           >
-            <div className={cn(content ? sidebarFlyoutTitle : 'px-2.5 py-1.5 text-sm font-medium text-text')}>
-              {title}
-            </div>
+            {/* Invisible bridge over the gap so the pointer can cross from icon to panel. */}
+            <span aria-hidden="true" className="absolute inset-y-0 right-full w-3" />
+            <span aria-hidden="true" style={{ top: position.arrowTop }} className={sidebarFlyoutArrow} />
+            <div className={sidebarFlyoutTitle}>{title}</div>
             {content}
           </div>,
           document.body,
