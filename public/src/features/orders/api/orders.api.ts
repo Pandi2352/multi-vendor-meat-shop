@@ -7,6 +7,8 @@ export type OrderEvent = components['schemas']['OrderEventResponseDto'];
 export type CreateOrderBody = components['schemas']['CreateOrderDto'];
 export type CancelOrderBody = components['schemas']['CancelOrderDto'];
 
+export type DeliveryTaskResponse = components['schemas']['DeliveryTaskResponseDto'];
+
 export const ordersApi = {
   list: (params?: { page?: number; limit?: number; status?: string }): Promise<PaginatedResponse<OrderResponse>> =>
     http.getPaginated<OrderResponse>('/api/v1/orders', params),
@@ -19,4 +21,7 @@ export const ordersApi = {
 
   cancel: (id: string, body?: CancelOrderBody): Promise<OrderResponse> =>
     http.post<OrderResponse>(`/api/v1/orders/${encodeURIComponent(id)}/cancel`, body ?? {}),
+
+  getDeliveryTask: (orderId: string): Promise<DeliveryTaskResponse> =>
+    http.get<DeliveryTaskResponse>(`/api/v1/delivery/tasks/order/${encodeURIComponent(orderId)}`),
 };

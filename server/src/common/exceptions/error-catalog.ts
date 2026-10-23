@@ -109,4 +109,15 @@ export const ERROR_CATALOG: Readonly<Record<E, ErrorDefinition>> = {
     status: HttpStatus.CONFLICT,
     message: 'Idempotency key was already used with a different request',
   },
+
+  [E.DELIVERY_TASK_NOT_FOUND]: { status: HttpStatus.NOT_FOUND, message: 'Delivery task not found' },
+  [E.DELIVERY_OTP_INVALID]: { status: HttpStatus.BAD_REQUEST, message: 'Invalid delivery OTP' },
+  [E.DELIVERY_ALREADY_ASSIGNED]: {
+    status: HttpStatus.CONFLICT,
+    message: 'Delivery task is already assigned to a partner',
+  },
+  [E.DELIVERY_INVALID_STATE]: {
+    status: HttpStatus.CONFLICT,
+    message: 'Delivery task is in an invalid state for this operation',
+  },
 };

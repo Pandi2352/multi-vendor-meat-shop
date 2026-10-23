@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { Flame, LayoutDashboard } from 'lucide-react';
+import { Flame, LayoutDashboard, Truck } from 'lucide-react';
 import { Button } from '@/components/ui';
 import { ErrorBoundary } from '@/components/layout';
 import { queryClient } from '@/lib/query-client';
 import { DashboardPage } from './pages/dashboard-page';
 import { VendorOrdersPage, VendorOrderDetailPage } from './features/orders';
+import { DeliveryTasksPage } from './features/delivery';
 
-type AppView = 'DASHBOARD' | 'VENDOR_ORDERS' | 'ORDER_DETAIL';
+type AppView = 'DASHBOARD' | 'VENDOR_ORDERS' | 'ORDER_DETAIL' | 'DELIVERY_FLEET';
 
 export function App() {
   const [view, setView] = useState<AppView>('DASHBOARD');
@@ -55,6 +56,14 @@ export function App() {
                 >
                   Live Prep Queue
                 </Button>
+                <Button
+                  variant={view === 'DELIVERY_FLEET' ? 'primary' : 'outline'}
+                  size="sm"
+                  onClick={() => setView('DELIVERY_FLEET')}
+                  leftIcon={<Truck className="h-4 w-4" />}
+                >
+                  Delivery Fleet
+                </Button>
               </div>
             </div>
           </header>
@@ -62,7 +71,10 @@ export function App() {
           {/* Main Content Workspace */}
           <main className="flex-1 max-w-7xl mx-auto px-4 py-8 w-full">
             {view === 'DASHBOARD' && (
-              <DashboardPage onOpenVendorOrders={() => setView('VENDOR_ORDERS')} />
+              <DashboardPage
+                onOpenVendorOrders={() => setView('VENDOR_ORDERS')}
+                onOpenDelivery={() => setView('DELIVERY_FLEET')}
+              />
             )}
 
             {view === 'VENDOR_ORDERS' && (
@@ -74,6 +86,10 @@ export function App() {
                 orderId={selectedOrderId}
                 onBack={() => setView('VENDOR_ORDERS')}
               />
+            )}
+
+            {view === 'DELIVERY_FLEET' && (
+              <DeliveryTasksPage />
             )}
           </main>
 

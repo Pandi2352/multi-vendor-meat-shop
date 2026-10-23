@@ -14,6 +14,7 @@ import { ProductsModule } from '#modules/products';
 import { ShopsModule } from '#modules/shops';
 import { UsersModule } from '#modules/users';
 import { VendorsModule } from '#modules/vendors';
+import { DeliveryModule } from '#modules/delivery';
 import { APP_PROVIDERS } from './app.providers.js';
 
 @Module({
@@ -33,6 +34,7 @@ import { APP_PROVIDERS } from './app.providers.js';
     InventoryModule,
     CartModule,
     OrdersModule,
+    DeliveryModule,
   ],
   providers: APP_PROVIDERS,
 })

@@ -12,9 +12,10 @@ import { Button } from '@/components/ui';
 
 interface DashboardPageProps {
   onOpenVendorOrders: () => void;
+  onOpenDelivery: () => void;
 }
 
-export function DashboardPage({ onOpenVendorOrders }: DashboardPageProps) {
+export function DashboardPage({ onOpenVendorOrders, onOpenDelivery }: DashboardPageProps) {
   return (
     <div className="space-y-8">
       {/* Welcome & Overview */}
@@ -125,10 +126,16 @@ export function DashboardPage({ onOpenVendorOrders }: DashboardPageProps) {
             Dispatch tasks within hyper-local service zones, verify pickups at shops, and enforce OTP proof of delivery.
           </p>
           <div className="space-y-2">
-            <Button variant="outline" size="sm" fullWidth leftIcon={<Truck className="h-4 w-4" />}>
-              Active Task Queue
+            <Button
+              variant="primary"
+              size="sm"
+              fullWidth
+              onClick={onOpenDelivery}
+              leftIcon={<Truck className="h-4 w-4" />}
+            >
+              Active Fleet Tasks
             </Button>
-            <Button variant="secondary" size="sm" fullWidth>
+            <Button variant="outline" size="sm" fullWidth>
               Delivery Partner Roster
             </Button>
           </div>

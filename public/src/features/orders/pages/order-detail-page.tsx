@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, MapPin, Store, PackageCheck, AlertCircle } from 'lucide-react';
+import { ArrowLeft, MapPin, Store, PackageCheck, AlertCircle, KeyRound } from 'lucide-react';
 import { Button } from '@/components/ui';
 import { formatDateIST, formatINR, formatWeight } from '@/utils';
-import { useOrderDetail, useCancelOrder } from '../api/use-orders';
+import { useOrderDetail, useCancelOrder, useOrderDeliveryTask } from '../api/use-orders';
 import { OrderStatusBadge } from '../components/order-status-badge';
 import { OrderTimeline } from '../components/order-timeline';
 
@@ -11,6 +11,8 @@ export function OrderDetailPage() {
   const { orderId } = useParams<{ orderId: string }>();
   const navigate = useNavigate();
   const { data: order, isLoading, error } = useOrderDetail(orderId || '', { refetchInterval: 10000 });
+  const isDeliveryActive = ['READY', 'OUT_FOR_DELIVERY'].includes(order?.status ?? '');
+  const { data: deliveryTask } = useOrderDeliveryTask(orderId || '', { enabled: isDeliveryActive });
   const cancelOrder = useCancelOrder();
   const [showCancelPrompt, setShowCancelPrompt] = useState(false);
   const [cancelReason, setCancelReason] = useState('');
@@ -49,6 +51,25 @@ export function OrderDetailPage() {
         <OrderStatusBadge status={order.status} size="lg" />
       </div>
 
+      {/* Delivery Proof OTP Banner for Customer */}
+      {isDeliveryActive && deliveryTask?.otpPlain && (
+        <div className="rounded-md border border-primary/40 bg-primary/5 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2">
+              <KeyRound className="h-4 w-4 text-primary" />
+              <span className="text-xs font-bold text-primary uppercase tracking-wider">Delivery Handover OTP</span>
+              <span className="text-[11px] px-2 py-0.5 rounded-md bg-warning-soft text-warning font-semibold">Cash On Delivery</span>
+            </div>
+            <p className="text-xs text-muted mt-1">
+              Pay <strong className="text-text">{formatINR(order.totals.totalPaise)}</strong> cash to delivery courier. Share this 4-digit code upon receiving fresh parcel.
+            </p>
+          </div>
+          <div className="px-4 py-2 font-mono font-black text-2xl tracking-widest rounded-md border border-primary bg-surface text-primary self-start sm:self-auto">
+            {deliveryTask.otpPlain}
+          </div>
+        </div>
+      )}
+
       <div className="rounded-md border border-border bg-surface p-6">
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border pb-4 mb-6">
           <div>
@@ -86,7 +107,6 @@ export function OrderDetailPage() {
                 <p className="text-xs text-muted">
                   Ordered: {formatWeight(item.grams)} × {item.quantity}
                   {item.cutType ? ` • ${item.cutType}` : ''}
-                  {item.preparation ? ` • ${item.preparation}` : ''}
                 </p>
                 {item.actualPackedGrams && (
                   <p className="text-xs font-medium text-success flex items-center gap-1 mt-1">
@@ -114,7 +134,7 @@ export function OrderDetailPage() {
             <span>{order.totals.deliveryFeePaise === 0 ? 'FREE' : formatINR(order.totals.deliveryFeePaise)}</span>
           </div>
           <div className="border-t border-border pt-2 flex justify-between font-bold text-base text-text">
-            <span>Total Payable on Delivery</span>
+            <span>Total Payable on Delivery (COD)</span>
             <span className="text-primary">{formatINR(order.totals.totalPaise)}</span>
           </div>
         </div>

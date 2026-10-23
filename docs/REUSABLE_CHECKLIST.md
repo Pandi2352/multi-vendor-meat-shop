@@ -278,12 +278,12 @@ modules/<feature>/
 - [x] `PriceText` (paise → ₹, strike-through MRP), `PricePerKg`
 - [x] `WeightText` (grams → `500 g` / `1.5 kg`)
 - [x] `WeightSelector` (preset 250/500/1000 g + custom step) and `QuantityStepper`
-- [x] `OrderStatusBadge`, `PaymentStatusBadge`, `VerificationStatusBadge`
+- [x] `OrderStatusBadge`, `PaymentStatusBadge`, `VerificationStatusBadge`, `DeliveryStatusBadge`
 - [x] `OrderTimeline`
 - [ ] `ShopOpenIndicator` (open / closed / opens at)
 - [ ] `AddressCard`, `AddressText`
 - [ ] `DeliverySlotPicker`
-- [ ] `ProductCard`, `ShopCard` (used in both list and search results)
+- [x] `ProductCard`, `ShopCard` (used in both list and search results)
 - [ ] `DistanceText`, `EtaText`
 
 ### B7. Data display (`src/components/data/`)
