@@ -5,7 +5,9 @@ import { LoggerModule } from '#infra/logger';
 import { MailModule } from '#infra/mail';
 import { AppThrottlerModule } from '#infra/throttler';
 import { AuthModule } from '#modules/auth';
+import { CategoriesModule } from '#modules/categories';
 import { HealthModule } from '#modules/health';
+import { ProductsModule } from '#modules/products';
 import { ShopsModule } from '#modules/shops';
 import { UsersModule } from '#modules/users';
 import { VendorsModule } from '#modules/vendors';
@@ -23,6 +25,8 @@ import { APP_PROVIDERS } from './app.providers.js';
     AuthModule,
     VendorsModule,
     ShopsModule,
+    CategoriesModule,
+    ProductsModule,
   ],
   providers: APP_PROVIDERS,
 })

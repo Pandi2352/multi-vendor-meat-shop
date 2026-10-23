@@ -3,6 +3,7 @@ export enum SwaggerTag {
   AUTH = 'Auth',
   USERS = 'Users',
   SHOPS = 'Shops',
+  CATEGORIES = 'Categories',
   PRODUCTS = 'Products',
   CART = 'Cart',
   CHECKOUT = 'Checkout',
@@ -15,5 +16,6 @@ export enum SwaggerTag {
   VENDOR_SETTLEMENTS = 'Vendor - Settlements',
   DELIVERY = 'Delivery',
   ADMIN_VENDORS = 'Admin - Vendors',
+  ADMIN_CATEGORIES = 'Admin - Categories',
   ADMIN_CONFIG = 'Admin - Config',
 }
