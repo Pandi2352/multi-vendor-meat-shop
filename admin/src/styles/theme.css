@@ -27,7 +27,13 @@
   --color-info: #1d4ed8;
   --color-info-soft: #dbeafe;
 
-  /* Dark chip used by tooltips — the one deliberately inverted surface. */
+  /* Inverted surface for the sign-in brand panel. */
+  --color-inverse: #1c1917;
+  --color-inverse-foreground: #fafaf9;
+  --color-inverse-muted: #a8a29e;
+  --color-inverse-border: #44403c;
+
+  /* Dark chip used by tooltips. */
   --color-tooltip: #1c1917;
   --color-tooltip-foreground: #fafaf9;
   --color-tooltip-muted: #a8a29e;

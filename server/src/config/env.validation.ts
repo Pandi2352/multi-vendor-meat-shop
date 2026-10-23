@@ -30,7 +30,7 @@ export class EnvironmentVariables {
   @IsString() APP_NAME = 'Meat Shop API';
   @IsString() API_PREFIX = 'api';
   @IsString() API_VERSION = '1';
-  @IsString() CORS_ORIGINS = 'http://localhost:5173,http://localhost:5174';
+  @IsString() CORS_ORIGINS = 'http://localhost:3000,http://localhost:3001';
   @ToInt() @IsInt() @Min(1000) REQUEST_TIMEOUT_MS = 15_000;
   @Matches(/^\d+(kb|mb)$/) BODY_LIMIT = '1mb';
   @ToBoolean() @IsBoolean() TRUST_PROXY = false;

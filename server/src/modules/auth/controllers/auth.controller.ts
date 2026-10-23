@@ -20,7 +20,7 @@ export class AuthController {
   @Post('otp/send')
   @Public()
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Send 6-digit OTP verification email' })
+  @ApiOperation({ summary: 'Storefront: send a sign-in / sign-up code (customers)' })
   @ApiOkEnvelope(SentOtpResponseDto)
   @ApiStandardResponses()
   sendOtp(@Body() dto: SendOtpDto) {
@@ -30,7 +30,7 @@ export class AuthController {
   @Post('otp/verify')
   @Public()
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Verify OTP and issue JWT access + refresh tokens' })
+  @ApiOperation({ summary: 'Storefront: verify code, creating a customer account on first sign-in' })
   @ApiOkEnvelope(AuthResponseDto)
   @ApiStandardResponses()
   verifyOtp(

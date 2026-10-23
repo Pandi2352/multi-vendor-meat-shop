@@ -1,5 +1,6 @@
 export const ROUTES = {
   LOGIN: '/login',
+  LOGIN_VERIFY: '/login/verify',
   DASHBOARD: '/',
   // Vendor portal
   VENDOR_SHOPS: '/vendor/shops',

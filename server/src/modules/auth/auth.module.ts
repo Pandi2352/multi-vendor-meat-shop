@@ -11,6 +11,7 @@ import { OtpService } from './services/otp.service.js';
 import { AuthService } from './services/auth.service.js';
 import { JwtAuthGuard } from './guards/jwt-auth.guard.js';
 import { AuthController } from './controllers/auth.controller.js';
+import { PortalAuthController } from './controllers/portal-auth.controller.js';
 
 @Global()
 @Module({
@@ -22,7 +23,7 @@ import { AuthController } from './controllers/auth.controller.js';
     UsersModule,
     MailModule,
   ],
-  controllers: [AuthController],
+  controllers: [AuthController, PortalAuthController],
   providers: [
     OtpChallengeRepository,
     RefreshSessionRepository,

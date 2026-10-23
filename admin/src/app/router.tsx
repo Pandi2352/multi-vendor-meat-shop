@@ -1,5 +1,6 @@
 import { createBrowserRouter, useRouteError, type RouteObject } from 'react-router-dom';
-import { AdminLayout, NotFoundPage, RouteErrorPage } from '@/components/layout';
+import { AdminLayout, AuthLayout, NotFoundPage, RouteErrorPage } from '@/components/layout';
+import { SignInPage } from '@/features/auth';
 import { flattenNav } from '@/config/nav.utils';
 import { ROUTES } from '@/config/routes';
 import { DeliveryTasksPage } from '@/features/delivery';
@@ -20,7 +21,14 @@ const comingSoonRoutes: RouteObject[] = [
 ].map((entry) => ({ path: entry.to, element: <ComingSoonPage title={entry.label} /> }));
 
 export const router = createBrowserRouter([
-  { path: ROUTES.LOGIN, element: <ComingSoonPage title="Admin sign-in" /> },
+  {
+    element: <AuthLayout />,
+    errorElement: <RouterErrorElement />,
+    children: [
+      { path: ROUTES.LOGIN, element: <SignInPage /> },
+      { path: ROUTES.LOGIN_VERIFY, element: <ComingSoonPage title="Verify code" /> },
+    ],
+  },
   {
     path: ROUTES.DASHBOARD,
     element: <AdminLayout />,
