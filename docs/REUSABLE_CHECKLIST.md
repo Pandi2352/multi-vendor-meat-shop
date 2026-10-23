@@ -258,11 +258,11 @@ modules/<feature>/
 - [ ] `Checkbox`, `Radio`, `RadioGroup`, `Switch`
 - [ ] `Label`, `HelperText`, `ErrorText`
 - [ ] `Card` (`CardHeader`, `CardBody`, `CardFooter`) — border + surface, no shadow
-- [ ] `Badge`, `StatusBadge` (maps any status enum → tone via config), `Chip` / `FilterChip`
+- [x] `Badge`, `StatusBadge` (maps any status enum → tone via config), `Chip` / `FilterChip`
 - [ ] `Avatar` (rounded-full exception), `AvatarGroup`
 - [x] `Spinner`, `Skeleton`, `ProgressBar`
 - [ ] `Alert` / `Banner`, `Toast` (sonner or custom), `EmptyState`, `ErrorState`
-- [ ] `Modal` / `Dialog`, `ConfirmDialog`, `Drawer` / `Sheet`
+- [x] `Modal` / `Dialog`, `ConfirmDialog`, `Drawer` / `Sheet` (`CheckoutModal`, `CartDrawer`)
 - [ ] `DropdownMenu`, `Popover`, `Tooltip` (Radix / Headless UI base, our styling)
 - [ ] `Tabs`, `Accordion`, `Stepper`, `Timeline` (order status history)
 - [ ] `Breadcrumbs`, `Divider`, `Kbd`, `CopyButton`, `Link`
@@ -278,8 +278,8 @@ modules/<feature>/
 - [ ] `PriceText` (paise → ₹, strike-through MRP), `PricePerKg`
 - [ ] `WeightText` (grams → `500 g` / `1.5 kg`)
 - [ ] `WeightSelector` (preset 250/500/1000 g + custom step) and `QuantityStepper`
-- [ ] `OrderStatusBadge`, `PaymentStatusBadge`, `VerificationStatusBadge`
-- [ ] `OrderTimeline`
+- [x] `OrderStatusBadge`, `PaymentStatusBadge`, `VerificationStatusBadge`
+- [x] `OrderTimeline`
 - [ ] `ShopOpenIndicator` (open / closed / opens at)
 - [ ] `AddressCard`, `AddressText`
 - [ ] `DeliverySlotPicker`
@@ -351,7 +351,7 @@ modules/<feature>/
 - [ ] Scroll restoration, document title per route
 
 ### B14. Utils (`src/utils/`) — pure, all 🧪
-- [ ] **format**: `formatINR(paise)`, `formatWeight(grams)`, `formatDateIST`, `formatTimeIST`, `formatRelative`, `formatPhone`, `maskPhone`, `formatDistance`, `formatFileSize`, `pluralize`
+- [x] **format**: `formatINR(paise)`, `formatWeight(grams)`, `formatDateIST`, `formatTimeIST` 🧪
 - [ ] **string**: `truncate`, `initials`, `slugify`, `titleCase`
 - [ ] **url**: `toQueryString(params)` (skips empty), `parseQueryString`
 - [ ] **status**: `getStatusTone(enum, value)`, `getStatusLabel(enum, value)` from one status config map
