@@ -48,6 +48,14 @@ export const useUpdateProduct = () =>
 ```
 - Types (`Product`, `UpdateProductBody`) come from `types/api.generated.ts` aliases — never hand-written duplicates.
 - Endpoint paths from `config/api-endpoints.ts`; route paths from `config/routes.ts`.
+- **Common API Client (`lib/api-client`, `lib/http`)**:
+  - Request interceptor automatically attaches `Authorization: Bearer <accessToken>` from `tokenStorage`.
+  - Response interceptor unwraps `{ success: true, data, meta? }` envelopes (`http.get`, `post`, `patch`, `delete` return `data`; `http.getPaginated` returns `{ items, meta }`).
+  - Error normalization: Any API failure is normalized into a strongly-typed `ApiError(status, { code, message, details, requestId, path, timestamp })`.
+  - Single-place status code handling:
+    - `401`: Enqueues pending requests, runs a single `/auth/refresh` request, updates access token, and retries queued calls. If refresh fails, purges tokens.
+    - `403`, `404`, `500`: Captured cleanly and rendered via `components/layout` (`RouteErrorPage`, `NotFoundPage`, `ForbiddenPage`, `ServerErrorPage`, `ErrorBoundary`).
+    - `400` / `422`: Form errors extracted cleanly with `getFieldErrors(err)`.
 
 ## Page pattern (thin)
 ```tsx

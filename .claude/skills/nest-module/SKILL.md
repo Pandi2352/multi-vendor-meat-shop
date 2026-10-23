@@ -66,7 +66,11 @@ Rules:
 - No business logic, no repository access, no try/catch in controllers.
 - Ownership ids (`shopId`, `userId`) come from `@CurrentShop()` / `@CurrentUser()`, never from body or query.
 - Every id param uses `@UuidParam()`.
-- Every handler has a Swagger response decorator from `common/decorators`.
+- Every controller has `@ApiTags(SwaggerTag.<X>)`, and every handler has `@ApiOperation({ summary: '...' })`.
+- Every handler declares Swagger envelopes: `@ApiOkEnvelope(Dto)` / `@ApiCreatedEnvelope(Dto)` / `@ApiPaginatedResponse(Dto)` and `@ApiStandardResponses()`.
+- Common response envelope: Handlers return raw data or `PaginatedResult`; `ResponseEnvelopeInterceptor` formats `{ success: true, data, meta? }`.
+- Error handling: Services throw `AppException` (or `NotFoundAppException`, `ConflictAppException`, `ForbiddenAppException`) with an `ErrorCode`. `AllExceptionsFilter` formats all exceptions as `{ success: false, error: { code, message, details?, requestId, path, timestamp } }` and maps status codes accurately.
+- HTTP & error logging: Every request/response is automatically logged via `createHttpLogger` pino middleware with request id, method, path, and status code. Server errors (5xx) are logged with full stack traces in `AllExceptionsFilter`.
 
 ## Service pattern
 - Inject repositories and other services; never the Mongoose model directly outside the repository.

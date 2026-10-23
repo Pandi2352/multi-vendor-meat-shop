@@ -96,7 +96,7 @@ Server facts: NestJS 12 is **ESM-only** → relative imports end in `.js`, cross
 - [x] `@ApiPaginatedResponse(Dto)`
 - [x] ~~`@ApiListQuery()`~~ — not needed: `@Query() q: ListQueryDto` documents page/limit/sort/q automatically
 - [x] `@Auth(...roles)` — composite JWT guard + roles + `@ApiBearerAuth` (Phase 2, AuthModule)
-- [ ] `@CurrentShop()` — vendor's shop from the token, never the body (Phase 2)
+- [x] `@CurrentShop()` — vendor's shop from the token, never the body (Phase 2)
 - [ ] `@IdempotencyKey()` — with the idempotency interceptor (checkout phase)
 - [ ] `@Audit(action, entityType)` — with the AuditModule
 
@@ -239,9 +239,9 @@ modules/<feature>/
 
 ### B4. Core lib (`src/lib/`) ⭐
 - [x] `cn.ts` — `clsx` + `tailwind-merge` 🧪
-- [x] `api-client.ts` — Axios instance, base URL from env, `withCredentials`, timeout
-- [ ] `api-interceptors.ts` — attach token, refresh-on-401 with request queue (single refresh in flight), unwrap envelope, normalize errors
-- [ ] `api-error.ts` — `ApiError` class + `getErrorMessage(err)` + `getFieldErrors(err)` 🧪
+- [x] `api-interceptors.ts` — attach token, refresh-on-401 with request queue (single refresh in flight), unwrap envelope, normalize errors
+- [x] `api-error.ts` — `ApiError` class + `getErrorMessage(err)` + `getFieldErrors(err)` 🧪
+- [x] `token-storage.ts` — memory + localStorage JWT access and refresh token storage
 - [x] `http.ts` — typed `get<T>`, `post<T>`, `patch<T>`, `del<T>`, `getPaginated<T>`
 - [x] `query-client.ts` — TanStack Query defaults (staleTime, retry rules: no retry on 4xx)
 - [ ] `i18n.ts` — react-i18next, `en` + `ta` namespaces, language persistence
@@ -298,7 +298,7 @@ modules/<feature>/
 - [ ] `PageHeader` (title, description, breadcrumbs, actions slot)
 - [ ] `PageContainer`, `Section`, `Stack`, `Inline`, `Grid`
 - [ ] Layouts: `AuthLayout`, `CustomerLayout` (public), `VendorLayout`, `AdminLayout`, `DeliveryLayout` (admin app)
-- [ ] `ErrorBoundary` + `RouteErrorPage`, `NotFoundPage`, `ForbiddenPage`, `MaintenancePage`
+- [x] `ErrorBoundary` + `RouteErrorPage`, `NotFoundPage`, `ForbiddenPage`, `MaintenancePage` (ServerErrorPage)
 - [ ] `PageLoader` (Suspense fallback)
 
 ### B9. Forms (`src/components/form/` + `src/utils/validation/`) ⭐

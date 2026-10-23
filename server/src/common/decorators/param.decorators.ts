@@ -11,6 +11,18 @@ export const CurrentUser = createParamDecorator(
   },
 );
 
+/** `@CurrentShop()` → the authenticated vendor user's shopId. */
+export const CurrentShop = createParamDecorator((_data: unknown, ctx: ExecutionContext) => {
+  const { user } = ctx.switchToHttp().getRequest<AppRequest>();
+  if (!user) throw new AppException(ErrorCode.UNAUTHORIZED);
+  if (!user.shopId) {
+    throw new AppException(ErrorCode.FORBIDDEN, {
+      message: 'Authenticated user is not linked to a shop',
+    });
+  }
+  return user.shopId;
+});
+
 /** Route param that must be a UUID v7: `@UuidParam('productId') productId: string`. */
 export const UuidParam = (name = 'id') =>
   Param(
