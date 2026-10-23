@@ -42,6 +42,13 @@ Versions remembered from training data are usually outdated. **Never write a ver
 
 6. **Read the current docs before writing code against a package.** APIs change between majors (Tailwind v4 uses CSS `@theme` instead of `tailwind.config.js`, React Router merged packages, ESLint uses flat config). Check the installed version's README/changelog through WebFetch or `node_modules/<pkg>/README.md` instead of relying on memory.
 
+## Known issues in this repo
+- **npm 10.8 crashes** with `Cannot read properties of null (reading 'edgesOut')` on Vite/Vitest peer cycles. Use npm ≥ 11.21 (`npx -y npm@11 install ...` if the global npm is older).
+- npm 11 blocks install scripts until approved: `npx -y npm@11 install-scripts ls`, then `approve <pkg>` for needed ones (e.g. `@swc/core`) and `deny <pkg>` for telemetry (e.g. `@scarf/scarf`).
+- **Nest CLI (`nest new`, `nest start`, `nest g`) does not run on Node 20** (ESM `ora` require cycle). The server builds with `tsc` and runs dev with `tsc-watch`.
+- **Latest major may need Node 22+** (e.g. `nestjs-pino@5`, `vitest@5`, `npm@12`). The script picks the newest compatible version; report held-back packages to the user.
+- Check peer ranges with the script output — e.g. TypeScript 7 is excluded because `ts-jest`, `typescript-eslint` and `@nestjs/swagger` peers cap at 6.x.
+
 ## Rules
 - One package manager: **npm**. Commit `package-lock.json`. No `yarn.lock` / `pnpm-lock.yaml`.
 - Keep the default caret range npm writes (`^x.y.z`). The lockfile pins exact versions.

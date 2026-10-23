@@ -39,6 +39,7 @@ Key docs:
 - Enforced by the Tailwind theme (radius/shadow namespaces cleared) and `scripts/check-rules.sh`.
 
 ### 4. Backend rules
+- **ESM project (NestJS 12 is ESM-only).** Relative imports end in `.js` (`'./money.util.js'`). Cross-folder imports use the `package.json#imports` aliases: `#config`, `#database`, `#bootstrap`, `#common/<folder>` (e.g. `#common/utils`), `#infra/<folder>`, `#modules/<name>`. Never `../../`.
 - **IDs are UUID v7 strings. Never `ObjectId`, never `Types.ObjectId`, never `SchemaTypes.ObjectId`.** Every schema extends `BaseEntity` (`_id: string`, default `generateId()`). References are `type: String` with `ref`.
 - Route params with ids use `ParseUUIDPipe` (or the `@UuidParam()` decorator). DTO ids use `@IsUUID('7')`.
 - **No `process.env` outside `server/src/config/`.** Read config through the typed `AppConfigService`.
@@ -66,6 +67,18 @@ Key docs:
 ### 7. Packages
 - Before installing or using any npm package, follow the `package-install` skill: newest stable version whose `engines.node` accepts the system Node (`.nvmrc`), resolved with `node scripts/check-pkg.mjs <pkg>`. Never write a version from memory.
 - npm only, lockfile committed, no `--force` / `--legacy-peer-deps`.
+- **npm ≥ 11.21 required.** npm 10.8 crashes (`Cannot read properties of null (reading 'edgesOut')`) on this dependency tree. Use `npm i -g npm@11` or prefix commands with `npx -y npm@11`.
+- New packages with install scripts must be approved: `npm install-scripts approve <pkg>` (writes `allowScripts` in `package.json`). Deny telemetry scripts.
+
+### Server commands (`server/`)
+| Task | Command |
+| ---- | ------- |
+| Dev (watch) | `npm run start:dev` |
+| Build / run | `npm run build` then `npm start` |
+| Unit tests | `npm test` (Vitest, `src/**/*.spec.ts`) |
+| E2E tests | `npm run test:e2e` (real local MongoDB, `meat_shop_test` database) |
+| Lint / types | `npm run lint`, `npm run typecheck` |
+| Swagger | `http://localhost:4000/docs` (JSON at `/docs/json`, file `server/swagger.json`) |
 
 ### 8. Before you finish a task
 1. Run `bash scripts/check-rules.sh` and fix every violation.

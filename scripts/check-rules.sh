@@ -14,6 +14,11 @@ for d in public/src admin/src; do [ -d "$d" ] && FRONTEND_DIRS+=("$d"); done
 BACKEND_DIR=""
 [ -d server/src ] && BACKEND_DIR="server/src"
 
+# Drops grep hits whose matched line is a comment (//, /*, * ...), so docs can mention banned words.
+skip_comments() {
+  grep -vE '^[^:]+:[0-9]+:[[:space:]]*(//|/\*|\*)'
+}
+
 report() {
   local title="$1" output="$2"
   if [ -n "$output" ]; then
@@ -50,15 +55,15 @@ fi
 
 if [ -n "$BACKEND_DIR" ]; then
   report "ObjectId is not allowed — use UUID v7 strings" "$(
-    grep -rnE 'ObjectId' --include='*.ts' "$BACKEND_DIR"
+    grep -rnE 'ObjectId' --include='*.ts' "$BACKEND_DIR" | skip_comments
   )"
 
   report "process.env is only allowed in server/src/config" "$(
-    grep -rn 'process\.env' --include='*.ts' "$BACKEND_DIR" | grep -v "$BACKEND_DIR/config/"
+    grep -rn 'process\.env' --include='*.ts' "$BACKEND_DIR" | grep -v "$BACKEND_DIR/config/" | skip_comments
   )"
 
   report "Raw console.log is not allowed (use the Pino logger)" "$(
-    grep -rn 'console\.log' --include='*.ts' "$BACKEND_DIR"
+    grep -rn 'console\.log' --include='*.ts' "$BACKEND_DIR" | skip_comments
   )"
 fi
 

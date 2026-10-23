@@ -13,26 +13,22 @@ export const generateId = (): string => uuidv7();
 export const isUuid = (v: unknown): v is string => typeof v === 'string' && validate(v) && version(v) === 7;
 ```
 
-## Base entity (every schema extends it)
+## Base entity (every schema extends it) — `server/src/database/base.entity.ts`
 ```ts
-// database/base.schema-options.ts
 export const baseSchemaOptions: SchemaOptions = {
-  timestamps: true,
-  versionKey: false,
-  id: false,
-  toJSON: { virtuals: true, transform: toPublicJson },
+  timestamps: true, versionKey: false, id: false,
+  toJSON: { virtuals: true, transform: toPublicJson },   // _id → id
   toObject: { virtuals: true, transform: toPublicJson },
 };
 
-// database/base.entity.ts
 export abstract class BaseEntity {
   @Prop({ type: String, default: generateId })
-  _id: string;
-
-  createdAt: Date;
-  updatedAt: Date;
+  _id!: string;
+  createdAt!: Date;
+  updatedAt!: Date;
 }
 ```
+Import everything from `#database`: `BaseEntity`, `baseSchemaOptions`, `createSchema`, `BaseRepository`, `CollectionName`, `GeoPointSchema`, `runInTransaction`, `buildFilter`.
 
 ## Schema pattern
 ```ts
@@ -60,9 +56,11 @@ export class Product extends BaseEntity {
   status: ProductStatus;
 }
 export type ProductDocument = HydratedDocument<Product>;
-export const ProductSchema = createSchema(Product);
-ProductSchema.index({ shopId: 1, status: 1 });
+export const ProductSchema = createSchema(Product, { softDelete: true });
+ProductSchema.index({ shopId: 1, status: 1 }); // vendor product list
 ```
+- Class fields use definite assignment (`name!: string`) — the project is `strict`.
+- `createSchema(Class, { softDelete: true })` adds `deletedAt`/`deletedBy` and hides deleted docs. Never on ledgers, movements or events.
 
 ## Rules
 - References: `type: String, ref: '<Model>'`. Never `Schema.Types.ObjectId` / `Types.ObjectId`.
@@ -81,16 +79,28 @@ ProductSchema.index({ shopId: 1, status: 1 });
 ```ts
 @Injectable()
 export class ProductsRepository extends BaseRepository<Product> {
-  constructor(@InjectModel(Product.name) model: Model<Product>) { super(model); }
+  constructor(@InjectModel(Product.name) model: Model<Product>) {
+    super(model, 'Product'); // entity name used in NOT_FOUND messages
+  }
 
   findActiveByShop(shopId: string, query: QueryProductsDto) {
-    return this.paginate({ shopId, status: ProductStatus.ACTIVE }, query, { sortable: ['name', 'pricePerKgPaise', 'createdAt'] });
+    return this.paginate({ shopId, status: ProductStatus.ACTIVE }, query, {
+      sortable: ['name', 'pricePerKgPaise'],
+      searchable: ['name'],
+    });
   }
 }
 ```
-- Generic CRUD/paginate/softDelete/exists come from `BaseRepository`; only add domain queries.
-- Every method takes optional `session?: ClientSession`.
-- Use `.lean()` for reads that go straight to mappers.
+- Generic methods come from `BaseRepository`: `findById(OrThrow)`, `findOne`, `findMany`, `paginate`, `create(Many)`, `updateById(OrThrow)`, `updateOne`, `softDelete`, `restore`, `exists`, `count`, `aggregate`. Only add domain queries.
+- Every method takes `{ session?, projection?, withDeleted? }`.
+- Reads are `lean` plain objects with `_id`; mappers produce `id` in response DTOs.
+- `paginate` returns `PaginatedResult<T>`; `.map(toResponse)` keeps the meta.
+
+## Mongoose 9 notes
+- Filter type is `QueryFilter<T>` (renamed from `FilterQuery`).
+- Use `returnDocument: 'after'`, not `new: true`.
+- Pre middleware has no `next()` — return or throw.
+- Inside generic code, `Model.create()` overloads don't resolve; `BaseRepository.create` uses `new this.model(data).save({ session })`.
 
 ## Atomic stock update (pattern for any counter)
 ```ts

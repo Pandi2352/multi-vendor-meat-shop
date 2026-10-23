@@ -9,191 +9,180 @@ Legend: 🧪 needs unit test · ⭐ MVP-critical (build in Phase 1)
 
 ## Part A — Backend (`server/`)
 
+Server facts: NestJS 12 is **ESM-only** → relative imports end in `.js`, cross-folder imports use Node subpath aliases from `package.json#imports` (`#config`, `#database`, `#bootstrap`, `#common/<folder>`, `#infra/<folder>`, `#modules/<name>`). Tests: Vitest (unit `src/**/*.spec.ts`, e2e `test/**/*.e2e-spec.ts`). Install with npm ≥ 11.21 (npm 10 crashes on this dependency tree).
+
 ### A1. Project tooling ⭐
-- [ ] `tsconfig.json` path aliases: `@config/*`, `@common/*`, `@database/*`, `@infra/*`, `@modules/*`
-- [ ] ESLint (typescript-eslint, import order, no-console, no-restricted-imports for `mongoose` ObjectId)
-- [ ] Prettier config shared with frontends (`.prettierrc` at repo root)
+- [x] Path aliases via `package.json#imports` (`source` condition → `src`, default → `dist`); Vitest aliases generated from the same map (`vitest.aliases.ts`)
+- [x] ESLint flat config (typescript-eslint type-checked, no-console, ObjectId banned via `no-restricted-syntax`)
+- [x] Prettier config shared with frontends (`.prettierrc` at repo root)
 - [ ] Husky + lint-staged (lint, format, `scripts/check-rules.sh` on staged files)
 - [ ] Commitlint (conventional commits)
-- [ ] `.env.example` with every variable documented
-- [ ] Local MongoDB via `MONGODB_URI` in `server/.env` (inspect with MongoDB Compass). Transactions need a replica set — enable one locally before the checkout phase
+- [x] `.env.example` with every variable documented
+- [x] Local MongoDB via `MONGODB_URI` in `server/.env` (inspect with MongoDB Compass)
+- [ ] Local MongoDB as a single-node replica set — needed before the checkout phase (transactions)
 - [ ] Later (deployment phase): `Dockerfile` (multi-stage) for API and worker, optional `docker-compose.yml`
-- [ ] npm scripts: `start:dev`, `build`, `lint`, `typecheck`, `test`, `test:e2e`, `seed`, `migrate`, `gen:swagger-json`
+- [x] npm scripts: `start:dev`, `build`, `start`, `lint`, `typecheck`, `test`, `test:e2e`, `test:cov`, `format`
+- [ ] npm scripts: `seed`, `migrate`
 
 ### A2. Config (`src/config/`) ⭐
-- [ ] `env.validation.ts` — Joi/Zod schema validating every env var at boot; app refuses to start on invalid config 🧪
-- [ ] `app.config.ts` — name, env, port, apiPrefix (`api`), version (`v1`), timezone (`Asia/Kolkata`), frontend URLs
-- [ ] `database.config.ts` — uri, dbName, pool size, retry, `autoIndex` (off in prod)
-- [ ] `auth.config.ts` — access/refresh secrets, TTLs, bcrypt/argon2 cost, OTP length/TTL, max sessions
-- [ ] `cors.config.ts` — allowed origins list (public + admin), credentials
-- [ ] `throttle.config.ts` — default limits, auth limits, OTP limits
-- [ ] `swagger.config.ts` — title, description, version, enabled flag, basic-auth guard for prod
-- [ ] `redis.config.ts`, `queue.config.ts` — host, port, prefix, default job options
-- [ ] `storage.config.ts` — provider (cloudinary | s3), bucket, folder, max sizes, allowed mime types
-- [ ] `payment.config.ts` — provider keys, webhook secret, currency `INR`
-- [ ] `notification.config.ts` — SMS provider, email provider, push keys, sender ids
-- [ ] `business.config.ts` — default commission (basis points), reservation TTL, slot length, weight variance %, min order
-- [ ] `config.module.ts` — registers all namespaces with `registerAs`, global
-- [ ] `app-config.service.ts` — typed getters (`config.auth.accessTtl`), the only way to read config
+- [x] `env.validation.ts` — class-validator schema for every env var + defaults; boot fails listing every problem 🧪
+- [x] `namespaces/app.config.ts` — name, env, port, apiPrefix, apiVersion, CORS origins, timeout, body limit, trust proxy
+- [x] `namespaces/database.config.ts` — uri, pool size, autoIndex, server selection timeout
+- [x] `namespaces/auth.config.ts` — access/refresh secrets + TTLs, OTP length/TTL/attempts/cooldown
+- [x] `namespaces/platform.config.ts` — throttle, swagger, logger
+- [x] `namespaces/business.config.ts` — default commission (bps), reservation TTL, slot length, slot capacity, weight variance %
+- [ ] `redis.config.ts`, `queue.config.ts` — add with the first queue/cache use
+- [ ] `storage.config.ts` — add with the uploads module
+- [ ] `payment.config.ts` — add with the payments module
+- [ ] `notification.config.ts` — add with SMS/OTP delivery
+- [x] `app-config.module.ts` — global, registers all namespaces, runs validation
+- [x] `app-config.service.ts` — typed access (`config.auth.accessTtl`), the only way to read config
 
 ### A3. Bootstrap (`src/bootstrap/`) ⭐
-- [ ] `setup-app.ts` — calls each setup below in order (keeps `main.ts` ~15 lines)
-- [ ] `setup-security.ts` — helmet, cors, compression, trust proxy, body size limits
-- [ ] `setup-versioning.ts` — global prefix `/api`, URI versioning `v1`
-- [ ] `setup-pipes.ts` — global `ValidationPipe` (`whitelist`, `forbidNonWhitelisted`, `transform`, implicit conversion off)
-- [ ] `setup-swagger.ts` — DocumentBuilder, bearer auth, tags, write `swagger.json` for frontend type generation
-- [ ] `setup-shutdown.ts` — `enableShutdownHooks`, graceful close of Mongo/Redis/queues
+- [x] `setup-app.ts` — logger, HTTP logging, security, versioning, Swagger, shutdown hooks (used by `main.ts` and e2e)
+- [x] `setup-security.ts` — helmet, cors, compression, trust proxy, body size limits
+- [x] `setup-versioning.ts` — global prefix `/api`, URI versioning → `/api/v1/...`
+- [x] Global pipe/filter/guards/interceptors live in `src/app.providers.ts` (APP_* providers, so tests get the same pipeline)
+- [x] `setup-swagger.ts` — bearer auth, `/docs`, `/docs/json`, writes `swagger.json` for frontend type generation
+- [x] Shutdown hooks (`enableShutdownHooks`); add Redis/queue close handlers when those exist
 
 ### A4. IDs (UUID — never ObjectId) ⭐
-- [ ] `common/utils/id.util.ts` — `generateId()` → UUID **v7** (time-ordered, index-friendly) 🧪
-- [ ] `common/utils/id.util.ts` — `isUuid(value)` 🧪
-- [ ] `common/decorators/uuid-param.decorator.ts` — `@UuidParam('id')` = `@Param(name, new ParseUUIDPipe({ version: '7' }))`
-- [ ] `common/dto/id-param.dto.ts` — `IdParamDto { @IsUUID('7') id }`
-- [ ] `common/validators/is-uuid-array.validator.ts` — for bulk ops
-- [ ] `common/utils/reference-number.util.ts` — human codes: `ORD-261023-7K3F`, `SET-…`, `TKT-…`, `REF-…` 🧪
-- [ ] `database/schemas/counter.schema.ts` + `CounterService.next(name)` — atomic sequence if numeric codes needed
+- [x] `common/utils/id.util.ts` — `generateId()` → UUID **v7**, `isUuid(value)` (v7 only) 🧪
+- [x] `common/decorators/param.decorators.ts` — `@UuidParam('id')` (400 VALIDATION_FAILED on bad ids)
+- [x] `common/dto/id-param.dto.ts` — `IdParamDto { @IsUUID('7') id }`
+- [x] `common/validators/relation.validators.ts` — `@IsUuidV7()`, `@IsUuidArray()` for bulk ops
+- [x] `common/utils/reference-number.util.ts` — `ORD-261023-7K3FQ`, `RFD-`, `SET-`, `PAY-`, `TKT-`, `DLV-` 🧪
+- [ ] `CounterService.next(name)` — only if strictly sequential numbers are ever required
 
 ### A5. Database layer (`src/database/`) ⭐
-- [ ] `base.schema-options.ts` — `timestamps: true`, `versionKey: false`, `id: false`, `toJSON`/`toObject` transform `_id → id`
-- [ ] `base.entity.ts` — `_id: string` (default `generateId`), `createdAt`, `updatedAt`; all schemas extend it
-- [ ] `create-schema.util.ts` — `createSchema(Class)` = `SchemaFactory.createForClass` + base plugins applied
-- [ ] `plugins/soft-delete.plugin.ts` — `deletedAt`, `deletedBy`, auto-filter in find queries 🧪
-- [ ] `plugins/audit-fields.plugin.ts` — `createdBy`, `updatedBy` (UUID strings)
-- [ ] `base.repository.ts` — generic `BaseRepository<T>`: `findById`, `findByIdOrThrow`, `findOne`, `findMany`, `paginate`, `create`, `createMany`, `updateById`, `updateOne`, `softDelete`, `restore`, `exists`, `count`, `aggregate`; every method accepts an optional `session` 🧪
-- [ ] `transaction.helper.ts` — `runInTransaction(connection, fn)` with retry on transient errors 🧪
-- [ ] `query/filter-builder.ts` — build Mongo filter from query DTO with field whitelist 🧪
-- [ ] `query/sort-builder.ts` — `sort=-createdAt,name` → Mongo sort, whitelisted fields only 🧪
-- [ ] `query/search.util.ts` — `escapeRegex`, case-insensitive prefix search, text-index search 🧪
+- [x] `base.entity.ts` — `baseSchemaOptions` (timestamps, no `__v`, `_id → id` in JSON) + `BaseEntity` (`_id: string` UUID v7)
+- [x] `create-schema.ts` — `createSchema(Class, { softDelete })`, use instead of `SchemaFactory.createForClass`
+- [x] `plugins/soft-delete.plugin.ts` — `deletedAt`/`deletedBy`, hidden from queries + aggregations unless `withDeleted` 🧪 (e2e)
+- [ ] `plugins/audit-fields.plugin.ts` — `createdBy`, `updatedBy` (add with auth context)
+- [x] `base.repository.ts` — `findById`, `findByIdOrThrow`, `findOne`, `findMany`, `paginate`, `create`, `createMany`, `updateById`, `updateByIdOrThrow`, `updateOne`, `softDelete`, `restore`, `exists`, `count`, `aggregate`; optional `session` + `withDeleted` everywhere 🧪 (e2e)
+- [x] `transaction.helper.ts` — `runInTransaction(connection, fn)`; clear TRANSACTION_NOT_SUPPORTED error on standalone MongoDB
+- [x] `query/query-builders.ts` — `buildFilter` (whitelist, arrays → `$in`), `buildSort` (whitelist), `buildSearchFilter`, `escapeRegex` 🧪
 - [ ] `query/projection.util.ts` — reusable `select` presets (public vs owner vs admin)
-- [ ] `geo/geo-point.schema.ts` — embedded `{ type: 'Point', coordinates: [lng, lat] }` with 2dsphere index helper
-- [ ] `constants/collection-names.ts` — every collection name in one enum
-- [ ] `seeds/` — seed runner + seeders: roles/permissions, admin user, categories, TN districts, demo shop
-- [ ] `migrations/` — migrate-mongo setup for index/data migrations
+- [x] `geo-point.schema.ts` — embedded GeoJSON point `[lng, lat]` with validation
+- [x] `collection-name.enum.ts` — every collection name in one enum
+- [ ] `seeds/` — seed runner + seeders: roles/permissions, admin user, categories, demo shop
+- [ ] `migrations/` — index/data migrations
 
 ### A6. Common DTOs (`src/common/dto/`) ⭐
-- [ ] `pagination-query.dto.ts` — `page`, `limit` (max cap from config), defaults
-- [ ] `sort-query.dto.ts` — `sort` string
-- [ ] `search-query.dto.ts` — `q`
-- [ ] `list-query.dto.ts` — composes pagination + sort + search (most list endpoints extend this)
-- [ ] `date-range-query.dto.ts` — `from`, `to` (IST aware), validated `from <= to`
-- [ ] `geo-query.dto.ts` — `lat`, `lng`, `radiusKm`
-- [ ] `paginated-response.dto.ts` — `PaginatedResponseDto<T>` `{ items, meta: { page, limit, total, totalPages, hasNext } }`
-- [ ] `api-response.dto.ts` — envelope `{ success, data, message?, meta? }`
-- [ ] `error-response.dto.ts` — `{ success: false, error: { code, message, details?, requestId } }`
-- [ ] `money.dto.ts`, `quantity.dto.ts` — reusable validated value objects
-- [ ] `address.dto.ts` — line1, line2, locality, city, district (enum), pincode, coordinates
+- [x] `pagination-query.dto.ts` — `page`, `limit` (max 100), defaults
+- [x] `list-query.dto.ts` — `SortQueryDto`, `SearchQueryDto`, `ListQueryDto` (pagination + sort + search) 🧪
+- [x] `date-range-query.dto.ts` — `from`, `to` (ISO 8601), `to >= from`
+- [x] `geo.dto.ts` — `LatLngDto`, `GeoQueryDto` (`lat`, `lng`, `radiusKm`)
+- [x] `paginated-result.ts` — `PaginatedResult<T>` returned by services; envelope turns it into `{ success, data, meta }`
+- [x] `api-response.dto.ts` — Swagger models: success envelope, pagination meta, error response
+- [x] `address.dto.ts` — line1, line2, locality, city, district (TN code), pincode, location
+- [ ] Money/quantity value-object DTOs — not needed so far; `@IsPaise()` / `@IsGrams()` cover it
 
 ### A7. Custom validators & transformers (`src/common/validators`, `transformers`)
-- [ ] `@IsIndianPhone()` (+91, 10 digits, starts 6–9) 🧪
-- [ ] `@IsPincode()` (6 digits, TN range optional) 🧪
-- [ ] `@IsPaise()` — positive integer money 🧪
-- [ ] `@IsGrams()` — positive integer, optional step (e.g. 250 g) 🧪
-- [ ] `@IsTimeHHmm()` — business hours 🧪
-- [ ] `@IsDistrict()` — Tamil Nadu district enum
-- [ ] `@IsAfter(field)` — date ordering
-- [ ] `@Trim()`, `@ToLowerCase()`, `@ToInt()`, `@ToBoolean()`, `@ToArray()` transformers 🧪
-- [ ] `@NormalizePhone()` transformer → E.164
+- [x] `@IsIndianPhone()` (E.164 `+91[6-9]XXXXXXXXX`) 🧪
+- [x] `@IsPincode()`, `@IsTimeHHmm()`, `@IsSlug()`, `@IsDistrict()` 🧪
+- [x] `@IsPaise({ allowZero, max })` — integer money 🧪
+- [x] `@IsGrams({ step, min, max })` — integer grams, optional step 🧪
+- [x] `@IsAfter(field, allowEqual)` — date ordering
+- [x] `@Trim()`, `@ToLowerCase()`, `@ToInt()`, `@ToNumber()`, `@ToBoolean()`, `@ToArray()` 🧪
+- [x] `@NormalizePhone()` → E.164 🧪
 
 ### A8. Decorators (`src/common/decorators/`) ⭐
-- [ ] `@Public()` — skip auth
-- [ ] `@Auth(...roles)` — composite: JwtGuard + RolesGuard + `@ApiBearerAuth` + 401/403 Swagger responses
-- [ ] `@Roles(...)`, `@Permissions(...)`
-- [ ] `@CurrentUser()` / `@CurrentUser('id')`
-- [ ] `@CurrentShop()` — resolves the vendor's shop from auth context (never from body)
-- [ ] `@UuidParam()` (see A4)
-- [ ] `@IdempotencyKey()` — reads `Idempotency-Key` header
-- [ ] `@ApiStandardResponses()` — 400/401/403/404/409/422/500 with `ErrorResponseDto`
-- [ ] `@ApiOkEnvelope(Dto)` / `@ApiCreatedEnvelope(Dto)` — wraps DTO in envelope schema
-- [ ] `@ApiPaginatedResponse(Dto)` — paginated envelope schema
-- [ ] `@ApiListQuery()` — documents page/limit/sort/q
-- [ ] `@Audit(action, entityType)` — marks handler for audit interceptor
-- [ ] `@SkipEnvelope()` — for file downloads / webhooks
+- [x] `@Public()`, `@Roles(...)`, `@Permissions(...)`, `@SkipEnvelope()`
+- [x] `@CurrentUser()` / `@CurrentUser('id')`
+- [x] `@UuidParam()` (see A4)
+- [x] `@ApiStandardResponses()` — shared error schema for 400/401/403/404/409/500 (or given statuses)
+- [x] `@ApiOkEnvelope(Dto)` / `@ApiCreatedEnvelope(Dto)` / `@ApiEnvelope(Dto, { isArray })`
+- [x] `@ApiPaginatedResponse(Dto)`
+- [x] ~~`@ApiListQuery()`~~ — not needed: `@Query() q: ListQueryDto` documents page/limit/sort/q automatically
+- [ ] `@Auth(...roles)` — composite JWT guard + roles + `@ApiBearerAuth` (Phase 2, AuthModule)
+- [ ] `@CurrentShop()` — vendor's shop from the token, never the body (Phase 2)
+- [ ] `@IdempotencyKey()` — with the idempotency interceptor (checkout phase)
+- [ ] `@Audit(action, entityType)` — with the AuditModule
 
 ### A9. Guards (`src/common/guards/`) ⭐
-- [ ] `jwt-auth.guard.ts` — global, respects `@Public()`
-- [ ] `roles.guard.ts`
-- [ ] `permissions.guard.ts`
+- [ ] `jwt-auth.guard.ts` — global, respects `@Public()` (Phase 2)
+- [x] `roles.guard.ts` — 401 without user, 403 on wrong role (e2e)
+- [x] `permissions.guard.ts` — requires every listed permission (e2e)
 - [ ] `shop-ownership.guard.ts` — resource's `shopId` must belong to current vendor 🧪
 - [ ] `resource-owner.guard.ts` — generic owner check (customer → own orders/addresses) 🧪
 - [ ] `vendor-approved.guard.ts` — blocks unapproved/suspended vendors from selling actions
-- [ ] `throttler` setup with per-route overrides (login, OTP)
+- [x] Throttler: global default (`infra/throttler`); per-route `@Throttle()` for login/OTP in Phase 2; `@SkipThrottle()` on health
 - [ ] `webhook-signature.guard.ts` — verifies payment provider signature 🧪
 
 ### A10. Interceptors, filters, pipes, middleware ⭐
-- [ ] `response-envelope.interceptor.ts` — wraps all responses
-- [ ] `logging.interceptor.ts` — method, path, status, duration, userId, requestId
-- [ ] `timeout.interceptor.ts`
-- [ ] `idempotency.interceptor.ts` — stores response by key+user for N hours (checkout, payments) 🧪
+- [x] `interceptors/response-envelope.interceptor.ts` — `{ success, data, meta? }` (e2e)
+- [x] Request logging — pino-http middleware (`infra/logger/http-logger.middleware.ts`) instead of a logging interceptor
+- [x] `interceptors/timeout.interceptor.ts` — REQUEST_TIMEOUT after `REQUEST_TIMEOUT_MS`
+- [ ] `idempotency.interceptor.ts` — stores response by key+user (checkout, payments) 🧪
 - [ ] `audit.interceptor.ts` — writes audit log for `@Audit` handlers
-- [ ] `all-exceptions.filter.ts` — single error shape, hides internals in prod 🧪
-- [ ] `mongo-exception.filter.ts` — duplicate key 11000 → 409 with field name 🧪
-- [ ] Validation error formatter → `{ field, message }[]` in `details`
-- [ ] `request-id.middleware.ts` — `X-Request-Id` in/out, stored in async context
-- [ ] `parse-sort.pipe.ts`, `parse-date-ist.pipe.ts`
+- [x] `filters/all-exceptions.filter.ts` — single error shape with requestId/path/timestamp, hides internals in prod (e2e)
+- [x] `filters/exception-mapper.ts` — AppException, HttpException, Mongo 11000 → 409 DUPLICATE_VALUE, Mongoose validation/cast, standalone-transaction errors 🧪
+- [x] `pipes/create-validation-pipe.ts` + `validation-errors.util.ts` — `details: [{ field: 'address.pincode', messages }]` 🧪
+- [x] Request id — reuses a valid incoming `X-Request-Id` or creates a UUID v7, echoed in response header and errors (e2e)
+- [ ] Request id in AsyncLocalStorage so service logs carry it
+- [ ] `parse-date-ist.pipe.ts` — when an endpoint needs it
 
 ### A11. Errors (`src/common/exceptions/`) ⭐
-- [ ] `error-codes.enum.ts` — `AUTH_INVALID_CREDENTIALS`, `SHOP_CLOSED`, `OUT_OF_STOCK`, `INVALID_STATUS_TRANSITION`, `PAYMENT_SIGNATURE_INVALID`, ...
-- [ ] `app.exception.ts` — `AppException(code, message?, status?, details?)`
-- [ ] Shortcuts: `NotFoundAppException(entity, id)`, `ConflictAppException`, `ForbiddenAppException`, `BusinessRuleException`
-- [ ] `assert.util.ts` — `assertFound(doc, entity)`, `assertOwner(doc, userId)`, `assertCondition(cond, code)` 🧪
+- [x] `error-code.enum.ts` — generic, auth, marketplace, payment codes
+- [x] `error-catalog.ts` — default HTTP status + message per code
+- [x] `app.exception.ts` — `new AppException(ErrorCode.OUT_OF_STOCK, { message?, details?, status?, cause? })`
+- [x] `app-exceptions.ts` — `NotFoundAppException(entity, id)`, `ConflictAppException`, `ForbiddenAppException`, `BusinessRuleException`
+- [x] `assert.util.ts` — `assertFound`, `assertOwner`, `assertCondition` 🧪 (via repository e2e)
 
 ### A12. Constants & enums (`src/common/constants/`, `enums/`) ⭐
-- [ ] `role.enum.ts` — `CUSTOMER`, `VENDOR_OWNER`, `VENDOR_STAFF`, `DELIVERY_PARTNER`, `ADMIN`, `OPERATIONS`, `SUPPORT`, `FINANCE`
-- [ ] `permission.enum.ts` + `role-permissions.map.ts`
-- [ ] `order-status.enum.ts`, `payment-status.enum.ts`, `refund-status.enum.ts`, `delivery-status.enum.ts`
-- [ ] `vendor-verification-status.enum.ts`, `shop-status.enum.ts` (`OPEN`, `CLOSED`, `PAUSED`)
-- [ ] `unit.enum.ts` — `GRAM`, `PIECE`; `sell-mode.enum.ts` — `FIXED_WEIGHT`, `VARIABLE_WEIGHT`, `PIECE`
-- [ ] `meat-category.enum.ts`, `cut-type.enum.ts`, `preparation-option.enum.ts` (cleaning, skin on/off)
-- [ ] `inventory-movement-type.enum.ts` — `OPENING`, `RECEIVED`, `RESERVED`, `RELEASED`, `SOLD`, `WASTAGE`, `ADJUSTMENT`, `RETURNED`
-- [ ] `ledger-entry-type.enum.ts` — `SALE`, `COMMISSION`, `DELIVERY_FEE`, `REFUND`, `ADJUSTMENT`, `PAYOUT`, `REVERSAL`
-- [ ] `payment-method.enum.ts` — `COD`, `UPI`, `CARD`, `NETBANKING`
-- [ ] `tn-districts.constant.ts` — all 38 Tamil Nadu districts (code, en, ta)
-- [ ] `queue-names.constant.ts`, `event-names.constant.ts`, `cache-keys.constant.ts`, `swagger-tags.constant.ts`
-- [ ] `regex.constant.ts` — phone, pincode, HH:mm, slug
-- [ ] `limits.constant.ts` — max images per product, max cart items, max addresses
+- [x] `enums/role.enum.ts` (+ `VENDOR_ROLES`, `STAFF_ROLES`), `permission.enum.ts`, `role-permissions.map.ts`
+- [x] `enums/status.enums.ts` — user, vendor verification, shop, product, order, payment, refund, delivery
+- [x] `enums/catalog.enums.ts` — `Unit`, `SellMode`, `CutType`, `PreparationOption` (categories are data, not an enum)
+- [x] `enums/finance.enums.ts` — `PaymentMethod`, `InventoryMovementType`, `LedgerEntryType`
+- [x] `constants/tn-districts.constant.ts` — all 38 Tamil Nadu districts (code, English, Tamil)
+- [x] `constants/swagger-tags.constant.ts`, `http.constants.ts` (headers, metadata keys)
+- [x] `constants/regex.constant.ts` — phone, pincode, HH:mm, slug, sort
+- [x] `constants/app.constants.ts` — IST timezone, currency, units, pagination, geo, limits
+- [ ] `queue-names`, `event-names`, `cache-keys` constants — with the first queue/event/cache
 
 ### A13. Utilities (`src/common/utils/`) — pure functions, all 🧪
-- [ ] **money**: `toPaise(rupees)`, `fromPaise(paise)`, `formatINR(paise)`, `addMoney(...)`, `applyBasisPoints(amount, bps)`, `splitProportionally(total, parts)` (no lost paise), `roundPaise`
-- [ ] **quantity**: `gramsToKg`, `kgToGrams`, `formatWeight(grams)` (`750 g`, `1.5 kg`), `priceForGrams(pricePerKgPaise, grams)`, `isWithinVariance(target, actual, pct)`, `isValidStep(grams, step)`
-- [ ] **date (IST)**: dayjs with tz plugin set to `Asia/Kolkata`; `nowIST`, `startOfDayIST`, `endOfDayIST`, `toISTString`, `isWithinHours(hours, at)`, `generateSlots(open, close, minutes)`, `addMinutes`, `isExpired`
-- [ ] **string**: `slugify`, `normalizePhone`, `maskPhone`, `maskEmail`, `titleCase`, `truncate`, `randomCode(len, alphabet)`
-- [ ] **crypto**: `hashToken` (sha256), `safeCompare` (timingSafeEqual), `generateOtp(len)`, `hmacSha256(payload, secret)`
-- [ ] **password**: `hashPassword`, `verifyPassword` (argon2)
-- [ ] **object**: `pick`, `omit`, `compact` (remove undefined/null), `deepFreeze`
-- [ ] **array**: `chunk`, `groupBy`, `uniqBy`, `keyBy`, `sumBy`
-- [ ] **geo**: `toGeoPoint(lat, lng)`, `haversineKm(a, b)`, `isWithinRadius`
-- [ ] **pagination**: `getSkip(page, limit)`, `buildPaginationMeta(total, page, limit)`
-- [ ] **async**: `sleep`, `retry(fn, { attempts, backoff })`, `withTimeout`
-- [ ] **state machine**: `createStateMachine<S>(transitions)` → `canTransition`, `assertTransition`, `nextStates` (used by order, payment, refund, delivery, vendor verification)
+- [x] **money**: `toPaise`, `fromPaise`, `isPaise`, `sumPaise`, `applyBasisPoints`, `percentToBasisPoints`, `splitProportionally` (no lost paise), `formatINR`
+- [x] **quantity**: `kgToGrams`, `gramsToKg`, `isGrams`, `priceForGrams`, `formatWeight`, `isWithinVariance`, `isValidStep`
+- [x] **date (IST)**: `toIST`, `nowIST`, `startOfDayIST`, `endOfDayIST`, `formatIST`, `addMinutes`, `isExpired`, `timeToMinutes`, `minutesToTime`, `isWithinHours` (handles past-midnight), `generateSlots`
+- [x] **string**: `slugify`, `normalizePhone`, `isIndianMobile`, `maskPhone`, `maskEmail`, `titleCase`, `truncate`, `randomCode`
+- [x] **crypto**: `sha256`, `hmacSha256`, `safeCompare`, `generateOtp`, `randomToken`
+- [ ] **password**: `hashPassword`, `verifyPassword` (argon2, Phase 2)
+- [x] **collection**: `pick`, `omit`, `compact`, `isPlainObject`, `chunk`, `groupBy`, `keyBy`, `uniqBy`, `sumBy`
+- [x] **geo**: `toGeoPoint`, `fromGeoPoint`, `haversineKm`, `isWithinRadius`, `kmToRadians`, `kmToMeters`
+- [x] **pagination**: `clampLimit`, `getSkip`, `buildPaginationMeta`
+- [x] **async**: `sleep`, `retry` (exponential backoff), `withTimeout`
+- [x] **state machine**: `createStateMachine(name, transitions)` → `canTransition`, `assertTransition`, `nextStates` (actor-aware)
 
-### A14. Auth building blocks (`src/modules/auth/`) ⭐
+### A14. Auth building blocks (`src/modules/auth/`) ⭐ — Phase 2
 - [ ] `TokenService` — sign/verify access & refresh, token family, rotation, reuse detection 🧪
 - [ ] `SessionService` — store hashed refresh tokens, revoke one / all, TTL index
 - [ ] `OtpService` — generate, hash, verify, attempt limits, resend cooldown 🧪
 - [ ] `JwtStrategy` — payload `{ sub, role, permissions, shopId? }`
-- [ ] `AuthUser` interface used everywhere (`@CurrentUser()` type)
+- [x] `AuthUser` / `AppRequest` interfaces (`common/interfaces`)
 
 ### A15. Infrastructure adapters (`src/infra/`) — interface + provider swap
-- [ ] **logger**: nestjs-pino, pretty in dev, JSON in prod, redaction of tokens/passwords/phones, requestId binding ⭐
+- [x] **logger**: pino + `AppLogger` (Nest LoggerService), pretty in dev, JSON in prod, redaction of tokens/passwords/OTPs/phones ⭐ — nestjs-pino skipped (no release supports both Nest 12 and Node 20)
+- [x] **throttler**: `AppThrottlerModule` from config
+- [x] **health**: Terminus `/api/v1/health` (Mongo ping + heap) and `/api/v1/health/live` ⭐
 - [ ] **events**: `@nestjs/event-emitter`, typed event payload classes per event name
-- [ ] **cache**: `CacheService` (get/set/del/wrap) + key builder functions + TTL constants
-- [ ] **queue**: BullMQ module registration helper, `BaseProcessor` (logging, retries, failure hook), default job options
-- [ ] **storage**: `StorageService` interface → `CloudinaryStorage` / `S3Storage`; `uploadImage`, `uploadDocument`, `delete`, `signedUrl`
-- [ ] **file validation**: `ParseFilePipe` preset (mime + size), `@UploadImages(max)` decorator
-- [ ] **sms**: `SmsService` interface (OTP, order updates) + provider + console provider for dev
+- [ ] **cache**: `CacheService` (get/set/del/wrap) + key builders + TTL constants
+- [ ] **queue**: BullMQ registration helper, `BaseProcessor`, default job options
+- [ ] **storage**: `StorageService` interface → Cloudinary / S3 adapters
+- [ ] **file validation**: `ParseFilePipe` preset (mime + size), `@UploadImages(max)`
+- [ ] **sms**: `SmsService` interface + provider + console provider for dev
 - [ ] **email**: `MailService` interface + template renderer
 - [ ] **push**: `PushService` interface (FCM/Web Push)
-- [ ] **payment**: `PaymentProvider` interface (`createOrder`, `verifySignature`, `refund`, `fetchPayment`) → Razorpay adapter
+- [ ] **payment**: `PaymentProvider` interface → Razorpay adapter
 - [ ] **maps** (later): `GeocodingService` interface
-- [ ] **health**: Terminus checks for Mongo, Redis, disk, memory ⭐
 
 ### A16. Domain helpers shared across modules
-- [ ] `PricingService` — line total, delivery fee rules, coupon discount, tax, commission; one place for all money math 🧪
-- [ ] `InventoryService.reserve/release/commit` — atomic `findOneAndUpdate` with `availableQty >= qty` condition + movement log 🧪
+- [ ] `PricingService` — line total, delivery fee rules, coupon discount, tax, commission 🧪
+- [ ] `InventoryService.reserve/release/commit` — atomic conditional update + movement log 🧪
 - [ ] `LedgerService.post(entries[])` — append-only, balanced entries, reversal instead of edit 🧪
-- [ ] `OrderSnapshot` builder — copies product name, variant, price, options into order item 🧪
+- [ ] `OrderSnapshot` builder 🧪
 - [ ] `AuditService.log(actor, action, entity, before?, after?)`
-- [ ] `NotificationDispatcher.send(userId, type, payload)` — picks channels from user prefs + templates
+- [ ] `NotificationDispatcher.send(userId, type, payload)`
 - [ ] `ServiceabilityService.check(shopId, coordinates)` — radius/zone + open hours
 
 ### A17. Module template (copy for every feature)
@@ -210,55 +199,57 @@ modules/<feature>/
   events/        <feature>-*.event.ts
   index.ts
 ```
-- [ ] Generator script or Nest schematic that creates this structure
+- [x] Reference module: `modules/health`
+- [ ] Generator script that creates this structure (Nest CLI generators don't run on Node 20)
 
 ### A18. Testing helpers (`server/test/`)
-- [ ] `create-test-app.ts` — boots app with in-memory Mongo **replica set** (mongodb-memory-server)
-- [ ] `factories/` — `userFactory`, `vendorFactory`, `shopFactory`, `productFactory`, `orderFactory` (UUID ids)
-- [ ] `auth.helper.ts` — `loginAs(role)` → bearer token
-- [ ] `db.helper.ts` — `clearDatabase()`
-- [ ] Supertest request wrapper that unwraps the envelope
+- [x] `helpers/create-test-app.ts` — real `AppModule` + optional test controllers/modules, same global pipeline
+- [x] `setup-env.ts` — e2e uses `meat_shop_test` database (override with `MONGODB_TEST_URI`), silent logs
+- [x] `fixtures/probe.controller.ts`, `fixtures/test-item.schema.ts` — exercise the shared HTTP and DB layers
+- [ ] `factories/` — `userFactory`, `vendorFactory`, `shopFactory`, `productFactory`, `orderFactory`
+- [ ] `auth.helper.ts` — `loginAs(role)` → bearer token (Phase 2)
+- [ ] Replica-set test database for transaction tests (checkout phase)
 
 ---
 
 ## Part B — Frontend (`public/` and `admin/` — same structure in both)
 
 ### B1. Project tooling ⭐
-- [ ] Vite path alias `@/` → `src/`, mirrored in `tsconfig`
+- [x] Vite path alias `@/` → `src/`, mirrored in `tsconfig`
 - [ ] ESLint (react, react-hooks, jsx-a11y, import order) + Prettier with `prettier-plugin-tailwindcss`
 - [ ] Husky + lint-staged + `scripts/check-rules.sh`
-- [ ] `npm run gen:api` — `openapi-typescript` from `server/swagger.json` → `src/types/api.generated.ts`
-- [ ] Vitest + React Testing Library + MSW setup
-- [ ] `.env.example`
+- [x] `npm run gen:api` — `openapi-typescript` from `server/swagger.json` → `src/types/api.generated.ts`
+- [x] Vitest + React Testing Library setup
+- [x] `.env.example`
 
 ### B2. Config (`src/config/`) ⭐
-- [ ] `env.ts` — Zod-validated `import.meta.env` (API URL, app name, default locale, map keys); the only env reader
-- [ ] `app.config.ts` — app name, support phone, default page size, upload limits, currency, timezone
-- [ ] `routes.ts` — every route path as a constant + `buildPath(route, params)` helper
+- [x] `env.ts` — Zod-validated `import.meta.env` (API URL, app name, default locale, map keys); the only env reader
+- [x] `app.config.ts` — app name, support phone, default page size, upload limits, currency, timezone
+- [x] `routes.ts` — every route path as a constant + `buildPath(route, params)` helper
 - [ ] `nav.config.ts` (admin) — sidebar items per role with permission keys
 
 ### B3. Theme & design tokens (`src/styles/theme.css`) ⭐
-- [ ] `@theme` clears radius namespace and defines only `--radius-md` → `rounded-lg/xl` cannot be generated
-- [ ] `@theme` clears `--shadow-*`, `--inset-shadow-*`, `--drop-shadow-*`, `--text-shadow-*` → no shadow utilities exist
-- [ ] Semantic color tokens: `background`, `surface`, `surface-muted`, `border`, `text`, `text-muted`, `primary`, `primary-foreground`, `success`, `warning`, `danger`, `info` (+ `-soft` backgrounds)
+- [x] `@theme` clears radius namespace and defines only `--radius-md` → `rounded-lg/xl` cannot be generated
+- [x] `@theme` clears `--shadow-*`, `--inset-shadow-*`, `--drop-shadow-*`, `--text-shadow-*` → no shadow utilities exist
+- [x] Semantic color tokens: `background`, `surface`, `surface-muted`, `border`, `text`, `text-muted`, `primary`, `primary-foreground`, `success`, `warning`, `danger`, `info` (+ `-soft` backgrounds)
 - [ ] Dark mode token overrides
-- [ ] Fonts: Inter + Noto Sans Tamil; type scale tokens
+- [x] Fonts: Inter + Noto Sans Tamil; type scale tokens
 - [ ] Focus ring token (`ring-2 ring-primary/40`) — the accessible replacement for shadow-based focus
 - [ ] z-index scale tokens (dropdown, sticky, overlay, modal, toast)
 
 ### B4. Core lib (`src/lib/`) ⭐
-- [ ] `cn.ts` — `clsx` + `tailwind-merge` 🧪
-- [ ] `api-client.ts` — Axios instance, base URL from env, `withCredentials`, timeout
+- [x] `cn.ts` — `clsx` + `tailwind-merge` 🧪
+- [x] `api-client.ts` — Axios instance, base URL from env, `withCredentials`, timeout
 - [ ] `api-interceptors.ts` — attach token, refresh-on-401 with request queue (single refresh in flight), unwrap envelope, normalize errors
 - [ ] `api-error.ts` — `ApiError` class + `getErrorMessage(err)` + `getFieldErrors(err)` 🧪
-- [ ] `http.ts` — typed `get<T>`, `post<T>`, `patch<T>`, `del<T>`, `getPaginated<T>`
-- [ ] `query-client.ts` — TanStack Query defaults (staleTime, retry rules: no retry on 4xx)
+- [x] `http.ts` — typed `get<T>`, `post<T>`, `patch<T>`, `del<T>`, `getPaginated<T>`
+- [x] `query-client.ts` — TanStack Query defaults (staleTime, retry rules: no retry on 4xx)
 - [ ] `i18n.ts` — react-i18next, `en` + `ta` namespaces, language persistence
 - [ ] `storage.ts` — safe `localStorage` wrapper (try/catch, JSON, versioned keys)
-- [ ] `logger.ts` — dev-only console wrapper (no raw `console.log` in code)
+- [x] `logger.ts` — dev-only console wrapper (no raw `console.log` in code)
 
 ### B5. UI primitives (`src/components/ui/`) — `rounded-md`, no shadow, `cva` variants ⭐
-- [ ] `Button` (variants: primary, secondary, outline, ghost, danger, link; sizes; `loading`, `leftIcon`, `rightIcon`, `fullWidth`)
+- [x] `Button` (variants: primary, secondary, outline, ghost, danger; sizes; `loading`, `leftIcon`, `rightIcon`, `fullWidth`)
 - [ ] `IconButton`
 - [ ] `Input`, `Textarea`, `NumberInput`, `PasswordInput`, `PhoneInput` (+91 prefix), `OtpInput`
 - [ ] `Select`, `Combobox` (searchable), `MultiSelect`
@@ -267,7 +258,7 @@ modules/<feature>/
 - [ ] `Card` (`CardHeader`, `CardBody`, `CardFooter`) — border + surface, no shadow
 - [ ] `Badge`, `StatusBadge` (maps any status enum → tone via config), `Chip` / `FilterChip`
 - [ ] `Avatar` (rounded-full exception), `AvatarGroup`
-- [ ] `Spinner`, `Skeleton`, `ProgressBar`
+- [x] `Spinner`, `Skeleton`, `ProgressBar`
 - [ ] `Alert` / `Banner`, `Toast` (sonner or custom), `EmptyState`, `ErrorState`
 - [ ] `Modal` / `Dialog`, `ConfirmDialog`, `Drawer` / `Sheet`
 - [ ] `DropdownMenu`, `Popover`, `Tooltip` (Radix / Headless UI base, our styling)
