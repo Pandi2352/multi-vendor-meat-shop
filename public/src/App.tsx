@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { BrowserRouter, Routes, Route, Link, useNavigate } from 'react-router-dom';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { ShoppingBag, MapPin, Store, Package } from 'lucide-react';
+import { ShoppingBag, MapPin, Package } from 'lucide-react';
 import { Button } from '@/components/ui';
 import { ErrorBoundary } from '@/components/layout';
 import { queryClient } from '@/lib/query-client';
@@ -10,6 +10,8 @@ import { CartDrawer } from '@/features/cart/components/cart-drawer';
 import { CheckoutModal } from '@/features/orders/components/checkout-modal';
 import { OrdersPage } from '@/features/orders/pages/orders-page';
 import { OrderDetailPage } from '@/features/orders/pages/order-detail-page';
+import { ShopCataloguePage } from '@/features/shops/pages/shop-catalogue-page';
+import { HomePage } from '@/pages/home-page';
 import type { CheckoutQuoteResponse } from '@/features/cart/api/cart.api';
 
 function Header({ onOpenCart }: { onOpenCart: () => void }) {
@@ -55,59 +57,6 @@ function Header({ onOpenCart }: { onOpenCart: () => void }) {
   );
 }
 
-function HomePage({ onOpenCart }: { onOpenCart: () => void }) {
-  return (
-    <main className="flex-1 max-w-6xl mx-auto px-4 py-8 w-full">
-      <section className="rounded-md border border-border bg-surface p-6 sm:p-10 mb-8">
-        <div className="max-w-2xl">
-          <span className="inline-block px-2.5 py-1 mb-3 rounded-md border border-border bg-surface-muted text-xs font-medium text-primary">
-            Hyperlocal Fresh Meat Delivery
-          </span>
-          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-text mb-3">
-            Fresh cut meat delivered directly from trusted local butchers
-          </h2>
-          <p className="text-sm text-muted mb-6">
-            Exact weight ordering in grams, zero hidden charges, transparent pricing in paise, and lightning-fast delivery across Tamil Nadu.
-          </p>
-          <div className="flex flex-wrap gap-3">
-            <Button variant="primary" leftIcon={<Store className="h-4 w-4" />} onClick={onOpenCart}>
-              View Cart / Order Now
-            </Button>
-            <Link to="/orders">
-              <Button variant="outline">Track Existing Orders</Button>
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Quick Categories */}
-      <section>
-        <h3 className="text-lg font-semibold text-text mb-4">Popular Fresh Cuts</h3>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          {[
-            { name: 'Country Chicken', count: '12 shops', tag: 'Fresh daily' },
-            { name: 'Broiler Chicken', count: '18 shops', tag: 'Clean cut' },
-            { name: 'Goat / Mutton', count: '9 shops', tag: 'Tender' },
-            { name: 'Fresh Fish', count: '14 shops', tag: 'Catch of the day' },
-          ].map((cat) => (
-            <div
-              key={cat.name}
-              onClick={onOpenCart}
-              className="rounded-md border border-border bg-surface p-4 hover:border-primary/50 transition-colors cursor-pointer"
-            >
-              <p className="font-semibold text-text text-sm mb-1">{cat.name}</p>
-              <div className="flex items-center justify-between text-xs text-muted">
-                <span>{cat.count}</span>
-                <span className="text-primary">{cat.tag}</span>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-    </main>
-  );
-}
-
 function StorefrontApp() {
   const navigate = useNavigate();
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -125,6 +74,7 @@ function StorefrontApp() {
 
       <Routes>
         <Route path="/" element={<HomePage onOpenCart={() => setIsCartOpen(true)} />} />
+        <Route path="/shops/:shopId" element={<ShopCataloguePage />} />
         <Route path="/orders" element={<OrdersPage />} />
         <Route path="/orders/:orderId" element={<OrderDetailPage />} />
       </Routes>

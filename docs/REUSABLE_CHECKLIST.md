@@ -261,10 +261,10 @@ modules/<feature>/
 - [x] `Badge`, `StatusBadge` (maps any status enum → tone via config), `Chip` / `FilterChip`
 - [ ] `Avatar` (rounded-full exception), `AvatarGroup`
 - [x] `Spinner`, `Skeleton`, `ProgressBar`
-- [ ] `Alert` / `Banner`, `Toast` (sonner or custom), `EmptyState`, `ErrorState`
-- [x] `Modal` / `Dialog`, `ConfirmDialog`, `Drawer` / `Sheet` (`CheckoutModal`, `CartDrawer`)
+- [x] `Alert` / `Banner`, `Toast` (sonner or custom), `EmptyState`, `ErrorState`
+- [x] `Modal` / `Dialog`, `ConfirmDialog`, `Drawer` / `Sheet` (`CheckoutModal`, `CartDrawer`, `WeightRecordingModal`, `RejectOrderModal`)
 - [ ] `DropdownMenu`, `Popover`, `Tooltip` (Radix / Headless UI base, our styling)
-- [ ] `Tabs`, `Accordion`, `Stepper`, `Timeline` (order status history)
+- [x] `Tabs`, `Accordion`, `Stepper`, `Timeline` (order status history)
 - [ ] `Breadcrumbs`, `Divider`, `Kbd`, `CopyButton`, `Link`
 - [ ] `Image` (lazy, aspect ratio, fallback), `ImageGallery`
 - [ ] `Rating` (display + input)
@@ -272,12 +272,12 @@ modules/<feature>/
 - [ ] `FileUpload`, `ImageUploader` (preview, reorder, remove, size/mime check)
 - [ ] `SearchInput` (debounced, clear button)
 - [ ] `Icon` — single re-export point for `lucide-react` icons
-- [ ] `index.ts` barrel
+- [x] `index.ts` barrel
 
 ### B6. Domain display components (`src/components/domain/`)
-- [ ] `PriceText` (paise → ₹, strike-through MRP), `PricePerKg`
-- [ ] `WeightText` (grams → `500 g` / `1.5 kg`)
-- [ ] `WeightSelector` (preset 250/500/1000 g + custom step) and `QuantityStepper`
+- [x] `PriceText` (paise → ₹, strike-through MRP), `PricePerKg`
+- [x] `WeightText` (grams → `500 g` / `1.5 kg`)
+- [x] `WeightSelector` (preset 250/500/1000 g + custom step) and `QuantityStepper`
 - [x] `OrderStatusBadge`, `PaymentStatusBadge`, `VerificationStatusBadge`
 - [x] `OrderTimeline`
 - [ ] `ShopOpenIndicator` (open / closed / opens at)

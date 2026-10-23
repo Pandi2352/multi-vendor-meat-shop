@@ -18,6 +18,7 @@ export class UpdateOrderStatusDto {
   @ApiPropertyOptional({
     description: 'Map of productId to actual packed grams recorded by the shop',
     example: { '018f1234-abcd-7000-8000-000000000001': 520 },
+    additionalProperties: { type: 'number' },
   })
   @IsOptional()
   @IsObject()
