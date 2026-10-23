@@ -178,7 +178,7 @@ Server facts: NestJS 12 is **ESM-only** → relative imports end in `.js`, cross
 
 ### A16. Domain helpers shared across modules
 - [ ] `PricingService` — line total, delivery fee rules, coupon discount, tax, commission 🧪
-- [ ] `InventoryService.reserve/release/commit` — atomic conditional update + movement log 🧪
+- [x] `InventoryService.reserve/release/commit` — atomic conditional update + movement log 🧪
 - [ ] `LedgerService.post(entries[])` — append-only, balanced entries, reversal instead of edit 🧪
 - [ ] `OrderSnapshot` builder 🧪
 - [ ] `AuditService.log(actor, action, entity, before?, after?)`
