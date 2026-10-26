@@ -1,5 +1,6 @@
 import { ChevronDown, CircleHelp, LogOut, Settings } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import { Avatar, Dropdown, DropdownItem, DropdownSeparator } from '@/components/ui';
 import { ROUTES } from '@/config/routes';
 import { SIGN_IN_REASON } from '@/features/auth';
@@ -10,9 +11,11 @@ import { tokenStorage } from '@/lib/token-storage';
 export function UserMenu() {
   const user = useCurrentUser();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const signOut = () => {
     tokenStorage.clearTokens();
+    queryClient.clear();
     navigate(`${ROUTES.LOGIN}?reason=${SIGN_IN_REASON.SIGNED_OUT}`, { replace: true });
   };
 

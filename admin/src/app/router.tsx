@@ -8,6 +8,7 @@ import { VendorSettlementsPage } from '@/features/finance';
 import { VendorInventoryPage } from '@/features/inventory';
 import { AdminVendorsPage } from '@/features/vendors';
 import { AdminUsersPage } from '@/features/users';
+import { VendorProductsPage } from '@/features/products';
 import { ComingSoonPage } from '@/pages/coming-soon-page';
 import { DashboardRoute, VendorOrderDetailRoute, VendorOrdersRoute } from './route-elements';
 
@@ -40,6 +41,7 @@ export const router = createBrowserRouter([
       { index: true, element: <DashboardRoute /> },
       { path: ROUTES.VENDOR_ORDERS, element: <VendorOrdersRoute /> },
       { path: ROUTES.VENDOR_ORDER_DETAIL, element: <VendorOrderDetailRoute /> },
+      { path: ROUTES.VENDOR_PRODUCTS, element: <VendorProductsPage /> },
       { path: ROUTES.VENDOR_INVENTORY, element: <VendorInventoryPage /> },
       { path: ROUTES.VENDOR_SETTLEMENTS, element: <VendorSettlementsPage /> },
       { path: ROUTES.DELIVERY_TASKS, element: <DeliveryTasksPage /> },

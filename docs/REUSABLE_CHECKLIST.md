@@ -355,6 +355,7 @@ modules/<feature>/
 - [ ] `features/<f>/api/<f>.api.ts` — plain request functions using `http.ts`
 - [ ] `features/<f>/api/use-<f>-queries.ts` — `useXList`, `useXDetail`
 - [ ] `features/<f>/api/use-<f>-mutations.ts` — `useCreateX`, `useUpdateX` built on shared `useAppMutation`
+- [x] Vendor Products Catalogue (`/vendor/products`): Meat cuts, per-kg pricing (₹/paise), package sizes (250g, 500g, 1kg), butchery prep options (Skin-on, Skin-off, Cleaned, Small pieces), daily freshness & stock status toggle
 - [ ] Shared `useAppMutation` — success toast, error toast, invalidate keys, optimistic update option
 - [ ] Shared `usePaginatedQuery` — page/limit/sort from URL state
 

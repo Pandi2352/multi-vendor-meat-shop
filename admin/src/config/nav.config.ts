@@ -98,7 +98,7 @@ export const NAV_SECTIONS: NavSection[] = [
         label: 'Catalogue',
         icon: Package,
         children: [
-          { label: 'Products', to: ROUTES.VENDOR_PRODUCTS, description: 'Cuts, prices and variants', soon: true },
+          { label: 'Products', to: ROUTES.VENDOR_PRODUCTS, description: 'Cuts, prices and variants' },
           { label: 'Shop profile', to: ROUTES.VENDOR_SHOPS, description: 'Hours, slots and service area', soon: true },
         ],
       },

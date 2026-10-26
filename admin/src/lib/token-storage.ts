@@ -1,5 +1,6 @@
 const ADMIN_ACCESS_TOKEN_KEY = 'meat_shop_admin_access_token';
 const ADMIN_REFRESH_TOKEN_KEY = 'meat_shop_admin_refresh_token';
+const ADMIN_USER_KEY = 'meat_shop_admin_user';
 
 let memoryAccessToken: string | null = null;
 
@@ -47,11 +48,33 @@ export const tokenStorage = {
     }
   },
 
+  getUser: <T = unknown>(): T | null => {
+    try {
+      const data = localStorage.getItem(ADMIN_USER_KEY);
+      return data ? (JSON.parse(data) as T) : null;
+    } catch {
+      return null;
+    }
+  },
+
+  setUser: (user: unknown): void => {
+    try {
+      if (user) {
+        localStorage.setItem(ADMIN_USER_KEY, JSON.stringify(user));
+      } else {
+        localStorage.removeItem(ADMIN_USER_KEY);
+      }
+    } catch {
+      // Storage unavailable or disabled
+    }
+  },
+
   clearTokens: (): void => {
     memoryAccessToken = null;
     try {
       localStorage.removeItem(ADMIN_ACCESS_TOKEN_KEY);
       localStorage.removeItem(ADMIN_REFRESH_TOKEN_KEY);
+      localStorage.removeItem(ADMIN_USER_KEY);
     } catch {
       // Storage unavailable or disabled
     }

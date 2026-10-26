@@ -21,6 +21,7 @@ export const useAcceptInvitation = () => {
       if (data.refreshToken) {
         tokenStorage.setRefreshToken(data.refreshToken);
       }
+      tokenStorage.setUser(data.user);
       queryClient.setQueryData(['currentUser'], data.user);
     },
   });

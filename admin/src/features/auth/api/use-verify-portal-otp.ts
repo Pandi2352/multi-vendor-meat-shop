@@ -8,6 +8,9 @@ export const useVerifyPortalOtp = () =>
       authApi.verifyPortalOtp(email, otp),
     onSuccess: (data: AuthResponse) => {
       tokenStorage.setAccessToken(data.accessToken);
-      tokenStorage.setRefreshToken(data.refreshToken);
+      if (data.refreshToken) {
+        tokenStorage.setRefreshToken(data.refreshToken);
+      }
+      tokenStorage.setUser(data.user);
     },
   });
