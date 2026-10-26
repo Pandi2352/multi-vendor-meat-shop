@@ -1,6 +1,8 @@
-import { plainToInstance } from 'class-transformer';
+import { Transform, plainToInstance } from 'class-transformer';
 import {
   IsBoolean,
+  IsEmail,
+  IsOptional,
   IsEnum,
   IsIn,
   IsInt,
@@ -54,16 +56,23 @@ export class EnvironmentVariables {
   @ToInt() @IsInt() @Min(1) OTP_MAX_ATTEMPTS = 5;
   @ToInt() @IsInt() @Min(10) OTP_RESEND_COOLDOWN_SECONDS = 60;
 
+  // Super admin — created on boot if missing (the first portal account; everyone else is invited)
+  @Transform(({ value }: { value: unknown }) => (value === '' ? undefined : value))
+  @IsOptional()
+  @IsEmail()
+  SUPER_ADMIN_EMAIL?: string;
+  @IsString() SUPER_ADMIN_NAME = 'Super Admin';
+
   // Rate limiting
   @ToInt() @IsInt() @Min(1) THROTTLE_TTL_SECONDS = 60;
   @ToInt() @IsInt() @Min(1) THROTTLE_LIMIT = 120;
 
-  // SMTP Mail
+  // SMTP Mail — credentials have no defaults: they must come from .env, never from code.
   @IsString() SMTP_HOST = 'smtp.gmail.com';
   @ToInt() @IsInt() @Min(1) @Max(65535) SMTP_PORT = 587;
-  @IsString() SMTP_USER = 'mvp.bose2352@gmail.com';
-  @IsString() SMTP_PASS = 'nvdi gggi ghqb rpmk';
-  @IsString() MAIL_FROM = 'NovaShop <mvp.bose2352@gmail.com>';
+  @IsString() @MinLength(1) SMTP_USER!: string;
+  @IsString() @MinLength(1) SMTP_PASS!: string;
+  @IsString() @MinLength(3) MAIL_FROM!: string;
 
   // Swagger
   @ToBoolean() @IsBoolean() SWAGGER_ENABLED = true;

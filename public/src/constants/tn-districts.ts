@@ -4,6 +4,8 @@ export interface VirudhunagarTown {
   nameTa: string;
   pincode: string;
   description: string;
+  lat: number;
+  lng: number;
 }
 
 export const VIRUDHUNAGAR_TOWNS: VirudhunagarTown[] = [
@@ -13,6 +15,8 @@ export const VIRUDHUNAGAR_TOWNS: VirudhunagarTown[] = [
     nameTa: 'விருதுநகர் டவுன்',
     pincode: '626001',
     description: 'Bazaar, Madurai Road, Ramamoorthy Road & Collectorate',
+    lat: 9.568,
+    lng: 77.9624,
   },
   {
     code: 'SIVAKASI',
@@ -20,6 +24,8 @@ export const VIRUDHUNAGAR_TOWNS: VirudhunagarTown[] = [
     nameTa: 'சிவகாசி',
     pincode: '626123',
     description: 'Car Street, Thiruthangal Road & Sattur Road',
+    lat: 9.4533,
+    lng: 77.8024,
   },
   {
     code: 'RAJAPALAYAM',
@@ -27,6 +33,8 @@ export const VIRUDHUNAGAR_TOWNS: VirudhunagarTown[] = [
     nameTa: 'ராஜபாளையம்',
     pincode: '626117',
     description: 'Tenkasi Road, PACR Salai & Gandhi Grounds',
+    lat: 9.4532,
+    lng: 77.5544,
   },
   {
     code: 'ARUPPUKKOTTAI',
@@ -34,6 +42,8 @@ export const VIRUDHUNAGAR_TOWNS: VirudhunagarTown[] = [
     nameTa: 'அருப்புக்கோட்டை',
     pincode: '626101',
     description: 'Chokkalingapuram, Thirunagaram & Pandal Kudi Rd',
+    lat: 9.5108,
+    lng: 78.0984,
   },
   {
     code: 'SRIVILLIPUTHUR',
@@ -41,6 +51,8 @@ export const VIRUDHUNAGAR_TOWNS: VirudhunagarTown[] = [
     nameTa: 'ஸ்ரீவில்லிபுத்தூர்',
     pincode: '626125',
     description: 'Andal Sannathi, Madurai Highway & Mada Veedhi',
+    lat: 9.5098,
+    lng: 77.6322,
   },
   {
     code: 'SATTUR',
@@ -48,6 +60,8 @@ export const VIRUDHUNAGAR_TOWNS: VirudhunagarTown[] = [
     nameTa: 'சாத்தூர்',
     pincode: '626203',
     description: 'Kovilpatti Road & Main Bazaar',
+    lat: 9.3621,
+    lng: 77.9254,
   },
   {
     code: 'THIRUTHANGAL',
@@ -55,6 +69,8 @@ export const VIRUDHUNAGAR_TOWNS: VirudhunagarTown[] = [
     nameTa: 'திருத்தங்கல்',
     pincode: '626130',
     description: 'Annamalaiyar Colony & Sivakasi Link',
+    lat: 9.4819,
+    lng: 77.8067,
   },
   {
     code: 'KARIAPATTI',
@@ -62,6 +78,8 @@ export const VIRUDHUNAGAR_TOWNS: VirudhunagarTown[] = [
     nameTa: 'காரியாபட்டி',
     pincode: '626106',
     description: 'Madurai-Aruppukkottai Bypass',
+    lat: 9.6806,
+    lng: 78.1408,
   },
   {
     code: 'WATRAP',
@@ -69,6 +87,8 @@ export const VIRUDHUNAGAR_TOWNS: VirudhunagarTown[] = [
     nameTa: 'வத்திராயிருப்பு',
     pincode: '626132',
     description: 'Maharajapuram & Foothills',
+    lat: 9.6385,
+    lng: 77.6401,
   },
   {
     code: 'TIRUCHULI',
@@ -76,6 +96,8 @@ export const VIRUDHUNAGAR_TOWNS: VirudhunagarTown[] = [
     nameTa: 'திருச்சுழி',
     pincode: '626129',
     description: 'Bhuminathar Sannathi & Kamuthi Road',
+    lat: 9.5317,
+    lng: 78.1977,
   },
 ];
 

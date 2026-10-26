@@ -1,3 +1,4 @@
+import { SuperAdminSeeder } from './services/super-admin-seeder.service.js';
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from './schemas/user.schema.js';
@@ -17,7 +18,7 @@ import { AddressesController } from './controllers/addresses.controller.js';
     ]),
   ],
   controllers: [UsersController, AddressesController],
-  providers: [UserRepository, AddressRepository, UsersService, AddressesService],
+  providers: [UserRepository, AddressRepository, UsersService, AddressesService, SuperAdminSeeder],
   exports: [UsersService, AddressesService, AddressRepository],
 })
 export class UsersModule {}

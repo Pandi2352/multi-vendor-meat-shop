@@ -2,6 +2,7 @@ import { Permission as P } from './permission.enum.js';
 import { Role } from './role.enum.js';
 
 export const ROLE_PERMISSIONS: Readonly<Record<Role, readonly P[]>> = {
+  [Role.SUPER_ADMIN]: Object.values(P),
   [Role.CUSTOMER]: [],
   [Role.VENDOR_OWNER]: [
     P.SHOP_MANAGE,

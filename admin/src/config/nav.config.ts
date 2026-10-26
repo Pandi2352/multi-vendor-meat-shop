@@ -134,7 +134,6 @@ export const NAV_SECTIONS: NavSection[] = [
         label: 'Vendors',
         to: ROUTES.ADMIN_VENDORS,
         icon: Store,
-        soon: true,
         description: 'Verify shops and FSSAI documents',
       },
       { type: 'link', label: 'Users', to: ROUTES.ADMIN_USERS, icon: Users, soon: true },

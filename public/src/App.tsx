@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { BrowserRouter, Routes, Route, Link, useNavigate } from 'react-router-dom';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { ShoppingBag, MapPin, Package } from 'lucide-react';
+import { ShoppingBag, MapPin, Package, Store } from 'lucide-react';
 import { Button } from '@/components/ui';
 import { ErrorBoundary } from '@/components/layout';
 import { queryClient } from '@/lib/query-client';
@@ -14,9 +14,16 @@ import { ShopCataloguePage } from '@/features/shops/pages/shop-catalogue-page';
 import { HomePage } from '@/pages/home-page';
 import { DistrictProvider, useDistrict } from '@/context/district-context';
 import { VIRUDHUNAGAR_TOWNS } from '@/constants/tn-districts';
+import { VendorApplyModal } from '@/features/vendors';
 import type { CheckoutQuoteResponse } from '@/features/cart/api/cart.api';
 
-function Header({ onOpenCart }: { onOpenCart: () => void }) {
+function Header({
+  onOpenCart,
+  onOpenPartnerModal,
+}: {
+  onOpenCart: () => void;
+  onOpenPartnerModal: () => void;
+}) {
   const { data: cart } = useCart();
   const { selectedDistrict, setSelectedDistrict } = useDistrict();
   const itemCount = cart?.itemCount || 0;
@@ -52,6 +59,15 @@ function Header({ onOpenCart }: { onOpenCart: () => void }) {
             </select>
           </div>
 
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onOpenPartnerModal}
+            leftIcon={<Store className="h-4 w-4 text-primary" />}
+          >
+            Partner With Us
+          </Button>
+
           <Link to="/orders">
             <Button variant="outline" size="sm" leftIcon={<Package className="h-4 w-4" />}>
               Orders
@@ -75,6 +91,7 @@ function Header({ onOpenCart }: { onOpenCart: () => void }) {
 function StorefrontApp() {
   const navigate = useNavigate();
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isPartnerModalOpen, setIsPartnerModalOpen] = useState(false);
   const [checkoutQuote, setCheckoutQuote] = useState<CheckoutQuoteResponse | null>(null);
 
   const handleOrderPlaced = (order: { id: string }) => {
@@ -85,7 +102,10 @@ function StorefrontApp() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <Header onOpenCart={() => setIsCartOpen(true)} />
+      <Header
+        onOpenCart={() => setIsCartOpen(true)}
+        onOpenPartnerModal={() => setIsPartnerModalOpen(true)}
+      />
 
       <Routes>
         <Route path="/" element={<HomePage onOpenCart={() => setIsCartOpen(true)} />} />
@@ -103,6 +123,11 @@ function StorefrontApp() {
         }}
       />
 
+      <VendorApplyModal
+        isOpen={isPartnerModalOpen}
+        onClose={() => setIsPartnerModalOpen(false)}
+      />
+
       {checkoutQuote && (
         <CheckoutModal
           isOpen={Boolean(checkoutQuote)}
@@ -114,8 +139,17 @@ function StorefrontApp() {
 
       <footer className="border-t border-border bg-surface mt-auto py-6">
         <div className="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted">
-          <p>© 2026 Virudhunagar Meat Marketplace (விருதுநகர்). All rights reserved.</p>
-          <p>Serving Virudhunagar, Sivakasi, Rajapalayam, Srivilliputhur, Aruppukkottai & Sattur.</p>
+          <div>
+            <p>© 2026 Virudhunagar Meat Marketplace (விருதுநகர்). All rights reserved.</p>
+            <p>Serving Virudhunagar, Sivakasi, Rajapalayam, Srivilliputhur, Aruppukkottai & Sattur.</p>
+          </div>
+          <button
+            onClick={() => setIsPartnerModalOpen(true)}
+            className="flex items-center gap-1.5 text-primary hover:underline font-medium"
+          >
+            <Store className="h-3.5 w-3.5" />
+            Sell With Us / கடை பதிவு செய்ய
+          </button>
         </div>
       </footer>
     </div>

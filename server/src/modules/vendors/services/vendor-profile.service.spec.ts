@@ -1,7 +1,8 @@
 import { describe, expect, it, vi } from 'vitest';
-import { Role, VendorVerificationStatus } from '#common/enums';
-import { AppException, ErrorCode } from '#common/exceptions';
+import { Role, ShopStatus, VendorVerificationStatus } from '#common/enums';
+import { AppException } from '#common/exceptions';
 import type { UserRepository } from '#modules/users';
+import type { ShopRepository } from '#modules/shops';
 import type { VendorProfileRepository } from '../repositories/vendor-profile.repository.js';
 import { VendorProfileService } from './vendor-profile.service.js';
 
@@ -17,6 +18,21 @@ describe('VendorProfileService', () => {
     updatedAt: new Date('2026-10-23T12:00:00.000Z'),
   };
 
+  const dummyShop = {
+    _id: '018f3a52-7b5c-7d92-881b-85fa7d7b5b5e',
+    vendorId: dummyProfile._id,
+    name: 'Murugan Meats',
+    phone: '9842012345',
+    status: ShopStatus.OPEN,
+    address: {
+      line1: '12 Main Rd',
+      locality: 'Town Centre',
+      city: 'Virudhunagar',
+      district: 'Virudhunagar',
+      pincode: '626001',
+    },
+  };
+
   it('submits profile for review via state machine', async () => {
     const mockVendorRepo = {
       findByUserId: vi.fn().mockResolvedValue(dummyProfile),
@@ -26,8 +42,11 @@ describe('VendorProfileService', () => {
       }),
     } as unknown as VendorProfileRepository;
     const mockUserRepo = {} as unknown as UserRepository;
+    const mockShopRepo = {
+      findByVendorId: vi.fn().mockResolvedValue(dummyShop),
+    } as unknown as ShopRepository;
 
-    const service = new VendorProfileService(mockVendorRepo, mockUserRepo);
+    const service = new VendorProfileService(mockVendorRepo, mockUserRepo, mockShopRepo);
     const result = await service.submitForReview(dummyProfile.userId);
 
     expect(result.status).toBe(VendorVerificationStatus.SUBMITTED);
@@ -49,8 +68,12 @@ describe('VendorProfileService', () => {
     const mockUserRepo = {
       updateById: vi.fn().mockResolvedValue({}),
     } as unknown as UserRepository;
+    const mockShopRepo = {
+      findByVendorId: vi.fn().mockResolvedValue(dummyShop),
+      updateById: vi.fn().mockResolvedValue(dummyShop),
+    } as unknown as ShopRepository;
 
-    const service = new VendorProfileService(mockVendorRepo, mockUserRepo);
+    const service = new VendorProfileService(mockVendorRepo, mockUserRepo, mockShopRepo);
     const result = await service.verifyVendor('admin-1', dummyProfile._id, {
       status: VendorVerificationStatus.APPROVED,
     });
@@ -66,13 +89,48 @@ describe('VendorProfileService', () => {
       findByIdOrThrow: vi.fn().mockResolvedValue(dummyProfile), // DRAFT
     } as unknown as VendorProfileRepository;
     const mockUserRepo = {} as unknown as UserRepository;
+    const mockShopRepo = {
+      findByVendorId: vi.fn().mockResolvedValue(null),
+    } as unknown as ShopRepository;
 
-    const service = new VendorProfileService(mockVendorRepo, mockUserRepo);
+    const service = new VendorProfileService(mockVendorRepo, mockUserRepo, mockShopRepo);
     // DRAFT directly to APPROVED is illegal
     await expect(
       service.verifyVendor('admin-1', dummyProfile._id, {
         status: VendorVerificationStatus.APPROVED,
       }),
     ).rejects.toThrow(AppException);
+  });
+
+  it('allows public applicant to apply for shop onboarding', async () => {
+    const mockVendorRepo = {
+      findByUserId: vi.fn().mockResolvedValue(null),
+      create: vi.fn().mockResolvedValue(dummyProfile),
+    } as unknown as VendorProfileRepository;
+    const mockUserRepo = {
+      findByEmail: vi.fn().mockResolvedValue(null),
+      create: vi.fn().mockResolvedValue({ _id: dummyProfile.userId }),
+      updateById: vi.fn().mockResolvedValue({}),
+    } as unknown as UserRepository;
+    const mockShopRepo = {
+      findByVendorId: vi.fn().mockResolvedValue(null),
+      findBySlug: vi.fn().mockResolvedValue(null),
+      create: vi.fn().mockResolvedValue(dummyShop),
+    } as unknown as ShopRepository;
+
+    const service = new VendorProfileService(mockVendorRepo, mockUserRepo, mockShopRepo);
+    const result = await service.applyVendor({
+      ownerName: 'M. Ramasamy',
+      businessName: 'Sattur Highway Chicken & Mutton',
+      phone: '9842012345',
+      town: 'Sattur',
+      locality: 'Main Bazaar',
+      addressLine: '12 Kovilpatti Rd',
+      pincode: '626203',
+      fssaiNumber: '12426008000456',
+    });
+
+    expect(result.status).toBe(VendorVerificationStatus.DRAFT);
+    expect(result.applicationId).toBe(dummyProfile._id);
   });
 });

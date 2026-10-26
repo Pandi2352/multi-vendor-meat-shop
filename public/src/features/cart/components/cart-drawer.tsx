@@ -1,6 +1,7 @@
 import { X, Trash2, ShoppingBag, AlertTriangle, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui';
 import { formatINR, formatWeight } from '@/utils';
+import { useDistrict } from '@/context/district-context';
 import { useCart, useCheckoutQuote, useClearCart, useRemoveCartItem } from '../api/use-cart';
 import type { CheckoutQuoteResponse } from '../api/cart.api';
 
@@ -14,9 +15,14 @@ export function CartDrawer({ isOpen, onClose, onProceedToCheckout }: CartDrawerP
   const { data: cart, isLoading } = useCart();
   const removeItem = useRemoveCartItem();
   const clearCart = useClearCart();
+  const { selectedTown } = useDistrict();
 
   const hasItems = cart && cart.items && cart.items.length > 0;
-  const { data: quote } = useCheckoutQuote(13.0418, 80.2341, Boolean(hasItems));
+  const { data: quote } = useCheckoutQuote(
+    selectedTown?.lat ?? 9.568,
+    selectedTown?.lng ?? 77.9624,
+    Boolean(hasItems),
+  );
 
   if (!isOpen) return null;
 

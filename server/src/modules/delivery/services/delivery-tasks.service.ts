@@ -198,8 +198,15 @@ export class DeliveryTasksService {
   }
 
   async getCustomerTaskByOrderId(orderId: string, customerId: string): Promise<DeliveryTaskResponseDto> {
-    const task = await this.taskRepo.findByOrderId(orderId);
-    if (!task || task.customerId !== customerId) {
+    let task = await this.taskRepo.findByOrderId(orderId);
+    if (!task) {
+      const order = await this.orderRepo.findByIdOrThrow(orderId);
+      if (order.customerId !== customerId) {
+        throw new NotFoundAppException('DeliveryTask', orderId);
+      }
+      return this.createOrGetTaskForOrder(orderId);
+    }
+    if (task.customerId !== customerId) {
       throw new NotFoundAppException('DeliveryTask', orderId);
     }
     return toDeliveryTaskResponseDto(task, true);

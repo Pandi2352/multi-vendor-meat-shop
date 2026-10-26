@@ -43,7 +43,7 @@ export function CheckoutModal({ isOpen, onClose, quote, onOrderPlaced }: Checkou
           text: addressData.text.trim(),
           pincode: addressData.pincode.trim(),
           district: addressData.district.trim(),
-          location: addressData.location || { lat: 13.0418, lng: 80.2341 },
+          location: addressData.location || { lat: 9.568, lng: 77.9624 },
           label: addressData.label || 'Home',
         },
         customerNotes: customerNotes.trim() || undefined,

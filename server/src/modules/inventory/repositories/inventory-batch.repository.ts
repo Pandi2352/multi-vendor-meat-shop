@@ -84,7 +84,8 @@ export class InventoryBatchRepository extends BaseRepository<InventoryBatch> {
     batchDate: string,
     grams: number,
   ): Promise<InventoryBatch | null> {
-    return this.model
+    // First try consuming from reservedGrams if a hold was placed (e.g. online payment)
+    const fromReserved = await this.model
       .findOneAndUpdate(
         {
           shopId,
@@ -95,7 +96,26 @@ export class InventoryBatchRepository extends BaseRepository<InventoryBatch> {
         {
           $inc: { reservedGrams: -grams },
         },
-        { new: true },
+        { returnDocument: 'after' },
+      )
+      .lean<InventoryBatch>()
+      .exec();
+
+    if (fromReserved) return fromReserved;
+
+    // Otherwise consume directly from availableGrams (e.g. Cash On Delivery)
+    return this.model
+      .findOneAndUpdate(
+        {
+          shopId,
+          productId,
+          batchDate,
+          availableGrams: { $gte: grams },
+        },
+        {
+          $inc: { availableGrams: -grams },
+        },
+        { returnDocument: 'after' },
       )
       .lean<InventoryBatch>()
       .exec();

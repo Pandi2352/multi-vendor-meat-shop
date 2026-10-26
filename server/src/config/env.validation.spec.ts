@@ -5,6 +5,9 @@ const REQUIRED = {
   MONGODB_URI: 'mongodb://localhost:27017/meat_shop',
   JWT_ACCESS_SECRET: 'a'.repeat(32),
   JWT_REFRESH_SECRET: 'b'.repeat(32),
+  SMTP_USER: 'test@example.com',
+  SMTP_PASS: 'testpass123',
+  MAIL_FROM: 'noreply@example.com',
 };
 
 describe('validateEnv', () => {

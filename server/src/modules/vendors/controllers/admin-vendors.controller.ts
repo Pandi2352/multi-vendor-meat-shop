@@ -1,8 +1,9 @@
-import { Body, Controller, Get, Patch, Query } from '@nestjs/common';
+import { Body, Controller, Get, Patch, Post, Query } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { SwaggerTag } from '#common/constants';
 import { Role } from '#common/enums';
 import {
+  ApiCreatedEnvelope,
   ApiOkEnvelope,
   ApiPaginatedResponse,
   ApiStandardResponses,
@@ -13,6 +14,7 @@ import {
 import { ListQueryDto } from '#common/dto';
 import { VendorProfileService } from '../services/vendor-profile.service.js';
 import { VerifyVendorDto } from '../dto/verify-vendor.dto.js';
+import { AdminCreateVendorDto } from '../dto/admin-create-vendor.dto.js';
 import { VendorProfileResponseDto } from '../dto/vendor-profile-response.dto.js';
 
 @ApiTags(SwaggerTag.ADMIN_VENDORS)
@@ -27,6 +29,18 @@ export class AdminVendorsController {
   @ApiStandardResponses()
   list(@Query() query: ListQueryDto) {
     return this.vendorProfile.listVendors(query);
+  }
+
+  @Post()
+  @Auth(Role.ADMIN)
+  @ApiOperation({ summary: 'Directly add a new vendor and stall as an administrator' })
+  @ApiCreatedEnvelope(VendorProfileResponseDto)
+  @ApiStandardResponses()
+  create(
+    @CurrentUser('id') adminId: string,
+    @Body() dto: AdminCreateVendorDto,
+  ) {
+    return this.vendorProfile.adminCreateVendor(adminId, dto);
   }
 
   @Patch(':id/verify')

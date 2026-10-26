@@ -17,12 +17,25 @@ import { QueryDeliveryTasksDto } from '../dto/query-delivery-tasks.dto.js';
 import { VerifyDeliveryOtpDto } from '../dto/verify-delivery-otp.dto.js';
 
 @ApiTags(SwaggerTag.DELIVERY)
-@Auth(Role.DELIVERY_PARTNER)
+@Auth(Role.DELIVERY_PARTNER, Role.CUSTOMER, Role.ADMIN)
 @Controller('delivery/tasks')
 export class DeliveryTasksController {
   constructor(private readonly delivery: DeliveryTasksService) {}
 
+  @Get('order/:orderId')
+  @Auth(Role.CUSTOMER, Role.ADMIN)
+  @ApiOperation({ summary: 'Get delivery task and OTP for customer order' })
+  @ApiOkEnvelope(DeliveryTaskResponseDto)
+  @ApiStandardResponses()
+  getForOrder(
+    @CurrentUser('id') customerId: string,
+    @UuidParam('orderId') orderId: string,
+  ): Promise<DeliveryTaskResponseDto> {
+    return this.delivery.getCustomerTaskByOrderId(orderId, customerId);
+  }
+
   @Get()
+  @Auth(Role.DELIVERY_PARTNER)
   @ApiOperation({ summary: 'List tasks assigned to the authenticated delivery partner' })
   @ApiPaginatedResponse(DeliveryTaskResponseDto)
   @ApiStandardResponses()
@@ -44,6 +57,7 @@ export class DeliveryTasksController {
   }
 
   @Patch(':id/pickup')
+  @Auth(Role.DELIVERY_PARTNER)
   @ApiOperation({ summary: 'Mark order picked up from butcher shop counter' })
   @ApiOkEnvelope(DeliveryTaskResponseDto)
   @ApiStandardResponses()
@@ -55,6 +69,7 @@ export class DeliveryTasksController {
   }
 
   @Post(':id/deliver')
+  @Auth(Role.DELIVERY_PARTNER)
   @ApiOperation({ summary: 'Verify customer 4-digit OTP and collect COD cash to complete delivery' })
   @ApiOkEnvelope(DeliveryTaskResponseDto)
   @ApiStandardResponses()
@@ -64,17 +79,5 @@ export class DeliveryTasksController {
     @Body() dto: VerifyDeliveryOtpDto,
   ): Promise<DeliveryTaskResponseDto> {
     return this.delivery.verifyOtpAndDeliver(id, partnerId, dto);
-  }
-
-  @Get('order/:orderId')
-  @Auth(Role.CUSTOMER, Role.ADMIN)
-  @ApiOperation({ summary: 'Get delivery task and OTP for customer order' })
-  @ApiOkEnvelope(DeliveryTaskResponseDto)
-  @ApiStandardResponses()
-  getForOrder(
-    @CurrentUser('id') customerId: string,
-    @UuidParam('orderId') orderId: string,
-  ): Promise<DeliveryTaskResponseDto> {
-    return this.delivery.getCustomerTaskByOrderId(orderId, customerId);
   }
 }

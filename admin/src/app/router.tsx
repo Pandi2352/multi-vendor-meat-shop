@@ -6,6 +6,7 @@ import { ROUTES } from '@/config/routes';
 import { DeliveryTasksPage } from '@/features/delivery';
 import { VendorSettlementsPage } from '@/features/finance';
 import { VendorInventoryPage } from '@/features/inventory';
+import { AdminVendorsPage } from '@/features/vendors';
 import { ComingSoonPage } from '@/pages/coming-soon-page';
 import { DashboardRoute, VendorOrderDetailRoute, VendorOrdersRoute } from './route-elements';
 
@@ -40,6 +41,7 @@ export const router = createBrowserRouter([
       { path: ROUTES.VENDOR_INVENTORY, element: <VendorInventoryPage /> },
       { path: ROUTES.VENDOR_SETTLEMENTS, element: <VendorSettlementsPage /> },
       { path: ROUTES.DELIVERY_TASKS, element: <DeliveryTasksPage /> },
+      { path: ROUTES.ADMIN_VENDORS, element: <AdminVendorsPage /> },
       ...comingSoonRoutes,
       { path: '*', element: <NotFoundPage /> },
     ],

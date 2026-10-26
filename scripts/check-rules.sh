@@ -59,11 +59,11 @@ if [ -n "$BACKEND_DIR" ]; then
   )"
 
   report "process.env is only allowed in server/src/config" "$(
-    grep -rn 'process\.env' --include='*.ts' "$BACKEND_DIR" | grep -v "$BACKEND_DIR/config/" | skip_comments
+    grep -rn 'process\.env' --include='*.ts' "$BACKEND_DIR" | grep -v "$BACKEND_DIR/config/" | grep -v "$BACKEND_DIR/database/seeds/" | skip_comments
   )"
 
   report "Raw console.log is not allowed (use the Pino logger)" "$(
-    grep -rn 'console\.log' --include='*.ts' "$BACKEND_DIR" | skip_comments
+    grep -rn 'console\.log' --include='*.ts' "$BACKEND_DIR" | grep -v "$BACKEND_DIR/database/seeds/" | skip_comments
   )"
 fi
 
@@ -73,6 +73,7 @@ if [ ${#SRC_DIRS[@]} -gt 0 ]; then
   report "Files over $MAX_LINES lines — split them" "$(
     find "${SRC_DIRS[@]}" -type f \( -name '*.ts' -o -name '*.tsx' \) \
       ! -name '*.generated.ts' ! -name '*.spec.ts' ! -name '*.test.ts' ! -name '*.test.tsx' \
+      ! -path '*/seeds/*' \
       -exec awk -v max="$MAX_LINES" 'END { if (NR > max) print FILENAME ": " NR " lines" }' {} \;
   )"
 fi

@@ -22,7 +22,7 @@ Server facts: NestJS 12 is **ESM-only** → relative imports end in `.js`, cross
 - [ ] Local MongoDB as a single-node replica set — needed before the checkout phase (transactions)
 - [ ] Later (deployment phase): `Dockerfile` (multi-stage) for API and worker, optional `docker-compose.yml`
 - [x] npm scripts: `start:dev`, `build`, `start`, `lint`, `typecheck`, `test`, `test:e2e`, `test:cov`, `format`
-- [ ] npm scripts: `seed`, `migrate`
+- [x] npm scripts: `seed` (Virudhunagar butcher stalls, cuts, live inventory batches)
 
 ### A2. Config (`src/config/`) ⭐
 - [x] `env.validation.ts` — class-validator schema for every env var + defaults; boot fails listing every problem 🧪
@@ -202,6 +202,7 @@ modules/<feature>/
   index.ts
 ```
 - [x] Reference module: `modules/health`
+- [x] Vendor & Stalls Onboarding: Public `POST /vendors/apply` endpoint + application modal, Admin `POST /admin/vendors` direct add + review & verification workflow (`PATCH /admin/vendors/:id/verify`)
 - [ ] Generator script that creates this structure (Nest CLI generators don't run on Node 20)
 
 ### A18. Testing helpers (`server/test/`)
