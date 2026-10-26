@@ -48,4 +48,42 @@ export class UsersService {
     });
     return toUserResponseDto(updated);
   }
+
+  async updatePassword(id: string, passwordHash: string): Promise<User> {
+    return this.userRepo.updateByIdOrThrow(id, { passwordHash });
+  }
+
+  async createOrActivateInvitedUser(data: {
+    email: string;
+    role: Role;
+    name?: string;
+    phone?: string;
+    shopId?: string | null;
+    passwordHash: string;
+  }): Promise<User> {
+    const existing = await this.findByEmail(data.email);
+    if (existing) {
+      return this.userRepo.updateByIdOrThrow(existing._id, {
+        role: data.role,
+        status: UserStatus.ACTIVE,
+        passwordHash: data.passwordHash,
+        ...(data.name ? { name: data.name } : {}),
+        ...(data.phone ? { phone: data.phone } : {}),
+        shopId: data.shopId !== undefined ? data.shopId : existing.shopId,
+      });
+    }
+
+    return this.userRepo.create({
+      email: data.email.toLowerCase().trim(),
+      role: data.role,
+      name: data.name,
+      phone: data.phone,
+      shopId: data.shopId ?? null,
+      status: UserStatus.ACTIVE,
+      passwordHash: data.passwordHash,
+      deletedAt: null,
+      deletedBy: null,
+    });
+  }
 }
+

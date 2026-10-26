@@ -22,7 +22,7 @@ export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
       <div
         className={cn(
           'relative flex h-10 w-full items-center rounded-md border border-border bg-surface px-3 text-sm text-text transition-colors',
-          'hover:border-muted/50 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20',
+          'hover:border-muted/50 focus-within:border-primary',
           className,
         )}
       >

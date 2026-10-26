@@ -147,7 +147,7 @@ Server facts: NestJS 12 is **ESM-only** → relative imports end in `.js`, cross
 - [x] **date (IST)**: `toIST`, `nowIST`, `startOfDayIST`, `endOfDayIST`, `formatIST`, `addMinutes`, `isExpired`, `timeToMinutes`, `minutesToTime`, `isWithinHours` (handles past-midnight), `generateSlots`
 - [x] **string**: `slugify`, `normalizePhone`, `isIndianMobile`, `maskPhone`, `maskEmail`, `titleCase`, `truncate`, `randomCode`
 - [x] **crypto**: `sha256`, `hmacSha256`, `safeCompare`, `generateOtp`, `randomToken`
-- [ ] **password**: `hashPassword`, `verifyPassword` (argon2, Phase 2)
+- [x] **password**: `hashPassword`, `verifyPassword` (`node:crypto` `scryptSync`, timing-safe compare) 🧪
 - [x] **collection**: `pick`, `omit`, `compact`, `isPlainObject`, `chunk`, `groupBy`, `keyBy`, `uniqBy`, `sumBy`
 - [x] **geo**: `toGeoPoint`, `fromGeoPoint`, `haversineKm`, `isWithinRadius`, `kmToRadians`, `kmToMeters`
 - [x] **pagination**: `clampLimit`, `getSkip`, `buildPaginationMeta`

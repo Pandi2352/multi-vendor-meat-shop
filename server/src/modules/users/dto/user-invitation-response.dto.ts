@@ -32,6 +32,9 @@ export class UserInvitationResponseDto {
   @ApiPropertyOptional({ example: '2026-10-26T12:00:00.000Z' })
   acceptedAt?: string | null;
 
+  @ApiPropertyOptional({ example: '0192e2b3-5678-7abc-def0-123456789abc' })
+  token?: string;
+
   @ApiProperty({ example: '2026-10-26T12:00:00.000Z' })
   createdAt!: string;
 }

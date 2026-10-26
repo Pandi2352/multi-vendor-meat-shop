@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { AppException, ErrorCode } from '#common/exceptions';
-import { ROLE_PERMISSIONS, UserStatus, isPortalRole } from '#common/enums';
-import { sha256 } from '#common/utils';
+import { InvitationStatus, ROLE_PERMISSIONS, UserStatus, isPortalRole } from '#common/enums';
+import { hashPassword, sha256, verifyPassword } from '#common/utils';
 import { AppConfigService } from '#config';
-import { UsersService, toUserResponseDto, type User } from '#modules/users';
+import { UserInvitationRepository, UsersService, toUserResponseDto, type User } from '#modules/users';
 import { OtpService } from './otp.service.js';
 import { TokenService } from './token.service.js';
 import { RefreshSessionRepository } from '../repositories/refresh-session.repository.js';
@@ -11,6 +11,9 @@ import type { SendOtpDto } from '../dto/send-otp.dto.js';
 import type { VerifyOtpDto } from '../dto/verify-otp.dto.js';
 import type { RefreshTokenDto } from '../dto/refresh-token.dto.js';
 import type { AuthResponseDto, SentOtpResponseDto } from '../dto/auth-response.dto.js';
+import type { PortalLoginDto } from '../dto/portal-login.dto.js';
+import type { AcceptInvitationDto } from '../dto/accept-invitation.dto.js';
+import type { InvitationDetailsResponseDto } from '../dto/invitation-details-response.dto.js';
 
 interface RequestContext {
   userAgent?: string;
@@ -27,6 +30,7 @@ export class AuthService {
     private readonly tokenService: TokenService,
     private readonly usersService: UsersService,
     private readonly sessionRepo: RefreshSessionRepository,
+    private readonly invitationRepo: UserInvitationRepository,
   ) {}
 
   // ---------- Storefront (customers sign up by verifying their email) ----------
@@ -41,12 +45,99 @@ export class AuthService {
     return this.issueSession(user, ctx);
   }
 
-  // ---------- Admin portal (invite-only: never creates accounts) ----------
+  // ---------- Admin portal: Email + Password Authentication ----------
 
   /**
-   * Sends a code only to existing portal users. Unknown or customer emails get the same
-   * response without an email, so the endpoint can't be used to discover who has access.
+   * Password-based sign-in for staff, vendors, delivery partners, and admins.
+   * Direct, fast, and eliminates OTP friction on recurring administrative logins.
    */
+  async loginPortalWithPassword(dto: PortalLoginDto, ctx: RequestContext = {}): Promise<AuthResponseDto> {
+    const user = await this.usersService.findByEmail(dto.email);
+    if (!user || !isPortalRole(user.role)) {
+      throw new AppException(ErrorCode.AUTH_INVALID_CREDENTIALS, { message: 'Invalid email or password' });
+    }
+
+    if (!user.passwordHash) {
+      throw new AppException(ErrorCode.AUTH_INVALID_CREDENTIALS, {
+        message: 'Password has not been set yet. Please check your invitation link to set your password.',
+      });
+    }
+
+    const isMatch = verifyPassword(dto.password, user.passwordHash);
+    if (!isMatch) {
+      throw new AppException(ErrorCode.AUTH_INVALID_CREDENTIALS, { message: 'Invalid email or password' });
+    }
+
+    if (user.status !== UserStatus.ACTIVE) {
+      throw new AppException(ErrorCode.ACCOUNT_SUSPENDED, { message: 'Your account is suspended or inactive' });
+    }
+
+    return this.issueSession(user, ctx);
+  }
+
+  // ---------- Admin portal: Invited User Onboarding & Password Setup ----------
+
+  /** Get details of an onboarding invitation by secure token */
+  async getInvitationDetails(token: string): Promise<InvitationDetailsResponseDto> {
+    const invitation = await this.invitationRepo.findByToken(token);
+    if (!invitation) {
+      throw new AppException(ErrorCode.NOT_FOUND, { message: 'Invitation not found or invalid' });
+    }
+
+    const isExpired = invitation.expiresAt < new Date();
+    return {
+      email: invitation.email,
+      name: invitation.name,
+      role: invitation.role,
+      shopId: invitation.shopId,
+      status: invitation.status,
+      isExpired,
+      expiresAt: invitation.expiresAt,
+    };
+  }
+
+  /** Invited user sets their password, activates account, and enters the portal */
+  async acceptInvitationAndSetPassword(
+    dto: AcceptInvitationDto,
+    ctx: RequestContext = {},
+  ): Promise<AuthResponseDto> {
+    const invitation = await this.invitationRepo.findByToken(dto.token);
+    if (!invitation) {
+      throw new AppException(ErrorCode.NOT_FOUND, { message: 'Invitation not found or invalid' });
+    }
+
+    if (invitation.status === InvitationStatus.ACCEPTED) {
+      throw new AppException(ErrorCode.CONFLICT, {
+        message: 'Invitation has already been accepted. Please sign in with your password.',
+      });
+    }
+
+    if (invitation.status !== InvitationStatus.PENDING || invitation.expiresAt < new Date()) {
+      throw new AppException(ErrorCode.BUSINESS_RULE_VIOLATION, {
+        message: 'Invitation is expired or has been revoked',
+      });
+    }
+
+    const passwordHash = hashPassword(dto.password);
+    const user = await this.usersService.createOrActivateInvitedUser({
+      email: invitation.email,
+      role: invitation.role,
+      name: dto.name || invitation.name,
+      phone: invitation.phone,
+      shopId: invitation.shopId,
+      passwordHash,
+    });
+
+    await this.invitationRepo.updateById(invitation._id, {
+      status: InvitationStatus.ACCEPTED,
+      acceptedAt: new Date(),
+    });
+
+    return this.issueSession(user, ctx);
+  }
+
+  // ---------- Admin portal: OTP fallback (legacy / password recovery) ----------
+
   async sendPortalOtp(dto: SendOtpDto): Promise<SentOtpResponseDto> {
     const user = await this.usersService.findByEmail(dto.email);
     if (!user || !isPortalRole(user.role)) {
@@ -57,7 +148,6 @@ export class AuthService {
 
   async verifyPortalOtp(dto: VerifyOtpDto, ctx: RequestContext = {}): Promise<AuthResponseDto> {
     const user = await this.usersService.findByEmail(dto.email);
-    // Same error as a wrong code: no hint whether the email has portal access.
     if (!user || !isPortalRole(user.role)) throw new AppException(ErrorCode.OTP_INVALID);
 
     await this.otpService.verifyOtp(dto.email, dto.otp);

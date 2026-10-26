@@ -96,7 +96,7 @@ export function RejectOrderModal({
                 value={customReason}
                 onChange={(e) => setCustomReason(e.target.value)}
                 placeholder="Explain why this order cannot be fulfilled..."
-                className="w-full p-2.5 text-xs rounded-md border border-border bg-surface text-text focus:outline-hidden focus:ring-1 focus:ring-primary"
+                className="w-full p-2.5 text-xs rounded-md border border-border bg-surface text-text focus:outline-hidden focus:border-primary"
               />
             </div>
           )}

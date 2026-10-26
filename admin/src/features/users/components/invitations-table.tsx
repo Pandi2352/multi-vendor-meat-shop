@@ -1,4 +1,5 @@
-import { RotateCw, Trash2, Mail } from 'lucide-react';
+import { useState } from 'react';
+import { RotateCw, Trash2, Mail, Link2, Check } from 'lucide-react';
 import { Button, LoaderState } from '@/components/ui';
 import { useResendInvitation, useRevokeInvitation, type UserInvitation } from '../api';
 import { UserRoleBadge } from './user-role-badge';
@@ -10,8 +11,18 @@ interface InvitationsTableProps {
 }
 
 export function InvitationsTable({ invitations, isLoading }: InvitationsTableProps) {
+  const [copiedId, setCopiedId] = useState<string | null>(null);
   const revokeMutation = useRevokeInvitation();
   const resendMutation = useResendInvitation();
+
+  const handleCopyLink = (inv: UserInvitation) => {
+    if (!inv.token) return;
+    const url = `${window.location.origin}/accept-invite?token=${encodeURIComponent(inv.token)}`;
+    navigator.clipboard.writeText(url).then(() => {
+      setCopiedId(inv.id);
+      setTimeout(() => setCopiedId(null), 2000);
+    });
+  };
 
   if (isLoading) {
     return (
@@ -70,6 +81,16 @@ export function InvitationsTable({ invitations, isLoading }: InvitationsTablePro
                   <td className="py-3.5 px-4 text-right">
                     {isPending && (
                       <div className="flex items-center justify-end gap-1.5">
+                        {inv.token && (
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            leftIcon={copiedId === inv.id ? <Check className="h-3 w-3 text-emerald-600" /> : <Link2 className="h-3 w-3" />}
+                            onClick={() => handleCopyLink(inv)}
+                          >
+                            {copiedId === inv.id ? 'Copied' : 'Copy Link'}
+                          </Button>
+                        )}
                         <Button
                           variant="outline"
                           size="sm"

@@ -91,7 +91,7 @@ export function StockAdjustmentModal({
                 required
                 value={kgValue}
                 onChange={(e) => setKgValue(e.target.value)}
-                className="w-full px-3 py-2 text-sm rounded-md border border-border bg-surface text-text focus:outline-hidden focus:ring-1 focus:ring-primary"
+                className="w-full px-3 py-2 text-sm rounded-md border border-border bg-surface text-text focus:outline-hidden focus:border-primary"
                 placeholder="e.g. 2.5"
               />
               <span className="absolute right-3 top-2 text-xs text-muted">kg</span>
@@ -109,7 +109,7 @@ export function StockAdjustmentModal({
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="e.g. Extra skin and bone removed for boneless cut"
-              className="w-full px-3 py-2 text-xs rounded-md border border-border bg-surface text-text focus:outline-hidden focus:ring-1 focus:ring-primary"
+              className="w-full px-3 py-2 text-xs rounded-md border border-border bg-surface text-text focus:outline-hidden focus:border-primary"
             />
           </div>
 

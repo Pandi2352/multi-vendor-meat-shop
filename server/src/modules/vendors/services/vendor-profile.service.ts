@@ -1,13 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { Role, ShopStatus, UserStatus, VendorVerificationStatus } from '#common/enums';
 import { NotFoundAppException } from '#common/exceptions';
-import { slugify } from '#common/utils';
 import type { ListQueryDto, PaginatedResult } from '#common/dto';
 import { UserRepository } from '#modules/users';
 import { ShopRepository } from '../../shops/repositories/shop.repository.js';
 import { VendorProfileRepository } from '../repositories/vendor-profile.repository.js';
 import { VENDOR_VERIFICATION_MACHINE } from '../constants/vendor.constants.js';
-import { getVirudhunagarCoords } from '../constants/town-coords.constants.js';
 import type { CreateVendorProfileDto } from '../dto/create-vendor-profile.dto.js';
 import type { UpdateVendorProfileDto } from '../dto/update-vendor-profile.dto.js';
 import type { VerifyVendorDto } from '../dto/verify-vendor.dto.js';
@@ -16,6 +14,7 @@ import type { ApplyVendorDto } from '../dto/apply-vendor.dto.js';
 import type { VendorProfileResponseDto } from '../dto/vendor-profile-response.dto.js';
 import type { VendorApplicationResponseDto } from '../dto/vendor-application-response.dto.js';
 import { toVendorProfileResponseDto } from '../mappers/vendor-profile.mapper.js';
+import { createVendorShop, findOrCreateVendorUser } from './vendor-shop.helper.js';
 
 @Injectable()
 export class VendorProfileService {
@@ -134,25 +133,8 @@ export class VendorProfileService {
     adminId: string,
     dto: AdminCreateVendorDto,
   ): Promise<VendorProfileResponseDto> {
-    const email =
-      dto.email?.toLowerCase().trim() ||
-      `${dto.phone}@vendor.virudhunagar-meat.local`;
-
-    let user = await this.userRepo.findByEmail(email);
-    if (!user) {
-      user = await this.userRepo.create({
-        email,
-        phone: dto.phone,
-        name: dto.ownerName,
-        role: Role.VENDOR_OWNER,
-        status: UserStatus.ACTIVE,
-        shopId: null,
-        deletedAt: null,
-        deletedBy: null,
-      });
-    } else {
-      await this.userRepo.updateById(user._id, { role: Role.VENDOR_OWNER });
-    }
+    const email = dto.email?.toLowerCase().trim() || `${dto.phone}@vendor.virudhunagar-meat.local`;
+    const user = await findOrCreateVendorUser(this.userRepo, email, dto.phone, dto.ownerName);
 
     let profile = await this.vendorRepo.findByUserId(user._id);
     if (!profile) {
@@ -181,40 +163,16 @@ export class VendorProfileService {
 
     let shop = await this.shopRepo.findByVendorId(profile._id);
     if (!shop) {
-      let slug = slugify(dto.shopName);
-      if (await this.shopRepo.findBySlug(slug)) {
-        slug = `${slug}-${Date.now().toString(36).slice(-4)}`;
-      }
-      const coords =
-        dto.address.location ||
-        getVirudhunagarCoords(dto.address.city || dto.address.locality);
-
-      shop = await this.shopRepo.create({
+      shop = await createVendorShop({
+        shopRepo: this.shopRepo,
         vendorId: profile._id,
         name: dto.shopName,
-        slug,
         phone: dto.phone,
-        address: {
-          line1: dto.address.line1,
-          line2: dto.address.line2,
-          locality: dto.address.locality,
-          city: dto.address.city,
-          district: dto.address.district,
-          pincode: dto.address.pincode,
-        },
-        location: {
-          type: 'Point',
-          coordinates: [coords.lng, coords.lat],
-        },
+        address: dto.address,
+        openingTime: dto.openingTime,
+        closingTime: dto.closingTime,
+        serviceRadiusKm: dto.serviceRadiusKm,
         status: ShopStatus.OPEN,
-        openingTime: dto.openingTime ?? '06:00',
-        closingTime: dto.closingTime ?? '21:00',
-        serviceRadiusKm: dto.serviceRadiusKm ?? 10,
-        minOrderPaise: 0,
-        deliveryFeePaise: 3000,
-        images: [],
-        deletedAt: null,
-        deletedBy: null,
       });
     }
 
@@ -223,23 +181,8 @@ export class VendorProfileService {
   }
 
   async applyVendor(dto: ApplyVendorDto): Promise<VendorApplicationResponseDto> {
-    const email =
-      dto.email?.toLowerCase().trim() ||
-      `${dto.phone}@vendor.virudhunagar-meat.local`;
-
-    let user = await this.userRepo.findByEmail(email);
-    if (!user) {
-      user = await this.userRepo.create({
-        email,
-        phone: dto.phone,
-        name: dto.ownerName,
-        role: Role.VENDOR_OWNER,
-        status: UserStatus.ACTIVE,
-        shopId: null,
-        deletedAt: null,
-        deletedBy: null,
-      });
-    }
+    const email = dto.email?.toLowerCase().trim() || `${dto.phone}@vendor.virudhunagar-meat.local`;
+    const user = await findOrCreateVendorUser(this.userRepo, email, dto.phone, dto.ownerName);
 
     let profile = await this.vendorRepo.findByUserId(user._id);
     if (!profile) {
@@ -263,37 +206,21 @@ export class VendorProfileService {
 
     let shop = await this.shopRepo.findByVendorId(profile._id);
     if (!shop) {
-      let slug = slugify(dto.businessName);
-      if (await this.shopRepo.findBySlug(slug)) {
-        slug = `${slug}-${Date.now().toString(36).slice(-4)}`;
-      }
-      const coords = getVirudhunagarCoords(dto.town);
-
-      shop = await this.shopRepo.create({
+      shop = await createVendorShop({
+        shopRepo: this.shopRepo,
         vendorId: profile._id,
         name: dto.businessName,
-        slug,
         phone: dto.phone,
         address: {
           line1: dto.addressLine,
           locality: dto.locality,
           city: dto.town,
-          district: 'Virudhunagar',
           pincode: dto.pincode,
         },
-        location: {
-          type: 'Point',
-          coordinates: [coords.lng, coords.lat],
-        },
-        status: ShopStatus.CLOSED,
-        openingTime: dto.openingTime ?? '06:00',
-        closingTime: dto.closingTime ?? '21:00',
+        openingTime: dto.openingTime,
+        closingTime: dto.closingTime,
         serviceRadiusKm: 8,
-        minOrderPaise: 0,
-        deliveryFeePaise: 3000,
-        images: [],
-        deletedAt: null,
-        deletedBy: null,
+        status: ShopStatus.CLOSED,
       });
     }
 

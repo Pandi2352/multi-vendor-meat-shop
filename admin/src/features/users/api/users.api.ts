@@ -34,6 +34,7 @@ export interface UserInvitation {
   role: UserRole;
   shopId?: string | null;
   invitedBy: string;
+  token?: string;
   status: InvitationStatus;
   expiresAt: string;
   acceptedAt?: string | null;

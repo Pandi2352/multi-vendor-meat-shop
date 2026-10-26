@@ -83,7 +83,7 @@ export function OpeningStockModal({
                 required
                 value={kgValue}
                 onChange={(e) => setKgValue(e.target.value)}
-                className="w-full px-3 py-2 text-sm rounded-md border border-border bg-surface text-text focus:outline-hidden focus:ring-1 focus:ring-primary"
+                className="w-full px-3 py-2 text-sm rounded-md border border-border bg-surface text-text focus:outline-hidden focus:border-primary"
                 placeholder="e.g. 25"
               />
               <span className="absolute right-3 top-2 text-xs text-muted">kg</span>
@@ -100,7 +100,7 @@ export function OpeningStockModal({
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="e.g. Namakkal broiler batch #4"
-              className="w-full px-3 py-2 text-xs rounded-md border border-border bg-surface text-text focus:outline-hidden focus:ring-1 focus:ring-primary"
+              className="w-full px-3 py-2 text-xs rounded-md border border-border bg-surface text-text focus:outline-hidden focus:border-primary"
             />
           </div>
 

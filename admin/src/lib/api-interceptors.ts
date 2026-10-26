@@ -23,6 +23,17 @@ const processQueue = (error: Error | null): void => {
   failedQueue = [];
 };
 
+/** Clear user session and immediately navigate to the login page on authentication failure */
+const redirectToLogin = (reason = 'expired'): void => {
+  tokenStorage.clearTokens();
+  if (typeof window !== 'undefined') {
+    const path = window.location.pathname;
+    if (!path.startsWith('/login') && !path.startsWith('/accept-invite')) {
+      window.location.replace(`/login?reason=${reason}`);
+    }
+  }
+};
+
 export const setupInterceptors = (client: AxiosInstance): void => {
   // 1. Request Interceptor: Attach Bearer Token
   client.interceptors.request.use(
@@ -52,7 +63,7 @@ export const setupInterceptors = (client: AxiosInstance): void => {
         const refreshToken = tokenStorage.getRefreshToken();
 
         if (!refreshToken) {
-          tokenStorage.clearTokens();
+          redirectToLogin('expired');
           return Promise.reject(new ApiError(401, errorBody || { message: 'Session expired' }));
         }
 
@@ -86,11 +97,16 @@ export const setupInterceptors = (client: AxiosInstance): void => {
           return client(originalRequest);
         } catch (refreshErr) {
           processQueue(refreshErr instanceof Error ? refreshErr : new Error('Refresh failed'));
-          tokenStorage.clearTokens();
+          redirectToLogin('expired');
           return Promise.reject(new ApiError(401, { message: 'Session expired, please sign in again' }));
         } finally {
           isRefreshing = false;
         }
+      }
+
+      // If already retried or unrecoverable 401 on non-auth endpoint, navigate to login
+      if (status === 401 && !isAuthEndpoint) {
+        redirectToLogin('expired');
       }
 
       // Format any other error as standard ApiError

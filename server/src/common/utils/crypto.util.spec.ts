@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { generateOtp, hmacSha256, randomToken, safeCompare, sha256 } from './crypto.util.js';
+import { generateOtp, hashPassword, hmacSha256, randomToken, safeCompare, sha256, verifyPassword } from './crypto.util.js';
 
 describe('crypto.util', () => {
   it('hashes deterministically', () => {
@@ -20,5 +20,14 @@ describe('crypto.util', () => {
 
   it('generates url-safe tokens', () => {
     expect(randomToken()).toMatch(/^[\w-]{43}$/);
+  });
+
+  it('hashes and verifies passwords securely', () => {
+    const raw = 'SecretPass123!';
+    const hash = hashPassword(raw);
+    expect(hash).toContain(':');
+    expect(verifyPassword(raw, hash)).toBe(true);
+    expect(verifyPassword('WrongPass', hash)).toBe(false);
+    expect(verifyPassword(raw, null)).toBe(false);
   });
 });

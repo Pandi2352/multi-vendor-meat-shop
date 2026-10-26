@@ -1,35 +1,11 @@
 import { useState, useRef, useMemo, useEffect, useCallback } from 'react';
-import { ChevronDown, Check, X, Search, CheckSquare, Square, Loader2 } from 'lucide-react';
+import { ChevronDown, X, Loader2 } from 'lucide-react';
 import { useClickOutside, useEscapeKey } from '@/hooks';
 import { cn } from '@/lib/cn';
+import type { CustomSelectProps } from './custom-select.types';
+import { CustomSelectMenu } from './custom-select-menu';
 
-export interface SelectOption {
-  label: string;
-  value: string;
-  description?: string;
-  icon?: React.ReactNode;
-  disabled?: boolean;
-  group?: string;
-}
-
-export interface CustomSelectProps {
-  options: SelectOption[];
-  value?: string | string[];
-  onChange: (value: string | string[]) => void;
-  placeholder?: string;
-  multiple?: boolean;
-  searchable?: boolean;
-  clearable?: boolean;
-  disabled?: boolean;
-  loading?: boolean;
-  size?: 'sm' | 'md' | 'lg';
-  align?: 'auto' | 'left' | 'right';
-  placement?: 'auto' | 'bottom' | 'top';
-  className?: string;
-  triggerClassName?: string;
-  menuClassName?: string;
-  id?: string;
-}
+export * from './custom-select.types';
 
 export function CustomSelect({
   options,
@@ -135,143 +111,55 @@ export function CustomSelect({
     return options.filter((opt) => selectedValues.includes(opt.value));
   }, [options, selectedValues]);
 
-  const handleSelect = useCallback((optValue: string, e?: React.MouseEvent | React.KeyboardEvent) => {
-    e?.stopPropagation();
-    if (multiple) {
-      const next = selectedValues.includes(optValue)
-        ? selectedValues.filter((v) => v !== optValue)
-        : [...selectedValues, optValue];
-      onChange(next);
-    } else {
-      onChange(optValue);
-      setIsOpen(false);
-      triggerRef.current?.focus();
-    }
-  }, [multiple, selectedValues, onChange]);
+  const handleSelect = useCallback(
+    (optValue: string, e?: React.MouseEvent | React.KeyboardEvent) => {
+      e?.stopPropagation();
+      if (multiple) {
+        const next = selectedValues.includes(optValue)
+          ? selectedValues.filter((v) => v !== optValue)
+          : [...selectedValues, optValue];
+        onChange(next);
+      } else {
+        onChange(optValue);
+        setIsOpen(false);
+        triggerRef.current?.focus();
+      }
+    },
+    [multiple, onChange, selectedValues],
+  );
 
-  const handleClear = (e: React.MouseEvent) => {
+  const handleSelectAll = useCallback(() => {
+    const allSelectable = filteredOptions.filter((o) => !o.disabled).map((o) => o.value);
+    onChange(Array.from(new Set([...selectedValues, ...allSelectable])));
+  }, [filteredOptions, onChange, selectedValues]);
+
+  const handleDeselectAll = useCallback(() => onChange([]), [onChange]);
+  const handleClear = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
     onChange(multiple ? [] : '');
-  };
+  }, [multiple, onChange]);
 
-  const handleSelectAll = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    const allEnabled = filteredOptions.filter((o) => !o.disabled).map((o) => o.value);
-    // Combine existing selections with current filtered enabled options
-    const merged = Array.from(new Set([...selectedValues, ...allEnabled]));
-    onChange(merged);
-  };
-
-  const handleDeselectAll = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (!search.trim()) {
-      onChange([]);
-    } else {
-      // Unselect only currently filtered options
-      const filteredSet = new Set(filteredOptions.map((o) => o.value));
-      onChange(selectedValues.filter((v) => !filteredSet.has(v)));
-    }
-  };
-
-  // Keyboard navigation
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (disabled) return;
-
-    if (!isOpen) {
-      if (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        setIsOpen(true);
-      }
-      return;
-    }
-
-    if (e.key === 'ArrowDown') {
-      e.preventDefault();
-      setHighlightedIndex((prev) => {
-        let next = prev + 1;
-        while (next < filteredOptions.length && filteredOptions[next].disabled) {
-          next++;
-        }
-        return next < filteredOptions.length ? next : prev;
-      });
-    } else if (e.key === 'ArrowUp') {
-      e.preventDefault();
-      setHighlightedIndex((prev) => {
-        let next = prev - 1;
-        while (next >= 0 && filteredOptions[next].disabled) {
-          next--;
-        }
-        return next >= 0 ? next : prev;
-      });
-    } else if (e.key === 'Enter') {
-      e.preventDefault();
-      const current = filteredOptions[highlightedIndex];
-      if (current && !current.disabled) {
-        handleSelect(current.value, e);
-      }
-    } else if (e.key === 'Escape') {
-      e.preventDefault();
-      setIsOpen(false);
-      triggerRef.current?.focus();
-    }
-  };
-
-  // Auto scroll highlighted item into view
-  useEffect(() => {
-    if (isOpen && optionListRef.current) {
-      const activeEl = optionListRef.current.querySelector<HTMLElement>(`[data-option-index="${highlightedIndex}"]`);
-      if (activeEl) {
-        activeEl.scrollIntoView({ block: 'nearest' });
-      }
-    }
-  }, [highlightedIndex, isOpen]);
-
-  // Group options if any option has group property
-  const groupedStructure = useMemo(() => {
-    const hasGroups = filteredOptions.some((opt) => opt.group);
-    if (!hasGroups) return null;
-
-    const map = new Map<string, SelectOption[]>();
-    for (const opt of filteredOptions) {
-      const g = opt.group || 'General';
-      if (!map.has(g)) map.set(g, []);
-      map.get(g)!.push(opt);
-    }
-    return map;
-  }, [filteredOptions]);
-
-  const sizeClasses = {
-    sm: 'h-8 px-2.5 text-xs',
-    md: 'h-10 px-3 text-sm',
-    lg: 'h-11 px-3.5 text-sm',
-  };
+  const sizeClasses = { sm: 'h-8 px-2.5 text-xs', md: 'h-9 px-3 text-xs', lg: 'h-10 px-3.5 text-sm' };
 
   return (
-    <div
-      ref={containerRef}
-      className={cn('relative w-full', className)}
-      onKeyDown={handleKeyDown}
-    >
-      {/* Trigger Button */}
+    <div ref={containerRef} className={cn('relative w-full', className)}>
       <button
         ref={triggerRef}
         id={id}
         type="button"
-        role="combobox"
-        aria-expanded={isOpen}
-        aria-haspopup="listbox"
         disabled={disabled}
-        onClick={() => !disabled && setIsOpen((prev) => !prev)}
+        aria-haspopup="listbox"
+        aria-expanded={isOpen}
+        onClick={() => !disabled && setIsOpen(!isOpen)}
         className={cn(
-          'flex w-full items-center justify-between rounded-md border border-border bg-surface text-text transition-all text-left',
-          'hover:border-muted/50 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary',
-          isOpen && 'border-primary ring-2 ring-primary/20',
-          disabled && 'cursor-not-allowed opacity-60 bg-surface-muted',
+          'flex w-full items-center justify-between gap-2 rounded-md border border-border bg-surface text-left transition-colors',
+          'focus-visible:outline-none focus-visible:border-primary',
+          disabled && 'cursor-not-allowed opacity-50 bg-surface-muted',
           sizeClasses[size],
           triggerClassName,
         )}
       >
-        <div className="flex flex-1 items-center gap-1.5 overflow-hidden pr-2">
+        <div className="flex-1 truncate">
           {selectedOptions.length === 0 ? (
             <span className="text-muted truncate">{placeholder}</span>
           ) : multiple ? (
@@ -279,13 +167,13 @@ export function CustomSelect({
               {selectedOptions.slice(0, 2).map((opt) => (
                 <span
                   key={opt.value}
-                  className="inline-flex items-center gap-1 rounded bg-surface-muted border border-border px-1.5 py-0.5 text-xs font-medium text-text"
+                  className="inline-flex items-center gap-1 rounded-md bg-surface-muted border border-border px-1.5 py-0.5 text-xs font-medium text-text"
                 >
                   {opt.label}
                   <button
                     type="button"
                     onClick={(e) => handleSelect(opt.value, e)}
-                    className="hover:text-danger rounded p-0.5"
+                    className="hover:text-danger rounded-md p-0.5"
                     aria-label={`Remove ${opt.label}`}
                   >
                     <X className="h-3 w-3" />
@@ -315,7 +203,7 @@ export function CustomSelect({
               type="button"
               onClick={handleClear}
               aria-label="Clear selection"
-              className="p-1 hover:text-text rounded transition-colors"
+              className="p-1 hover:text-text rounded-md transition-colors"
             >
               <X className="h-3.5 w-3.5" />
             </button>
@@ -326,194 +214,25 @@ export function CustomSelect({
         </div>
       </button>
 
-      {/* Floating Dropdown Menu */}
       {isOpen && (
-        <div
-          role="listbox"
-          className={cn(
-            'absolute z-50 min-w-[200px] w-full max-w-[calc(100vw-24px)] rounded-md border border-border bg-surface p-1.5 text-text animate-in fade-in duration-100',
-            openAbove ? 'bottom-[calc(100%+4px)]' : 'top-[calc(100%+4px)]',
-            alignRight ? 'right-0 left-auto' : 'left-0 right-auto',
-            menuClassName,
-          )}
-        >
-          {/* Search Box */}
-          {searchable && (
-            <div className="relative mb-1 border-b border-border pb-1 px-1">
-              <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-surface-muted text-xs">
-                <Search className="h-3.5 w-3.5 text-muted shrink-0" />
-                <input
-                  ref={searchInputRef}
-                  type="text"
-                  value={search}
-                  onChange={(e) => {
-                    setSearch(e.target.value);
-                    setHighlightedIndex(0);
-                  }}
-                  placeholder="Type to filter..."
-                  className="w-full bg-transparent text-xs text-text outline-none placeholder:text-muted"
-                />
-                {search && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSearch('');
-                      setHighlightedIndex(0);
-                      searchInputRef.current?.focus();
-                    }}
-                    className="text-muted hover:text-text p-0.5 rounded"
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Multi-select Header: Select All / Deselect All */}
-          {multiple && (
-            <div className="flex items-center justify-between px-2 py-1 mb-1 border-b border-border text-[11px] text-muted font-medium">
-              <span>{selectedValues.length} selected</span>
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={handleSelectAll}
-                  className="hover:text-primary transition-colors flex items-center gap-1"
-                >
-                  <CheckSquare className="h-3 w-3" /> Select All
-                </button>
-                <button
-                  type="button"
-                  onClick={handleDeselectAll}
-                  className="hover:text-danger transition-colors flex items-center gap-1"
-                >
-                  <Square className="h-3 w-3" /> Clear
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Options List */}
-          <div
-            ref={optionListRef}
-            style={{ maxHeight: `${maxListHeight}px` }}
-            className="overflow-y-auto space-y-0.5"
-          >
-            {filteredOptions.length === 0 ? (
-              <div className="p-3 text-center text-xs text-muted">No matching options</div>
-            ) : groupedStructure ? (
-              Array.from(groupedStructure.entries()).map(([groupName, groupOpts]) => (
-                <div key={groupName} className="space-y-0.5">
-                  <div className="px-2 py-1 text-[10px] font-semibold tracking-wider text-muted uppercase">
-                    {groupName}
-                  </div>
-                  {groupOpts.map((opt) => {
-                    const globalIdx = filteredOptions.indexOf(opt);
-                    const isSelected = selectedValues.includes(opt.value);
-                    const isHighlighted = globalIdx === highlightedIndex;
-
-                    return (
-                      <div
-                        key={opt.value}
-                        data-option-index={globalIdx}
-                        role="option"
-                        aria-selected={isSelected}
-                        onClick={(e) => !opt.disabled && handleSelect(opt.value, e)}
-                        className={cn(
-                          'flex items-center justify-between rounded-md px-2.5 py-1.5 text-xs transition-colors cursor-pointer',
-                          isSelected
-                            ? 'bg-primary/10 text-primary font-medium'
-                            : isHighlighted
-                            ? 'bg-surface-muted text-text'
-                            : 'text-text hover:bg-surface-muted',
-                          opt.disabled && 'cursor-not-allowed opacity-50 hover:bg-transparent',
-                        )}
-                      >
-                        <div className="flex items-center gap-2 min-w-0 pr-2">
-                          {multiple ? (
-                            <div
-                              className={cn(
-                                'flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded border transition-colors',
-                                isSelected
-                                  ? 'border-primary bg-primary text-primary-foreground'
-                                  : 'border-border bg-surface',
-                              )}
-                            >
-                              {isSelected && <Check className="h-2.5 w-2.5" />}
-                            </div>
-                          ) : (
-                            opt.icon && <span className="shrink-0 text-muted">{opt.icon}</span>
-                          )}
-                          <div className="min-w-0">
-                            <p className="truncate text-xs font-medium">{opt.label}</p>
-                            {opt.description && (
-                              <p className="truncate text-[10px] text-muted">{opt.description}</p>
-                            )}
-                          </div>
-                        </div>
-
-                        {!multiple && isSelected && (
-                          <Check className="h-3.5 w-3.5 shrink-0 text-primary" />
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              ))
-            ) : (
-              filteredOptions.map((opt, idx) => {
-                const isSelected = selectedValues.includes(opt.value);
-                const isHighlighted = idx === highlightedIndex;
-
-                return (
-                  <div
-                    key={opt.value}
-                    data-option-index={idx}
-                    role="option"
-                    aria-selected={isSelected}
-                    onClick={(e) => !opt.disabled && handleSelect(opt.value, e)}
-                    className={cn(
-                      'flex items-center justify-between rounded-md px-2.5 py-1.5 text-xs transition-colors cursor-pointer',
-                      isSelected
-                        ? 'bg-primary/10 text-primary font-medium'
-                        : isHighlighted
-                        ? 'bg-surface-muted text-text'
-                        : 'text-text hover:bg-surface-muted',
-                      opt.disabled && 'cursor-not-allowed opacity-50 hover:bg-transparent',
-                    )}
-                  >
-                    <div className="flex items-center gap-2 min-w-0 pr-2">
-                      {multiple ? (
-                        <div
-                          className={cn(
-                            'flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded border transition-colors',
-                            isSelected
-                              ? 'border-primary bg-primary text-primary-foreground'
-                              : 'border-border bg-surface',
-                          )}
-                        >
-                          {isSelected && <Check className="h-2.5 w-2.5" />}
-                        </div>
-                      ) : (
-                        opt.icon && <span className="shrink-0 text-muted">{opt.icon}</span>
-                      )}
-                      <div className="min-w-0">
-                        <p className="truncate text-xs font-medium">{opt.label}</p>
-                        {opt.description && (
-                          <p className="truncate text-[10px] text-muted">{opt.description}</p>
-                        )}
-                      </div>
-                    </div>
-
-                    {!multiple && isSelected && (
-                      <Check className="h-3.5 w-3.5 shrink-0 text-primary" />
-                    )}
-                  </div>
-                );
-              })
-            )}
-          </div>
-        </div>
+        <CustomSelectMenu
+          search={search}
+          setSearch={setSearch}
+          searchInputRef={searchInputRef}
+          optionListRef={optionListRef}
+          searchable={searchable}
+          multiple={multiple}
+          filteredOptions={filteredOptions}
+          selectedValues={selectedValues}
+          highlightedIndex={highlightedIndex}
+          openAbove={openAbove}
+          alignRight={alignRight}
+          maxListHeight={maxListHeight}
+          menuClassName={menuClassName}
+          handleSelect={handleSelect}
+          handleSelectAll={handleSelectAll}
+          handleDeselectAll={handleDeselectAll}
+        />
       )}
     </div>
   );

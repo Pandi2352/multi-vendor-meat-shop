@@ -14,12 +14,10 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     <div
       className={cn(
         'flex w-full items-center gap-2 rounded-md border bg-surface px-3 text-sm text-text transition-colors',
-        // Focus is neutral so it never reads as an error; red is reserved for `invalid`.
-        'focus-within:ring-2',
         inputSize === 'lg' ? 'h-11' : 'h-10',
         invalid
-          ? 'border-danger focus-within:ring-danger/20'
-          : 'border-border hover:border-muted/40 focus-within:border-text/50 focus-within:ring-text/10',
+          ? 'border-danger focus-within:border-danger'
+          : 'border-border hover:border-muted/50 focus-within:border-primary',
         disabled && 'cursor-not-allowed bg-surface-muted opacity-70',
         className,
       )}

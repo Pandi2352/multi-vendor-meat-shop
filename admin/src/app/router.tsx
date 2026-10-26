@@ -1,6 +1,6 @@
 import { createBrowserRouter, useRouteError, type RouteObject } from 'react-router-dom';
 import { AdminLayout, AuthLayout, NotFoundPage, RouteErrorPage } from '@/components/layout';
-import { SignInPage, VerifyCodePage } from '@/features/auth';
+import { AcceptInvitePage, SignInPage, VerifyCodePage } from '@/features/auth';
 import { flattenNav } from '@/config/nav.utils';
 import { ROUTES } from '@/config/routes';
 import { DeliveryTasksPage } from '@/features/delivery';
@@ -29,6 +29,7 @@ export const router = createBrowserRouter([
     children: [
       { path: ROUTES.LOGIN, element: <SignInPage /> },
       { path: ROUTES.LOGIN_VERIFY, element: <VerifyCodePage /> },
+      { path: ROUTES.ACCEPT_INVITE, element: <AcceptInvitePage /> },
     ],
   },
   {

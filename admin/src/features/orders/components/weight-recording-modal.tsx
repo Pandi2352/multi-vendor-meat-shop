@@ -83,7 +83,7 @@ export function WeightRecordingModal({
                         required
                         value={currentWeight || ''}
                         onChange={(e) => handleWeightChange(item.productId, e.target.value)}
-                        className="w-full px-3 py-1.5 text-sm rounded-md border border-border bg-surface text-text focus:outline-hidden focus:ring-1 focus:ring-primary"
+                        className="w-full px-3 py-1.5 text-sm rounded-md border border-border bg-surface text-text focus:outline-hidden focus:border-primary"
                         placeholder="Weight in grams"
                       />
                       <span className="absolute right-3 top-1.5 text-xs text-muted">grams</span>

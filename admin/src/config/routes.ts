@@ -1,6 +1,7 @@
 export const ROUTES = {
   LOGIN: '/login',
   LOGIN_VERIFY: '/login/verify',
+  ACCEPT_INVITE: '/accept-invite',
   DASHBOARD: '/',
   // Vendor portal
   VENDOR_SHOPS: '/vendor/shops',

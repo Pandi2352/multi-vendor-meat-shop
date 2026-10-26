@@ -75,7 +75,7 @@ export function InviteUserModal({ isOpen, onClose }: InviteUserModalProps) {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="colleague@yourshop.in"
-              className="h-10 w-full px-3 rounded-md border border-border bg-surface text-sm text-text placeholder:text-muted/70 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
+              className="h-10 w-full px-3 rounded-md border border-border bg-surface text-sm text-text placeholder:text-muted/70 focus:outline-none focus:border-primary transition-colors"
             />
           </div>
 
@@ -85,7 +85,7 @@ export function InviteUserModal({ isOpen, onClose }: InviteUserModalProps) {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. S. Murugesan"
-              className="h-10 w-full px-3 rounded-md border border-border bg-surface text-sm text-text placeholder:text-muted/70 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
+              className="h-10 w-full px-3 rounded-md border border-border bg-surface text-sm text-text placeholder:text-muted/70 focus:outline-none focus:border-primary transition-colors"
             />
           </div>
 

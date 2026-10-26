@@ -163,7 +163,7 @@ export function RolePermissionMatrix() {
                         checked={isChecked}
                         disabled={currentRoleDetail?.isSystem}
                         onChange={() => togglePermission(p.key)}
-                        className="rounded border-border text-primary focus:ring-0 mt-0.5 h-4 w-4"
+                        className="rounded-md border-border text-primary focus:ring-0 mt-0.5 h-4 w-4"
                       />
                       <span className="leading-tight">
                         <span className="block font-medium text-sm text-text">{p.label}</span>

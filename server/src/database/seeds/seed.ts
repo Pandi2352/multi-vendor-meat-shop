@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import dayjs from 'dayjs';
-import { generateId } from '#common/utils';
+import { generateId, hashPassword } from '#common/utils';
 import {
   InventoryMovementType,
   ProductStatus,
@@ -307,6 +307,7 @@ export async function runVirudhunagarSeed(): Promise<void> {
 
   // Super Admin
   const superAdminEmail = (process.env.SUPER_ADMIN_EMAIL || 'admin@virudhunagar-meats.in').toLowerCase();
+  const defaultAdminPassword = hashPassword('Admin@12345');
   let superAdmin = await UserModel.findOne({ email: superAdminEmail });
   if (!superAdmin) {
     superAdmin = await UserModel.create({
@@ -317,8 +318,12 @@ export async function runVirudhunagarSeed(): Promise<void> {
       role: Role.SUPER_ADMIN,
       status: UserStatus.ACTIVE,
       shopId: null,
+      passwordHash: defaultAdminPassword,
     });
     console.log(`  + Created super admin: ${superAdmin.name} <${superAdminEmail}>`);
+  } else {
+    await UserModel.updateOne({ _id: superAdmin._id }, { $set: { passwordHash: defaultAdminPassword } });
+    console.log(`  ✓ Updated super admin password: <${superAdminEmail}>`);
   }
 
   // 4. Seed 5 Additional Platform Admin Users
@@ -335,14 +340,23 @@ export async function runVirudhunagarSeed(): Promise<void> {
         role: adminDef.role,
         status: adminDef.status,
         shopId: null,
+        passwordHash: defaultAdminPassword,
       });
       console.log(`  + Created admin user: ${existingAdmin.name} <${adminEmail}> (${adminDef.role})`);
     } else {
       await UserModel.updateOne(
         { _id: existingAdmin._id },
-        { $set: { name: adminDef.name, phone: adminDef.phone, role: adminDef.role, status: adminDef.status } },
+        {
+          $set: {
+            name: adminDef.name,
+            phone: adminDef.phone,
+            role: adminDef.role,
+            status: adminDef.status,
+            passwordHash: defaultAdminPassword,
+          },
+        },
       );
-      console.log(`  ✓ Updated admin user: ${adminDef.name} <${adminEmail}>`);
+      console.log(`  ✓ Updated admin user & password: ${adminDef.name} <${adminEmail}>`);
     }
   }
 

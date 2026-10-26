@@ -53,7 +53,7 @@ export function Tabs<T extends string = string>({
             disabled={tab.disabled}
             onClick={() => !tab.disabled && onChange(tab.key)}
             className={cn(
-              'inline-flex items-center gap-1.5 whitespace-nowrap rounded-[4px] px-2.5 transition-all font-medium cursor-pointer box-border select-none shrink-0',
+              'inline-flex items-center gap-1.5 whitespace-nowrap rounded-md px-2.5 transition-all font-medium cursor-pointer box-border select-none shrink-0',
               size === 'sm' ? 'h-[22px] text-[11px]' : 'h-[26px] text-xs',
               isActive
                 ? 'bg-surface text-text font-semibold border border-border/80'

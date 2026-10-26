@@ -78,7 +78,7 @@ export function VerifyDeliveryOtpModal({
               value={otp}
               onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
               placeholder="e.g. 4821"
-              className="w-full px-3 py-2 text-center text-xl font-mono tracking-widest rounded-md border border-border bg-surface text-text focus:outline-hidden focus:ring-1 focus:ring-primary"
+              className="w-full px-3 py-2 text-center text-xl font-mono tracking-widest rounded-md border border-border bg-surface text-text focus:outline-hidden focus:border-primary"
             />
           </div>
 

@@ -35,14 +35,20 @@ const setup = (user: ReturnType<typeof makeUser> | null) => {
     create: vi.fn().mockResolvedValue({ _id: 'session-1' }),
     updateById: vi.fn().mockResolvedValue({}),
   };
+  const invitations = {
+    findByToken: vi.fn(),
+    findByEmail: vi.fn(),
+    updateByIdOrThrow: vi.fn(),
+  };
   const service = new AuthService(
     config,
     otp as unknown as OtpService,
     tokens as unknown as TokenService,
     users as unknown as UsersService,
     sessions as unknown as RefreshSessionRepository,
+    invitations as unknown as any,
   );
-  return { service, otp, users };
+  return { service, otp, users, invitations };
 };
 
 const expectCode = async (promise: Promise<unknown>, code: ErrorCode) => {
