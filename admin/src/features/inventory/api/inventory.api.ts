@@ -9,20 +9,20 @@ export type Product = components['schemas']['ProductResponseDto'];
 
 export const inventoryApi = {
   listTodayStock: (): Promise<InventoryBatch[]> =>
-    http.get<InventoryBatch[]>('/api/v1/vendor/inventory'),
+    http.get<InventoryBatch[]>('/vendor/inventory'),
 
   getProductStock: (productId: string): Promise<InventoryBatch> =>
-    http.get<InventoryBatch>(`/api/v1/vendor/inventory/${encodeURIComponent(productId)}`),
+    http.get<InventoryBatch>(`/vendor/inventory/${encodeURIComponent(productId)}`),
 
   setOpeningStock: (body: SetOpeningStockBody): Promise<InventoryBatch> =>
-    http.post<InventoryBatch>('/api/v1/vendor/inventory/opening', body),
+    http.post<InventoryBatch>('/vendor/inventory/opening', body),
 
   adjustStock: (body: AdjustStockBody): Promise<InventoryBatch> =>
-    http.post<InventoryBatch>('/api/v1/vendor/inventory/adjust', body),
+    http.post<InventoryBatch>('/vendor/inventory/adjust', body),
 
   getMovements: (productId: string, limit = 50): Promise<InventoryMovement[]> =>
-    http.get<InventoryMovement[]>(`/api/v1/vendor/inventory/${encodeURIComponent(productId)}/movements?limit=${limit}`),
+    http.get<InventoryMovement[]>(`/vendor/inventory/${encodeURIComponent(productId)}/movements?limit=${limit}`),
 
   listProducts: (params?: { page?: number; limit?: number }): Promise<PaginatedResponse<Product>> =>
-    http.getPaginated<Product>('/api/v1/vendor/products', params as Record<string, unknown>),
+    http.getPaginated<Product>('/vendor/products', params as Record<string, unknown>),
 };

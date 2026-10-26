@@ -28,6 +28,15 @@ export class VendorShopSummaryDto {
 
   @ApiProperty({ example: '626001' })
   pincode!: string;
+
+  @ApiPropertyOptional({ example: '06:00' })
+  openingTime?: string;
+
+  @ApiPropertyOptional({ example: '21:00' })
+  closingTime?: string;
+
+  @ApiPropertyOptional({ example: 8 })
+  serviceRadiusKm?: number;
 }
 
 export class VendorProfileResponseDto {
@@ -49,6 +58,15 @@ export class VendorProfileResponseDto {
   @ApiPropertyOptional({ example: 'https://example.com/docs/fssai.pdf' })
   fssaiDocumentUrl?: string;
 
+  @ApiPropertyOptional({ example: 'VDR-MC-2026-8819' })
+  municipalPermitNumber?: string;
+
+  @ApiPropertyOptional({ example: 'https://example.com/docs/permit.pdf' })
+  municipalPermitUrl?: string;
+
+  @ApiPropertyOptional({ type: [String], example: ['broiler-chicken', 'goat-mutton'] })
+  allowedCategories?: string[];
+
   @ApiPropertyOptional({ example: 'ABCDE1234F' })
   panNumber?: string;
 
@@ -60,6 +78,9 @@ export class VendorProfileResponseDto {
 
   @ApiPropertyOptional({ example: 'Document verified' })
   rejectionReason?: string;
+
+  @ApiPropertyOptional({ example: 'FSSAI valid up to 2028. Hygiene audited.' })
+  verificationNotes?: string;
 
   @ApiPropertyOptional({ example: '2026-10-23T12:00:00.000Z' })
   verifiedAt?: string;

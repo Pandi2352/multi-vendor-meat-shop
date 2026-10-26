@@ -35,9 +35,12 @@ const redirectToLogin = (reason = 'expired'): void => {
 };
 
 export const setupInterceptors = (client: AxiosInstance): void => {
-  // 1. Request Interceptor: Attach Bearer Token
+  // 1. Request Interceptor: Attach Bearer Token & normalize /api/v1 prefix
   client.interceptors.request.use(
     (config: InternalAxiosRequestConfig) => {
+      if (config.url?.startsWith('/api/v1')) {
+        config.url = config.url.replace(/^\/api\/v1/, '') || '/';
+      }
       const token = tokenStorage.getAccessToken();
       if (token && !config.headers.Authorization) {
         config.headers.Authorization = `Bearer ${token}`;

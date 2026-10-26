@@ -16,20 +16,20 @@ export interface DeliveryTaskListParams {
 
 export const deliveryApi = {
   listTasks: (params?: DeliveryTaskListParams): Promise<PaginatedResponse<DeliveryTaskResponse>> =>
-    http.getPaginated<DeliveryTaskResponse>('/api/v1/admin/delivery/tasks', params as Record<string, unknown>),
+    http.getPaginated<DeliveryTaskResponse>('/admin/delivery/tasks', params as Record<string, unknown>),
 
   getTask: (id: string): Promise<DeliveryTaskResponse> =>
-    http.get<DeliveryTaskResponse>(`/api/v1/admin/delivery/tasks/${encodeURIComponent(id)}`),
+    http.get<DeliveryTaskResponse>(`/admin/delivery/tasks/${encodeURIComponent(id)}`),
 
   dispatchOrder: (orderId: string): Promise<DeliveryTaskResponse> =>
-    http.post<DeliveryTaskResponse>(`/api/v1/admin/delivery/orders/${encodeURIComponent(orderId)}/dispatch`),
+    http.post<DeliveryTaskResponse>(`/admin/delivery/orders/${encodeURIComponent(orderId)}/dispatch`),
 
   assignPartner: (id: string, body: AssignDeliveryTaskBody): Promise<DeliveryTaskResponse> =>
-    http.post<DeliveryTaskResponse>(`/api/v1/admin/delivery/tasks/${encodeURIComponent(id)}/assign`, body),
+    http.post<DeliveryTaskResponse>(`/admin/delivery/tasks/${encodeURIComponent(id)}/assign`, body),
 
   pickup: (id: string): Promise<DeliveryTaskResponse> =>
-    http.patch<DeliveryTaskResponse>(`/api/v1/delivery/tasks/${encodeURIComponent(id)}/pickup`),
+    http.patch<DeliveryTaskResponse>(`/delivery/tasks/${encodeURIComponent(id)}/pickup`),
 
   verifyOtpAndDeliver: (id: string, body: VerifyDeliveryOtpBody): Promise<DeliveryTaskResponse> =>
-    http.post<DeliveryTaskResponse>(`/api/v1/delivery/tasks/${encodeURIComponent(id)}/deliver`, body),
+    http.post<DeliveryTaskResponse>(`/delivery/tasks/${encodeURIComponent(id)}/deliver`, body),
 };

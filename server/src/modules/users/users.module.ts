@@ -11,6 +11,7 @@ import { RolePermissionRepository } from './repositories/role-permission.reposit
 import { UsersService } from './services/users.service.js';
 import { AddressesService } from './services/addresses.service.js';
 import { AdminUsersService } from './services/admin-users.service.js';
+import { AdminRolesService } from './services/admin-roles.service.js';
 import { SuperAdminSeeder } from './services/super-admin-seeder.service.js';
 import { UsersController } from './controllers/users.controller.js';
 import { AddressesController } from './controllers/addresses.controller.js';
@@ -40,6 +41,7 @@ import { AdminRolesController } from './controllers/admin-roles.controller.js';
     UsersService,
     AddressesService,
     AdminUsersService,
+    AdminRolesService,
     SuperAdminSeeder,
   ],
   exports: [
@@ -47,6 +49,7 @@ import { AdminRolesController } from './controllers/admin-roles.controller.js';
     AddressesService,
     AddressRepository,
     AdminUsersService,
+    AdminRolesService,
     UserInvitationRepository,
     RolePermissionRepository,
   ],

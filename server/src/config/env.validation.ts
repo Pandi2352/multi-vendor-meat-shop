@@ -62,6 +62,7 @@ export class EnvironmentVariables {
   @IsEmail()
   SUPER_ADMIN_EMAIL?: string;
   @IsString() SUPER_ADMIN_NAME = 'Super Admin';
+  @IsString() SUPER_ADMIN_PASSWORD = 'Admin@12345';
 
   // Rate limiting
   @ToInt() @IsInt() @Min(1) THROTTLE_TTL_SECONDS = 60;

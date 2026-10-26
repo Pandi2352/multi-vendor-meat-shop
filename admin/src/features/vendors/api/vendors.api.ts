@@ -10,12 +10,16 @@ export interface VendorShopSummary {
   city: string;
   district: string;
   pincode: string;
+  openingTime?: string;
+  closingTime?: string;
+  serviceRadiusKm?: number;
 }
 
 export type VendorStatus =
   | 'DRAFT'
   | 'SUBMITTED'
   | 'UNDER_REVIEW'
+  | 'RESUBMISSION_REQUIRED'
   | 'APPROVED'
   | 'REJECTED'
   | 'SUSPENDED';
@@ -27,10 +31,14 @@ export interface VendorProfile {
   ownerName: string;
   fssaiNumber: string;
   fssaiDocumentUrl?: string;
+  municipalPermitNumber?: string;
+  municipalPermitUrl?: string;
+  allowedCategories?: string[];
   panNumber?: string;
   gstin?: string;
   status: VendorStatus;
   rejectionReason?: string;
+  verificationNotes?: string;
   verifiedAt?: string;
   createdAt: string;
   updatedAt: string;
@@ -44,6 +52,8 @@ export interface AdminCreateVendorPayload {
   shopName: string;
   fssaiNumber: string;
   fssaiDocumentUrl?: string;
+  municipalPermitNumber?: string;
+  allowedCategories?: string[];
   address: {
     line1: string;
     locality: string;
@@ -58,17 +68,30 @@ export interface AdminCreateVendorPayload {
 }
 
 export interface VerifyVendorPayload {
-  status: 'APPROVED' | 'REJECTED' | 'UNDER_REVIEW';
+  status: VendorStatus;
   rejectionReason?: string;
+  notes?: string;
+  allowedCategories?: string[];
+  municipalPermitNumber?: string;
+}
+
+export interface UpdatePermissionsPayload {
+  allowedCategories: string[];
 }
 
 export const vendorsApi = {
   list: (params?: Record<string, unknown>): Promise<PaginatedResponse<VendorProfile>> =>
-    http.getPaginated<VendorProfile>('/api/v1/admin/vendors', params),
+    http.getPaginated<VendorProfile>('/admin/vendors', params),
+
+  getById: (id: string): Promise<VendorProfile> =>
+    http.get<VendorProfile>(`/admin/vendors/${encodeURIComponent(id)}`),
 
   create: (data: AdminCreateVendorPayload): Promise<VendorProfile> =>
-    http.post<VendorProfile>('/api/v1/admin/vendors', data),
+    http.post<VendorProfile>('/admin/vendors', data),
 
   verify: (id: string, data: VerifyVendorPayload): Promise<VendorProfile> =>
-    http.patch<VendorProfile>(`/api/v1/admin/vendors/${encodeURIComponent(id)}/verify`, data),
+    http.patch<VendorProfile>(`/admin/vendors/${encodeURIComponent(id)}/verify`, data),
+
+  updatePermissions: (id: string, data: UpdatePermissionsPayload): Promise<VendorProfile> =>
+    http.patch<VendorProfile>(`/admin/vendors/${encodeURIComponent(id)}/permissions`, data),
 };

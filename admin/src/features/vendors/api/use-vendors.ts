@@ -3,6 +3,7 @@ import {
   vendorsApi,
   type AdminCreateVendorPayload,
   type VerifyVendorPayload,
+  type UpdatePermissionsPayload,
 } from './vendors.api';
 import { vendorKeys } from './keys';
 
@@ -10,6 +11,14 @@ export const useAdminVendors = (filters: Record<string, unknown> = {}) => {
   return useQuery({
     queryKey: vendorKeys.list(filters),
     queryFn: () => vendorsApi.list(filters),
+  });
+};
+
+export const useVendorDetails = (id: string) => {
+  return useQuery({
+    queryKey: vendorKeys.detail(id),
+    queryFn: () => vendorsApi.getById(id),
+    enabled: Boolean(id),
   });
 };
 
@@ -28,6 +37,17 @@ export const useVerifyVendor = () => {
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: VerifyVendorPayload }) =>
       vendorsApi.verify(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: vendorKeys.all });
+    },
+  });
+};
+
+export const useUpdateVendorPermissions = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: UpdatePermissionsPayload }) =>
+      vendorsApi.updatePermissions(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: vendorKeys.all });
     },

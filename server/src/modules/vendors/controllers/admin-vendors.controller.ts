@@ -15,6 +15,7 @@ import { ListQueryDto } from '#common/dto';
 import { VendorProfileService } from '../services/vendor-profile.service.js';
 import { VerifyVendorDto } from '../dto/verify-vendor.dto.js';
 import { AdminCreateVendorDto } from '../dto/admin-create-vendor.dto.js';
+import { UpdateVendorPermissionsDto } from '../dto/update-vendor-permissions.dto.js';
 import { VendorProfileResponseDto } from '../dto/vendor-profile-response.dto.js';
 
 @ApiTags(SwaggerTag.ADMIN_VENDORS)
@@ -31,6 +32,14 @@ export class AdminVendorsController {
     return this.vendorProfile.listVendors(query);
   }
 
+  @Get(':id')
+  @ApiOperation({ summary: 'Get full verification dossier and stall details for a vendor' })
+  @ApiOkEnvelope(VendorProfileResponseDto)
+  @ApiStandardResponses()
+  getById(@UuidParam('id') vendorId: string) {
+    return this.vendorProfile.getVendorById(vendorId);
+  }
+
   @Post()
   @Auth(Role.ADMIN)
   @ApiOperation({ summary: 'Directly add a new vendor and stall as an administrator' })
@@ -45,7 +54,7 @@ export class AdminVendorsController {
 
   @Patch(':id/verify')
   @Auth(Role.ADMIN)
-  @ApiOperation({ summary: 'Approve, reject, or request resubmission for vendor profile' })
+  @ApiOperation({ summary: 'Approve, reject, request resubmission, or suspend vendor profile' })
   @ApiOkEnvelope(VendorProfileResponseDto)
   @ApiStandardResponses()
   verify(
@@ -54,5 +63,17 @@ export class AdminVendorsController {
     @Body() dto: VerifyVendorDto,
   ) {
     return this.vendorProfile.verifyVendor(adminId, vendorId, dto);
+  }
+
+  @Patch(':id/permissions')
+  @Auth(Role.ADMIN)
+  @ApiOperation({ summary: 'Configure authorized meat categories (mutton, country chicken, fish, etc.) for stall' })
+  @ApiOkEnvelope(VendorProfileResponseDto)
+  @ApiStandardResponses()
+  updatePermissions(
+    @UuidParam('id') vendorId: string,
+    @Body() dto: UpdateVendorPermissionsDto,
+  ) {
+    return this.vendorProfile.updatePermissions(vendorId, dto);
   }
 }

@@ -20,6 +20,15 @@ export class VendorProfile extends BaseEntity implements SoftDeletable {
   @Prop({ type: String, trim: true })
   fssaiDocumentUrl?: string;
 
+  @Prop({ type: String, trim: true })
+  municipalPermitNumber?: string;
+
+  @Prop({ type: String, trim: true })
+  municipalPermitUrl?: string;
+
+  @Prop({ type: [String], default: [] })
+  allowedCategories!: string[];
+
   @Prop({ type: String, trim: true, uppercase: true })
   panNumber?: string;
 
@@ -36,6 +45,9 @@ export class VendorProfile extends BaseEntity implements SoftDeletable {
 
   @Prop({ type: String })
   rejectionReason?: string;
+
+  @Prop({ type: String })
+  verificationNotes?: string;
 
   @Prop({ type: Date })
   verifiedAt?: Date;

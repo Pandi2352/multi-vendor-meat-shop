@@ -41,14 +41,14 @@ export interface Settlement {
 
 export const financeApi = {
   getSummary: (): Promise<FinanceSummary> =>
-    http.get<FinanceSummary>('/api/v1/vendor/finance/summary'),
+    http.get<FinanceSummary>('/vendor/finance/summary'),
 
   getLedger: (limit = 50): Promise<LedgerEntry[]> =>
-    http.get<LedgerEntry[]>(`/api/v1/vendor/finance/ledger?limit=${limit}`),
+    http.get<LedgerEntry[]>(`/vendor/finance/ledger?limit=${limit}`),
 
   getSettlements: (limit = 20): Promise<Settlement[]> =>
-    http.get<Settlement[]>(`/api/v1/vendor/finance/settlements?limit=${limit}`),
+    http.get<Settlement[]>(`/vendor/finance/settlements?limit=${limit}`),
 
   requestSettlement: (notes?: string): Promise<Settlement> =>
-    http.post<Settlement>('/api/v1/vendor/finance/settlements/request', { notes }),
+    http.post<Settlement>('/vendor/finance/settlements/request', { notes }),
 };

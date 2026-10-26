@@ -13,9 +13,11 @@ import {
 } from '#common/decorators';
 import { AdminUsersService } from '../services/admin-users.service.js';
 import { AdminUsersQueryDto } from '../dto/admin-users-query.dto.js';
+import { AdminEditUserDto } from '../dto/admin-edit-user.dto.js';
 import { AssignRoleDto } from '../dto/assign-role.dto.js';
 import { UpdateUserStatusDto } from '../dto/update-user-status.dto.js';
 import { InviteUserDto } from '../dto/invite-user.dto.js';
+import { EditInvitationDto } from '../dto/edit-invitation.dto.js';
 import { UserResponseDto } from '../dto/user-response.dto.js';
 import { UserInvitationResponseDto } from '../dto/user-invitation-response.dto.js';
 
@@ -26,11 +28,23 @@ export class AdminUsersController {
   constructor(private readonly adminUsersService: AdminUsersService) {}
 
   @Get()
-  @ApiOperation({ summary: 'List all users on the platform (paginated, with search and role filters)' })
+  @ApiOperation({ summary: 'List all users on the platform' })
   @ApiPaginatedResponse(UserResponseDto)
   @ApiStandardResponses()
   list(@Query() query: AdminUsersQueryDto) {
     return this.adminUsersService.listUsers(query);
+  }
+
+  @Patch(':id')
+  @ApiOperation({ summary: 'Edit user details, role, status, and stall assignment' })
+  @ApiOkEnvelope(UserResponseDto)
+  @ApiStandardResponses()
+  editUser(
+    @CurrentUser('role') adminRole: Role,
+    @UuidParam('id') userId: string,
+    @Body() dto: AdminEditUserDto,
+  ) {
+    return this.adminUsersService.editUser(adminRole, userId, dto);
   }
 
   @Patch(':id/role')
@@ -46,7 +60,7 @@ export class AdminUsersController {
   }
 
   @Patch(':id/status')
-  @ApiOperation({ summary: 'Update user account status (ACTIVE, SUSPENDED, INACTIVE)' })
+  @ApiOperation({ summary: 'Update user account status' })
   @ApiOkEnvelope(UserResponseDto)
   @ApiStandardResponses()
   updateStatus(
@@ -54,6 +68,30 @@ export class AdminUsersController {
     @Body() dto: UpdateUserStatusDto,
   ) {
     return this.adminUsersService.updateStatus(userId, dto);
+  }
+
+  @Post(':id/revoke')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Revoke user access and suspend account' })
+  @ApiOkEnvelope(UserResponseDto)
+  @ApiStandardResponses()
+  revokeUser(
+    @CurrentUser('role') adminRole: Role,
+    @UuidParam('id') userId: string,
+  ) {
+    return this.adminUsersService.revokeUser(adminRole, userId);
+  }
+
+  @Post(':id/reinvite')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Re-invite an existing user and generate onboarding token' })
+  @ApiOkEnvelope(UserInvitationResponseDto)
+  @ApiStandardResponses()
+  reinviteUser(
+    @CurrentUser('id') adminId: string,
+    @UuidParam('id') userId: string,
+  ) {
+    return this.adminUsersService.reinviteUser(adminId, userId);
   }
 
   @Get('invitations')
@@ -73,6 +111,17 @@ export class AdminUsersController {
     @Body() dto: InviteUserDto,
   ) {
     return this.adminUsersService.inviteUser(adminId, dto);
+  }
+
+  @Patch('invitations/:id')
+  @ApiOperation({ summary: 'Edit a pending user invitation' })
+  @ApiOkEnvelope(UserInvitationResponseDto)
+  @ApiStandardResponses()
+  editInvitation(
+    @UuidParam('id') invitationId: string,
+    @Body() dto: EditInvitationDto,
+  ) {
+    return this.adminUsersService.editInvitation(invitationId, dto);
   }
 
   @Delete('invitations/:id')

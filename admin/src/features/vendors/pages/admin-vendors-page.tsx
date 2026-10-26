@@ -1,53 +1,57 @@
 import { useState } from 'react';
-import { Plus, Store, CheckCircle, Clock } from 'lucide-react';
-import { Button, LoaderState, Tabs, type TabItem } from '@/components/ui';
-import { useAdminVendors, type VendorProfile } from '../api';
+import { Plus, Store, CheckCircle, Clock, Ban } from 'lucide-react';
+import { Button, LoaderState, Tabs, SearchInput, type TabItem } from '@/components/ui';
+import { useAdminVendors, type VendorProfile, type VendorStatus } from '../api';
 import { VendorCard } from '../components/vendor-card';
 import { VendorVerifyDialog } from '../components/vendor-verify-dialog';
 import { AddVendorModal } from '../components/add-vendor-modal';
+import { StallDossierModal } from '../components/stall-dossier-modal';
+import { StallPermissionsModal } from '../components/stall-permissions-modal';
 
-type VendorTab = 'ALL' | 'PENDING' | 'APPROVED';
+type VendorTab = 'ALL' | 'PENDING' | 'APPROVED' | 'SUSPENDED';
 
 export function AdminVendorsPage() {
   const [tab, setTab] = useState<VendorTab>('ALL');
+  const [search, setSearch] = useState('');
   const [isAddOpen, setIsAddOpen] = useState(false);
-  const [actionTarget, setActionTarget] = useState<{
+
+  const [dossierTarget, setDossierTarget] = useState<VendorProfile | null>(null);
+  const [permissionsTarget, setPermissionsTarget] = useState<VendorProfile | null>(null);
+  const [verifyTarget, setVerifyTarget] = useState<{
     vendor: VendorProfile;
-    action: 'APPROVED' | 'REJECTED';
+    action: VendorStatus;
   } | null>(null);
 
   const { data, isLoading } = useAdminVendors();
   const allVendors = data?.items || [];
 
-  const filteredVendors = allVendors.filter((v) => {
-    if (tab === 'PENDING') return v.status === 'SUBMITTED' || v.status === 'UNDER_REVIEW';
+  const searchedVendors = allVendors.filter((v) => {
+    if (!search.trim()) return true;
+    const q = search.toLowerCase();
+    return (
+      v.businessName.toLowerCase().includes(q) ||
+      v.ownerName.toLowerCase().includes(q) ||
+      v.fssaiNumber.toLowerCase().includes(q) ||
+      (v.shop?.city && v.shop.city.toLowerCase().includes(q))
+    );
+  });
+
+  const filteredVendors = searchedVendors.filter((v) => {
+    if (tab === 'PENDING') return v.status === 'SUBMITTED' || v.status === 'UNDER_REVIEW' || v.status === 'RESUBMISSION_REQUIRED';
     if (tab === 'APPROVED') return v.status === 'APPROVED';
+    if (tab === 'SUSPENDED') return v.status === 'SUSPENDED';
     return true;
   });
 
-  const pendingCount = allVendors.filter((v) => v.status === 'SUBMITTED' || v.status === 'UNDER_REVIEW').length;
+  const pendingCount = allVendors.filter((v) => v.status === 'SUBMITTED' || v.status === 'UNDER_REVIEW' || v.status === 'RESUBMISSION_REQUIRED').length;
   const approvedCount = allVendors.filter((v) => v.status === 'APPROVED').length;
+  const suspendedCount = allVendors.filter((v) => v.status === 'SUSPENDED').length;
 
   const tabItems: TabItem<VendorTab>[] = [
-    {
-      key: 'ALL',
-      label: 'All Stalls',
-      icon: Store,
-      count: allVendors.length,
-    },
-    {
-      key: 'PENDING',
-      label: 'Pending Review',
-      icon: Clock,
-      count: pendingCount,
-      alert: pendingCount > 0,
-    },
-    {
-      key: 'APPROVED',
-      label: 'Active Stalls',
-      icon: CheckCircle,
-      count: approvedCount,
-    },
+    { key: 'ALL', label: 'All Stalls', icon: Store, count: allVendors.length },
+    { key: 'PENDING', label: 'Pending Review', icon: Clock, count: pendingCount, alert: pendingCount > 0 },
+    { key: 'APPROVED', label: 'Active Stalls', icon: CheckCircle, count: approvedCount },
+    { key: 'SUSPENDED', label: 'Suspended', icon: Ban, count: suspendedCount },
   ];
 
   return (
@@ -57,10 +61,10 @@ export function AdminVendorsPage() {
         <div>
           <h1 className="text-xl font-bold text-text flex items-center gap-2">
             <Store className="h-5 w-5 text-primary" />
-            Butcher Stalls & Vendors (விருதுநகர்)
+            Butcher Stalls & Verification (விருதுநகர்)
           </h1>
           <p className="text-xs text-muted mt-0.5">
-            Manage Virudhunagar district butcher stalls and review public onboarding applications.
+            Review FSSAI licences, municipal hygiene permits, approve stalls, and configure authorized meat cuts.
           </p>
         </div>
         <Button
@@ -73,19 +77,21 @@ export function AdminVendorsPage() {
         </Button>
       </div>
 
-      {/* Light-color, professional compact tabs */}
-      <div className="flex items-center justify-between">
-        <Tabs<VendorTab>
-          tabs={tabItems}
-          activeTab={tab}
-          onChange={setTab}
-        />
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+        <Tabs<VendorTab> tabs={tabItems} activeTab={tab} onChange={setTab} />
+        <div className="w-full sm:w-72">
+          <SearchInput
+            value={search}
+            onChange={setSearch}
+            placeholder="Search stalls by name, owner, town, or FSSAI..."
+          />
+        </div>
       </div>
 
       {isLoading ? (
         <LoaderState
           title="Loading butcher stalls..."
-          description="Fetching verified Virudhunagar stalls and public applications"
+          description="Fetching verified Virudhunagar stalls, documents, and category permissions"
         />
       ) : filteredVendors.length === 0 ? (
         <div className="p-12 text-center border border-dashed border-border rounded-md space-y-2 bg-surface">
@@ -94,7 +100,9 @@ export function AdminVendorsPage() {
           <p className="text-xs text-muted">
             {tab === 'PENDING'
               ? 'No pending verification requests at this time.'
-              : 'Add your first butcher stall or wait for public applications.'}
+              : tab === 'SUSPENDED'
+              ? 'No stalls currently suspended.'
+              : 'Add your first butcher stall or adjust your search filter.'}
           </p>
         </div>
       ) : (
@@ -103,18 +111,33 @@ export function AdminVendorsPage() {
             <VendorCard
               key={vendor.id}
               vendor={vendor}
-              onVerify={(v, action) => setActionTarget({ vendor: v, action })}
+              onOpenDossier={(v) => setDossierTarget(v)}
+              onOpenPermissions={(v) => setPermissionsTarget(v)}
+              onAction={(v, action) => setVerifyTarget({ vendor: v, action })}
             />
           ))}
         </div>
       )}
 
+      {/* Modals & Dialogs */}
       <AddVendorModal isOpen={isAddOpen} onClose={() => setIsAddOpen(false)} />
 
+      <StallDossierModal
+        vendor={dossierTarget}
+        onClose={() => setDossierTarget(null)}
+        onOpenPermissions={(v) => setPermissionsTarget(v)}
+        onAction={(v, action) => setVerifyTarget({ vendor: v, action })}
+      />
+
+      <StallPermissionsModal
+        vendor={permissionsTarget}
+        onClose={() => setPermissionsTarget(null)}
+      />
+
       <VendorVerifyDialog
-        vendor={actionTarget?.vendor || null}
-        action={actionTarget?.action || null}
-        onClose={() => setActionTarget(null)}
+        vendor={verifyTarget?.vendor || null}
+        action={verifyTarget?.action || null}
+        onClose={() => setVerifyTarget(null)}
       />
     </div>
   );

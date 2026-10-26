@@ -35,7 +35,12 @@ describe('SuperAdminSeeder', () => {
   });
 
   it('leaves an existing active super admin alone', async () => {
-    const { repo, result } = seed('owner@tnmeat.in', { _id: 'u1', role: Role.SUPER_ADMIN, status: UserStatus.ACTIVE });
+    const { repo, result } = seed('owner@tnmeat.in', {
+      _id: 'u1',
+      role: Role.SUPER_ADMIN,
+      status: UserStatus.ACTIVE,
+      passwordHash: 'existing_hash',
+    });
     await expect(result).resolves.toBe('unchanged');
     expect(repo.updateById).not.toHaveBeenCalled();
   });
@@ -43,8 +48,11 @@ describe('SuperAdminSeeder', () => {
   it('promotes and reactivates an existing account', async () => {
     const { repo, result } = seed('owner@tnmeat.in', { _id: 'u1', role: Role.CUSTOMER, status: UserStatus.SUSPENDED });
     await expect(result).resolves.toBe('promoted');
-    expect(repo.updateById).toHaveBeenCalledWith('u1', {
-      $set: { role: Role.SUPER_ADMIN, status: UserStatus.ACTIVE, name: 'Owner' },
-    });
+    expect(repo.updateById).toHaveBeenCalledWith(
+      'u1',
+      expect.objectContaining({
+        $set: expect.objectContaining({ role: Role.SUPER_ADMIN, status: UserStatus.ACTIVE, name: 'Owner' }),
+      }),
+    );
   });
 });

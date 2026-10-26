@@ -15,11 +15,11 @@ export interface VendorOrderListParams {
 
 export const vendorOrdersApi = {
   list: (params?: VendorOrderListParams): Promise<PaginatedResponse<OrderResponse>> =>
-    http.getPaginated<OrderResponse>('/api/v1/vendor/orders', params as Record<string, unknown>),
+    http.getPaginated<OrderResponse>('/vendor/orders', params as Record<string, unknown>),
 
   detail: (id: string): Promise<OrderResponse> =>
-    http.get<OrderResponse>(`/api/v1/vendor/orders/${encodeURIComponent(id)}`),
+    http.get<OrderResponse>(`/vendor/orders/${encodeURIComponent(id)}`),
 
   updateStatus: (id: string, body: UpdateOrderStatusBody): Promise<OrderResponse> =>
-    http.patch<OrderResponse>(`/api/v1/vendor/orders/${encodeURIComponent(id)}/status`, body),
+    http.patch<OrderResponse>(`/vendor/orders/${encodeURIComponent(id)}/status`, body),
 };

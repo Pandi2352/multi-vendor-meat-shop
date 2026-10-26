@@ -7,43 +7,27 @@ import {
   Tabs,
   Pagination,
   type TabItem,
-  type SelectOption,
 } from '@/components/ui';
 import {
   useAdminUsers,
   useUserInvitations,
   type AdminUser,
+  type UserInvitation,
   type UserRole,
   type UserStatus,
 } from '../api';
+import { ROLE_OPTIONS, STATUS_OPTIONS } from '../constants';
 import { UsersTable } from '../components/users-table';
 import { InvitationsTable } from '../components/invitations-table';
 import { RolePermissionMatrix } from '../components/role-permission-matrix';
 import { AssignRoleDialog } from '../components/assign-role-dialog';
-import { UserStatusDialog } from '../components/user-status-dialog';
 import { InviteUserModal } from '../components/invite-user-modal';
+import { EditUserModal } from '../components/edit-user-modal';
+import { RevokeUserDialog } from '../components/revoke-user-dialog';
+import { ReinviteUserDialog } from '../components/reinvite-user-dialog';
+import { EditInvitationModal } from '../components/edit-invitation-modal';
 
 type Tab = 'USERS' | 'INVITATIONS' | 'ROLES';
-
-const ROLE_OPTIONS: SelectOption[] = [
-  { label: 'All Roles', value: '' },
-  { label: 'Super Admin', value: 'SUPER_ADMIN', description: 'Platform creator & root access' },
-  { label: 'Admin', value: 'ADMIN', description: 'Operations & user manager' },
-  { label: 'Operations Staff', value: 'OPERATIONS', description: 'Catalog & stall verifications' },
-  { label: 'Finance Manager', value: 'FINANCE', description: 'Ledger, settlements & payouts' },
-  { label: 'Customer Support', value: 'SUPPORT', description: 'Support tickets & reviews' },
-  { label: 'Stall Owner', value: 'VENDOR_OWNER', description: 'Butcher shop manager' },
-  { label: 'Stall Staff / Butcher', value: 'VENDOR_STAFF', description: 'Meat preparation & cutting' },
-  { label: 'Delivery Partner', value: 'DELIVERY_PARTNER', description: 'Order pickups & logistics' },
-  { label: 'Customer', value: 'CUSTOMER', description: 'Storefront consumer account' },
-];
-
-const STATUS_OPTIONS: SelectOption[] = [
-  { label: 'All Statuses', value: '' },
-  { label: 'Active', value: 'ACTIVE', description: 'Normal account standing' },
-  { label: 'Inactive', value: 'INACTIVE', description: 'Account not active' },
-  { label: 'Suspended', value: 'SUSPENDED', description: 'Temporary lock or penalty' },
-];
 
 export function AdminUsersPage() {
   const [tab, setTab] = useState<Tab>('USERS');
@@ -53,8 +37,11 @@ export function AdminUsersPage() {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
 
+  const [editUserTarget, setEditUserTarget] = useState<AdminUser | null>(null);
+  const [reinviteUserTarget, setReinviteUserTarget] = useState<AdminUser | null>(null);
+  const [revokeUserTarget, setRevokeUserTarget] = useState<AdminUser | null>(null);
   const [assignRoleTarget, setAssignRoleTarget] = useState<AdminUser | null>(null);
-  const [updateStatusTarget, setUpdateStatusTarget] = useState<AdminUser | null>(null);
+  const [editInvitationTarget, setEditInvitationTarget] = useState<UserInvitation | null>(null);
   const [isInviteOpen, setIsInviteOpen] = useState(false);
 
   const {
@@ -74,21 +61,6 @@ export function AdminUsersPage() {
 
   const users = usersData?.items || [];
   const inviteList = invitations || [];
-
-  const handleSearchChange = (val: string) => {
-    setSearch(val);
-    setPage(1);
-  };
-
-  const handleRoleChange = (val: string) => {
-    setSelectedRole(val);
-    setPage(1);
-  };
-
-  const handleStatusChange = (val: string) => {
-    setSelectedStatus(val);
-    setPage(1);
-  };
 
   const tabItems: TabItem<Tab>[] = [
     {
@@ -135,30 +107,24 @@ export function AdminUsersPage() {
         )}
       </div>
 
-      {/* Light-color, professional compact tabs */}
       <div className="flex items-center justify-between">
-        <Tabs<Tab>
-          tabs={tabItems}
-          activeTab={tab}
-          onChange={setTab}
-        />
+        <Tabs<Tab> tabs={tabItems} activeTab={tab} onChange={setTab} />
       </div>
 
-      {/* Tab 1: All Users */}
       {tab === 'USERS' && (
         <div className="space-y-3.5">
           <div className="flex flex-col sm:flex-row items-center gap-2.5">
             <div className="flex-1 w-full">
               <SearchInput
                 value={search}
-                onChange={handleSearchChange}
+                onChange={(val) => { setSearch(val); setPage(1); }}
                 placeholder="Search users by name, email, or phone number..."
               />
             </div>
             <div className="w-full sm:w-56">
               <CustomSelect
                 value={selectedRole}
-                onChange={(val) => handleRoleChange(val as string)}
+                onChange={(val) => { setSelectedRole(val as string); setPage(1); }}
                 options={ROLE_OPTIONS}
                 searchable
                 clearable
@@ -168,7 +134,7 @@ export function AdminUsersPage() {
             <div className="w-full sm:w-48">
               <CustomSelect
                 value={selectedStatus}
-                onChange={(val) => handleStatusChange(val as string)}
+                onChange={(val) => { setSelectedStatus(val as string); setPage(1); }}
                 options={STATUS_OPTIONS}
                 searchable
                 clearable
@@ -182,8 +148,10 @@ export function AdminUsersPage() {
             isLoading={isUsersLoading}
             isError={isUsersError}
             onRetry={() => { void refetchUsers(); }}
+            onEditUser={(user) => setEditUserTarget(user)}
+            onReinviteUser={(user) => setReinviteUserTarget(user)}
+            onRevokeUser={(user) => setRevokeUserTarget(user)}
             onAssignRole={(user) => setAssignRoleTarget(user)}
-            onUpdateStatus={(user) => setUpdateStatusTarget(user)}
           />
 
           <Pagination
@@ -200,25 +168,30 @@ export function AdminUsersPage() {
         </div>
       )}
 
-      {/* Tab 2: Invitations */}
       {tab === 'INVITATIONS' && (
-        <InvitationsTable invitations={inviteList} isLoading={isInvitesLoading} />
+        <InvitationsTable
+          invitations={inviteList}
+          isLoading={isInvitesLoading}
+          onEditInvitation={(inv) => setEditInvitationTarget(inv)}
+        />
       )}
 
-      {/* Tab 3: Roles & Permissions Matrix */}
       {tab === 'ROLES' && <RolePermissionMatrix />}
 
-      {/* Modals and Dialogs */}
+      {/* Action Dialogs & Modals */}
       <InviteUserModal isOpen={isInviteOpen} onClose={() => setIsInviteOpen(false)} />
 
-      <AssignRoleDialog
-        user={assignRoleTarget}
-        onClose={() => setAssignRoleTarget(null)}
-      />
+      <EditUserModal user={editUserTarget} onClose={() => setEditUserTarget(null)} />
 
-      <UserStatusDialog
-        user={updateStatusTarget}
-        onClose={() => setUpdateStatusTarget(null)}
+      <ReinviteUserDialog user={reinviteUserTarget} onClose={() => setReinviteUserTarget(null)} />
+
+      <RevokeUserDialog user={revokeUserTarget} onClose={() => setRevokeUserTarget(null)} />
+
+      <AssignRoleDialog user={assignRoleTarget} onClose={() => setAssignRoleTarget(null)} />
+
+      <EditInvitationModal
+        invitation={editInvitationTarget}
+        onClose={() => setEditInvitationTarget(null)}
       />
     </div>
   );

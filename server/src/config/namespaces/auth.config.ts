@@ -17,6 +17,7 @@ export const authConfig = registerAs('auth', () => {
     superAdmin: {
       email: env.SUPER_ADMIN_EMAIL?.trim().toLowerCase(),
       name: env.SUPER_ADMIN_NAME,
+      password: env.SUPER_ADMIN_PASSWORD || 'Admin@12345',
     },
   };
 });

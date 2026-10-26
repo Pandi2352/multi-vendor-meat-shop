@@ -12,10 +12,14 @@ export const toVendorProfileResponseDto = (
   ownerName: profile.ownerName,
   fssaiNumber: profile.fssaiNumber,
   fssaiDocumentUrl: profile.fssaiDocumentUrl,
+  municipalPermitNumber: profile.municipalPermitNumber,
+  municipalPermitUrl: profile.municipalPermitUrl,
+  allowedCategories: profile.allowedCategories || [],
   panNumber: profile.panNumber,
   gstin: profile.gstin,
   status: profile.status,
   rejectionReason: profile.rejectionReason,
+  verificationNotes: profile.verificationNotes,
   verifiedAt: profile.verifiedAt?.toISOString(),
   createdAt:
     profile.createdAt instanceof Date
@@ -36,6 +40,9 @@ export const toVendorProfileResponseDto = (
         city: shop.address.city,
         district: shop.address.district,
         pincode: shop.address.pincode,
+        openingTime: shop.openingTime,
+        closingTime: shop.closingTime,
+        serviceRadiusKm: shop.serviceRadiusKm,
       }
     : undefined,
 });

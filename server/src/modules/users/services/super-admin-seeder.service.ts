@@ -1,5 +1,6 @@
 import { Injectable, type OnApplicationBootstrap } from '@nestjs/common';
 import { Role, UserStatus } from '#common/enums';
+import { hashPassword } from '#common/utils';
 import { AppConfigService } from '#config';
 import { AppLogger } from '#infra/logger';
 import { UserRepository } from '../repositories/user.repository.js';
@@ -7,8 +8,8 @@ import { UserRepository } from '../repositories/user.repository.js';
 export type SuperAdminSeedResult = 'created' | 'promoted' | 'unchanged' | 'skipped';
 
 /**
- * Ensures the account in SUPER_ADMIN_EMAIL exists and is a super admin. Runs on every boot and is
- * idempotent. This is the only way a portal account is created without an invite.
+ * Ensures the account in SUPER_ADMIN_EMAIL exists and is a super admin with an active password.
+ * Runs on every boot and is idempotent.
  */
 @Injectable()
 export class SuperAdminSeeder implements OnApplicationBootstrap {
@@ -23,13 +24,15 @@ export class SuperAdminSeeder implements OnApplicationBootstrap {
   }
 
   async seed(): Promise<SuperAdminSeedResult> {
-    const { email, name } = this.config.auth.superAdmin;
+    const { email, name, password } = this.config.auth.superAdmin;
     if (!email) {
       this.logger.warn('SUPER_ADMIN_EMAIL is not set — no one can sign in to the admin portal yet', SuperAdminSeeder.name);
       return 'skipped';
     }
 
+    const passwordHash = hashPassword(password || 'Admin@12345');
     const existing = await this.users.findByEmail(email);
+
     if (!existing) {
       await this.users.create({
         email,
@@ -37,19 +40,27 @@ export class SuperAdminSeeder implements OnApplicationBootstrap {
         role: Role.SUPER_ADMIN,
         status: UserStatus.ACTIVE,
         shopId: null,
+        passwordHash,
         deletedAt: null,
         deletedBy: null,
       });
-      this.logger.log(`Created super admin ${email}`, SuperAdminSeeder.name);
+      this.logger.log(`Created super admin ${email} with password`, SuperAdminSeeder.name);
       return 'created';
     }
 
-    if (existing.role === Role.SUPER_ADMIN && existing.status === UserStatus.ACTIVE) return 'unchanged';
+    if (existing.role === Role.SUPER_ADMIN && existing.status === UserStatus.ACTIVE && existing.passwordHash) {
+      return 'unchanged';
+    }
 
     await this.users.updateById(existing._id, {
-      $set: { role: Role.SUPER_ADMIN, status: UserStatus.ACTIVE, name: existing.name ?? name },
+      $set: {
+        role: Role.SUPER_ADMIN,
+        status: UserStatus.ACTIVE,
+        name: existing.name ?? name,
+        passwordHash: existing.passwordHash || passwordHash,
+      },
     });
-    this.logger.warn(`Promoted ${email} (was ${existing.role}) to super admin`, SuperAdminSeeder.name);
+    this.logger.warn(`Updated super admin ${email}`, SuperAdminSeeder.name);
     return 'promoted';
   }
 }

@@ -9,13 +9,19 @@ import { usePortalLogin } from '../api/use-portal-login';
 import { signInSchema, type SignInValues } from '../schemas/sign-in.schema';
 
 /** Password-based portal sign-in form */
-export function SignInForm({ defaultEmail = '' }: { defaultEmail?: string }) {
+export function SignInForm({
+  defaultEmail = 'admin@virudhunagar-meats.in',
+  defaultPassword = 'Admin@12345',
+}: {
+  defaultEmail?: string;
+  defaultPassword?: string;
+}) {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const portalLogin = usePortalLogin();
 
   const form = useZodForm(signInSchema, {
-    defaultValues: { email: defaultEmail, password: '' },
+    defaultValues: { email: defaultEmail, password: defaultPassword },
   });
 
   const emailError = form.formState.errors.email?.message;
@@ -39,6 +45,38 @@ export function SignInForm({ defaultEmail = '' }: { defaultEmail?: string }) {
 
   return (
     <form noValidate onSubmit={onSubmit} className="flex flex-col gap-4">
+      {/* Test Super Admin Banner (Temporary for Testing) */}
+      <div className="rounded-md border border-border bg-surface-muted/80 p-3 space-y-2">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1.5">
+            <span className="inline-flex items-center px-1.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-primary/10 text-primary border border-primary/20">
+              Test Super Admin
+            </span>
+            <span className="text-xs font-semibold text-text">Developer Testing</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              form.setValue('email', 'admin@virudhunagar-meats.in', { shouldValidate: true });
+              form.setValue('password', 'Admin@12345', { shouldValidate: true });
+            }}
+            className="text-xs text-primary font-medium hover:underline cursor-pointer"
+          >
+            Auto-fill
+          </button>
+        </div>
+        <div className="grid grid-cols-2 gap-2 text-xs bg-surface p-2 rounded-md border border-border">
+          <div>
+            <span className="block text-[10px] uppercase font-semibold text-muted">Email</span>
+            <span className="font-mono text-xs font-medium text-text select-all">admin@virudhunagar-meats.in</span>
+          </div>
+          <div>
+            <span className="block text-[10px] uppercase font-semibold text-muted">Password</span>
+            <span className="font-mono text-xs font-medium text-text select-all">Admin@12345</span>
+          </div>
+        </div>
+      </div>
+
       {serverError && (
         <Alert tone="danger" title="Sign in failed">
           {serverError}

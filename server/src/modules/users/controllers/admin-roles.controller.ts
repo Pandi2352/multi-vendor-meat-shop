@@ -8,7 +8,7 @@ import {
   Auth,
   CurrentUser,
 } from '#common/decorators';
-import { AdminUsersService } from '../services/admin-users.service.js';
+import { AdminRolesService } from '../services/admin-roles.service.js';
 import { RoleDetailResponseDto } from '../dto/role-detail-response.dto.js';
 import { UpdateRolePermissionsDto } from '../dto/update-role-permissions.dto.js';
 
@@ -16,14 +16,14 @@ import { UpdateRolePermissionsDto } from '../dto/update-role-permissions.dto.js'
 @Auth(Role.ADMIN, Role.SUPER_ADMIN)
 @Controller('admin/roles')
 export class AdminRolesController {
-  constructor(private readonly adminUsersService: AdminUsersService) {}
+  constructor(private readonly adminRolesService: AdminRolesService) {}
 
   @Get()
   @ApiOperation({ summary: 'List all roles with permissions, user count, and description' })
   @ApiOkEnvelope(RoleDetailResponseDto)
   @ApiStandardResponses()
   listRoles() {
-    return this.adminUsersService.getRolesWithPermissions();
+    return this.adminRolesService.getRolesWithPermissions();
   }
 
   @Get('permissions/catalog')
@@ -42,6 +42,6 @@ export class AdminRolesController {
     @Param('role') role: Role,
     @Body() dto: UpdateRolePermissionsDto,
   ) {
-    return this.adminUsersService.updateRolePermissions(adminId, role, dto.permissions);
+    return this.adminRolesService.updateRolePermissions(adminId, role, dto.permissions);
   }
 }
