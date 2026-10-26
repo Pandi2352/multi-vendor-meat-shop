@@ -1,12 +1,13 @@
 import { createBrowserRouter, useRouteError, type RouteObject } from 'react-router-dom';
 import { AdminLayout, AuthLayout, NotFoundPage, RouteErrorPage } from '@/components/layout';
-import { SignInPage } from '@/features/auth';
+import { SignInPage, VerifyCodePage } from '@/features/auth';
 import { flattenNav } from '@/config/nav.utils';
 import { ROUTES } from '@/config/routes';
 import { DeliveryTasksPage } from '@/features/delivery';
 import { VendorSettlementsPage } from '@/features/finance';
 import { VendorInventoryPage } from '@/features/inventory';
 import { AdminVendorsPage } from '@/features/vendors';
+import { AdminUsersPage } from '@/features/users';
 import { ComingSoonPage } from '@/pages/coming-soon-page';
 import { DashboardRoute, VendorOrderDetailRoute, VendorOrdersRoute } from './route-elements';
 
@@ -27,7 +28,7 @@ export const router = createBrowserRouter([
     errorElement: <RouterErrorElement />,
     children: [
       { path: ROUTES.LOGIN, element: <SignInPage /> },
-      { path: ROUTES.LOGIN_VERIFY, element: <ComingSoonPage title="Verify code" /> },
+      { path: ROUTES.LOGIN_VERIFY, element: <VerifyCodePage /> },
     ],
   },
   {
@@ -42,6 +43,7 @@ export const router = createBrowserRouter([
       { path: ROUTES.VENDOR_SETTLEMENTS, element: <VendorSettlementsPage /> },
       { path: ROUTES.DELIVERY_TASKS, element: <DeliveryTasksPage /> },
       { path: ROUTES.ADMIN_VENDORS, element: <AdminVendorsPage /> },
+      { path: ROUTES.ADMIN_USERS, element: <AdminUsersPage /> },
       ...comingSoonRoutes,
       { path: '*', element: <NotFoundPage /> },
     ],

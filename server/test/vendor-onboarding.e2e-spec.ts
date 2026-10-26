@@ -39,7 +39,7 @@ describe('Vendor Onboarding & Admin Management (e2e)', () => {
     adminToken = tokenService.signAccessToken({
       id: adminId,
       role: Role.ADMIN,
-      permissions: ['*'],
+      permissions: [],
     });
   });
 

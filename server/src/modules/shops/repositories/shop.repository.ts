@@ -4,6 +4,10 @@ import type { Model } from 'mongoose';
 import { BaseRepository } from '#database';
 import { Shop } from '../schemas/shop.schema.js';
 
+export interface ShopWithDistance extends Shop {
+  distanceMeters?: number;
+}
+
 @Injectable()
 export class ShopRepository extends BaseRepository<Shop> {
   constructor(@InjectModel(Shop.name) model: Model<Shop>) {
@@ -18,17 +22,23 @@ export class ShopRepository extends BaseRepository<Shop> {
     return this.findOne({ vendorId });
   }
 
-  findNearby(lng: number, lat: number, radiusKm: number): Promise<Shop[]> {
+  /**
+   * Free, native MongoDB geospatial calculation using $geoNear aggregation.
+   * Calculates spherical geodesic distance in meters from current coordinates without external APIs.
+   */
+  findNearby(lng: number, lat: number, radiusKm: number): Promise<ShopWithDistance[]> {
     return this.model
-      .find({
-        location: {
-          $near: {
-            $geometry: { type: 'Point', coordinates: [lng, lat] },
-            $maxDistance: radiusKm * 1000,
+      .aggregate<ShopWithDistance>([
+        {
+          $geoNear: {
+            near: { type: 'Point', coordinates: [lng, lat] },
+            distanceField: 'distanceMeters',
+            maxDistance: radiusKm * 1000,
+            spherical: true,
+            query: { deletedAt: null },
           },
         },
-      })
-      .lean<Shop[]>()
+      ])
       .exec();
   }
 }

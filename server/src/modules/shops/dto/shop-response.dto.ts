@@ -48,6 +48,9 @@ export class ShopResponseDto {
   @ApiProperty({ type: [String], example: [] })
   images!: string[];
 
+  @ApiPropertyOptional({ example: 1450, description: 'Distance in meters computed by $geoNear' })
+  distanceMeters?: number;
+
   @ApiProperty({ example: '2026-10-23T12:00:00.000Z' })
   createdAt!: string;
 

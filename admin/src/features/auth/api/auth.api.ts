@@ -14,4 +14,7 @@ export const AUTH_ENDPOINTS = {
 export const authApi = {
   sendPortalOtp: (email: string): Promise<SentOtpResponse> =>
     http.post<SentOtpResponse>(AUTH_ENDPOINTS.PORTAL_OTP_SEND, { email }),
+
+  verifyPortalOtp: (email: string, otp: string): Promise<AuthResponse> =>
+    http.post<AuthResponse>(AUTH_ENDPOINTS.PORTAL_OTP_VERIFY, { email, otp }),
 };

@@ -160,9 +160,12 @@ Server facts: NestJS 12 is **ESM-only** → relative imports end in `.js`, cross
 - [x] `OtpService` — generate, hash, verify, attempt limits, resend cooldown, email delivery 🧪
 - [x] `JwtAuthGuard` — reads Bearer token, respects `@Public()`, sets `req.user`
 - [x] `AuthUser` / `AppRequest` interfaces (`common/interfaces`)
+- [x] `AdminUsersService` & `AdminUsersController` — user management, role assignments, status management, invitations lifecycle 🧪 (e2e)
+- [x] `RolePermissionRepository` & `AdminRolesController` — dynamic RBAC role permission overrides and catalog mapping 🧪 (e2e)
+- [x] `ShopRepository.$geoNear` — spherical geodesic distance aggregation using free MongoDB 2dsphere index without external paid map APIs
 
 ### A15. Infrastructure adapters (`src/infra/`) — interface + provider swap
-- [x] **logger**: pino + `AppLogger` (Nest LoggerService), pretty in dev, JSON in prod, redaction of tokens/passwords/OTPs/phones ⭐ — nestjs-pino skipped (no release supports both Nest 12 and Node 20)
+- [x] **logger**: pino + `AppLogger` (Nest LoggerService), pretty in dev with ANSI colorization (`colorize: true`), JSON in prod, redaction of tokens/passwords/OTPs/phones ⭐ — nestjs-pino skipped (no release supports both Nest 12 and Node 20)
 - [x] **throttler**: `AppThrottlerModule` from config
 - [x] **health**: Terminus `/api/v1/health` (Mongo ping + heap) and `/api/v1/health/live` ⭐
 - [ ] **events**: `@nestjs/event-emitter`, typed event payload classes per event name

@@ -31,7 +31,12 @@ export const createPinoLogger = ({ name, level, pretty }: PinoLoggerOptions): Lo
     transport: pretty
       ? {
           target: 'pino-pretty',
-          options: { singleLine: true, translateTime: 'SYS:HH:MM:ss.l', ignore: 'pid,hostname' },
+          options: {
+            colorize: true,
+            singleLine: true,
+            translateTime: 'SYS:HH:MM:ss.l',
+            ignore: 'pid,hostname',
+          },
         }
       : undefined,
   });

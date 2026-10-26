@@ -27,7 +27,7 @@ export function AdminVendorsPage() {
   const approvedCount = allVendors.filter((v) => v.status === 'APPROVED').length;
 
   return (
-    <div className="space-y-4 p-4 max-w-6xl mx-auto">
+    <div className="w-full space-y-4">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h1 className="text-xl font-bold text-text flex items-center gap-2">
@@ -83,7 +83,7 @@ export function AdminVendorsPage() {
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
           {filteredVendors.map((vendor) => (
             <VendorCard
               key={vendor.id}

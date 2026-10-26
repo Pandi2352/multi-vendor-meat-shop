@@ -31,6 +31,10 @@ export const toShopResponseDto = (shop: Shop): ShopResponseDto => ({
   deliveryFeePaise: shop.deliveryFeePaise,
   freeDeliveryAbovePaise: shop.freeDeliveryAbovePaise,
   images: shop.images ?? [],
+  distanceMeters:
+    typeof (shop as { distanceMeters?: number }).distanceMeters === 'number'
+      ? Math.round((shop as { distanceMeters?: number }).distanceMeters!)
+      : undefined,
   createdAt:
     shop.createdAt instanceof Date ? shop.createdAt.toISOString() : String(shop.createdAt),
   updatedAt:

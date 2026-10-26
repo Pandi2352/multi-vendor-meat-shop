@@ -25,7 +25,9 @@ export enum CollectionName {
   COUPONS = 'coupons',
   SUPPORT_TICKETS = 'support_tickets',
   NOTIFICATIONS = 'notifications',
-  AUDIT_LOGS = 'audit_logs',
+  USER_INVITATIONS = 'user_invitations',
+  ROLE_PERMISSIONS = 'role_permissions',
   IDEMPOTENCY_RECORDS = 'idempotency_records',
   COUNTERS = 'counters',
 }
+

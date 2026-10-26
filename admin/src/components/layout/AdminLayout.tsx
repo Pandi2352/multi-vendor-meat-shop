@@ -22,8 +22,8 @@ export function AdminLayout() {
       <Sidebar collapsed={collapsed} isDesktop={isDesktop} mobileOpen={mobileOpen} onMobileClose={closeMobile} />
       <div className="flex min-w-0 flex-1 flex-col">
         <Navbar collapsed={collapsed} isDesktop={isDesktop} onToggleSidebar={toggleSidebar} />
-        {/* Full-width content: pages fill the space beside the sidebar, with only a small gutter. */}
-        <main id="main-content" className="w-full min-w-0 flex-1 px-4 py-5 sm:px-5 lg:px-6 lg:py-6">
+        {/* Full-width content: pages fill the space beside the sidebar cleanly with no empty void. */}
+        <main id="main-content" className="w-full min-w-0 flex-1 p-4 sm:p-5 lg:p-6">
           <Suspense
             fallback={
               <div className="flex justify-center py-24">

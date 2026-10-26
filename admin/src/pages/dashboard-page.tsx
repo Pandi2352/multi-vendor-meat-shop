@@ -24,7 +24,7 @@ export function DashboardPage({
   onOpenSettlements,
 }: DashboardPageProps) {
   return (
-    <div className="space-y-8">
+    <div className="w-full space-y-6">
       {/* Welcome & Overview */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
