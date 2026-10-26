@@ -4,7 +4,8 @@ import { AcceptInvitePage, SignInPage, VerifyCodePage } from '@/features/auth';
 import { flattenNav } from '@/config/nav.utils';
 import { ROUTES } from '@/config/routes';
 import { DeliveryTasksPage } from '@/features/delivery';
-import { VendorSettlementsPage } from '@/features/finance';
+import { AdminDisputesPage } from '@/features/disputes';
+import { AdminFinancePage, VendorSettlementsPage } from '@/features/finance';
 import { VendorInventoryPage } from '@/features/inventory';
 import { AdminVendorsPage } from '@/features/vendors';
 import { AdminUsersPage } from '@/features/users';
@@ -51,6 +52,8 @@ export const router = createBrowserRouter([
       { path: ROUTES.DELIVERY_TASKS, element: <DeliveryTasksPage /> },
       { path: ROUTES.ADMIN_VENDORS, element: <AdminVendorsPage /> },
       { path: ROUTES.ADMIN_USERS, element: <AdminUsersPage /> },
+      { path: ROUTES.ADMIN_FINANCE, element: <AdminFinancePage /> },
+      { path: ROUTES.ADMIN_DISPUTES, element: <AdminDisputesPage /> },
       ...comingSoonRoutes,
       { path: '*', element: <NotFoundPage /> },
     ],

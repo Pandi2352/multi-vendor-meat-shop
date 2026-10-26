@@ -19,4 +19,7 @@ export enum SwaggerTag {
   ADMIN_CATEGORIES = 'Admin - Categories',
   ADMIN_ORDERS = 'Admin - Orders',
   ADMIN_CONFIG = 'Admin - Config',
+  ADMIN_DISPUTES = 'Admin - Disputes',
+  ADMIN_FINANCE = 'Admin - Finance',
 }
+

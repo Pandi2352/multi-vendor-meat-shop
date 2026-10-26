@@ -166,4 +166,55 @@ export class FinanceService {
 
     return toSettlementResponseDto(settlement);
   }
+
+  async getGlobalOverview() {
+    const allPendingCommissions = await this.commissionRepo.findMany({ status: 'PENDING' });
+    const allSettledCommissions = await this.commissionRepo.findMany({ status: 'SETTLED' });
+    const allSettlements = await this.settlementRepo.findMany({}, { sort: { createdAt: -1 }, limit: 100 });
+
+    const totalGrossSalesPaise = [...allPendingCommissions, ...allSettledCommissions].reduce(
+      (sum, c) => sum + c.grossAmountPaise,
+      0,
+    );
+    const totalCommissionCollectedPaise = [...allPendingCommissions, ...allSettledCommissions].reduce(
+      (sum, c) => sum + c.commissionAmountPaise,
+      0,
+    );
+    const pendingPayoutPaise = allPendingCommissions.reduce((sum, c) => sum + c.netVendorAmountPaise, 0);
+    const completedPayoutPaise = allSettlements
+      .filter((s) => s.status === SettlementStatus.SETTLED)
+      .reduce((sum, s) => sum + s.netPayoutPaise, 0);
+
+    return {
+      totalGrossSalesPaise,
+      totalCommissionCollectedPaise,
+      pendingPayoutPaise,
+      completedPayoutPaise,
+      pendingOrdersCount: allPendingCommissions.length,
+      settlementsCount: allSettlements.length,
+    };
+  }
+
+  async recordDisputeRefundDebit(input: {
+    shopId: string;
+    amountPaise: number;
+    orderNumber: string;
+    disputeNumber: string;
+    reason: string;
+  }) {
+    const previousBalance = await this.ledgerRepo.getLatestBalance(input.shopId);
+    const newBalance = Math.max(0, previousBalance - input.amountPaise);
+
+    return this.ledgerRepo.create({
+      shopId: input.shopId,
+      direction: LedgerDirection.DEBIT,
+      entryType: LedgerEntryType.REFUND,
+      amountPaise: input.amountPaise,
+      referenceType: 'DISPUTE',
+      referenceId: input.disputeNumber,
+      description: `Dispute debit for order ${input.orderNumber}: ${input.reason}`,
+      balanceAfterPaise: newBalance,
+    });
+  }
 }
+

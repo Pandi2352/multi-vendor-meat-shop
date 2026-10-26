@@ -9,6 +9,15 @@ export interface FinanceSummary {
   pendingOrdersCount: number;
 }
 
+export interface GlobalFinanceOverview {
+  totalGrossSalesPaise: number;
+  totalCommissionCollectedPaise: number;
+  pendingPayoutPaise: number;
+  completedPayoutPaise: number;
+  pendingOrdersCount: number;
+  settlementsCount: number;
+}
+
 export interface LedgerEntry {
   id: string;
   shopId: string;
@@ -39,7 +48,14 @@ export interface Settlement {
   createdAt: string;
 }
 
+export interface DisburseSettlementPayload {
+  shopId: string;
+  utrNumber?: string;
+  notes?: string;
+}
+
 export const financeApi = {
+  // Vendor-scoped
   getSummary: (): Promise<FinanceSummary> =>
     http.get<FinanceSummary>('/vendor/finance/summary'),
 
@@ -51,4 +67,20 @@ export const financeApi = {
 
   requestSettlement: (notes?: string): Promise<Settlement> =>
     http.post<Settlement>('/vendor/finance/settlements/request', { notes }),
+
+  // Admin platform finance
+  getGlobalOverview: (): Promise<GlobalFinanceOverview> =>
+    http.get<GlobalFinanceOverview>('/admin/finance/overview'),
+
+  getShopSummary: (shopId: string): Promise<FinanceSummary> =>
+    http.get<FinanceSummary>(`/admin/finance/summary/${encodeURIComponent(shopId)}`),
+
+  getShopLedger: (shopId: string, limit = 50): Promise<LedgerEntry[]> =>
+    http.get<LedgerEntry[]>(`/admin/finance/ledger/${encodeURIComponent(shopId)}?limit=${limit}`),
+
+  getShopSettlements: (shopId: string, limit = 20): Promise<Settlement[]> =>
+    http.get<Settlement[]>(`/admin/finance/settlements/${encodeURIComponent(shopId)}?limit=${limit}`),
+
+  disburseSettlement: (data: DisburseSettlementPayload): Promise<Settlement> =>
+    http.post<Settlement>('/admin/finance/settlements', data),
 };

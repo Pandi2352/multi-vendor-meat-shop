@@ -16,10 +16,18 @@ import { SettlementResponseDto } from '../dto/settlement-response.dto.js';
 import { CreateSettlementDto } from '../dto/create-settlement.dto.js';
 
 @ApiTags(SwaggerTag.ADMIN_ORDERS)
-@Auth(Role.ADMIN, Role.FINANCE)
+@Auth(Role.ADMIN, Role.FINANCE, Role.SUPER_ADMIN)
 @Controller('admin/finance')
 export class AdminFinanceController {
   constructor(private readonly finance: FinanceService) {}
+
+  @Get('overview')
+  @ApiOperation({ summary: 'Admin: Get marketplace-wide finance metrics (GMV, platform commission, payouts)' })
+  @ApiOkEnvelope(Object)
+  @ApiStandardResponses()
+  getGlobalOverview() {
+    return this.finance.getGlobalOverview();
+  }
 
   @Get('summary/:shopId')
   @ApiOperation({ summary: 'Admin: Get shop financial balance and stats' })

@@ -386,7 +386,8 @@ modules/<feature>/
 - [ ] Enums mirrored from generated API types (roles, statuses, units, categories) — never retyped by hand
 - [x] `status-config.ts` — label key + tone for every status enum
 - [x] `tn-districts.ts` — 38 Tamil Nadu districts in English and Tamil
-- [x] `finance` — `commissions`, `settlements`, `ledger_entries` modules & double-entry ledger portal
+- [x] `finance` — `commissions`, `settlements`, `ledger_entries` modules, double-entry ledger portal & admin payout disbursements (/admin/finance)
+- [x] `disputes` — `support_tickets` module, meat complaint arbitration, ledger debit adjustments & admin resolution portal (/admin/disputes)
 - [x] `addresses` — customer address book with TN district selection and pincode validation
 - [ ] `pagination.ts` defaults, `upload.ts` limits
 - [ ] `types/api.generated.ts` (generated), `types/common.ts` (`ID = string`, `Paginated<T>`, `ApiResponse<T>`, `SelectOption`)

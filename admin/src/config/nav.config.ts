@@ -144,8 +144,20 @@ export const NAV_SECTIONS: NavSection[] = [
         icon: Users,
         description: 'Manage users, roles & permissions',
       },
-      { type: 'link', label: 'Disputes', to: ROUTES.ADMIN_DISPUTES, icon: Gavel, soon: true },
-      { type: 'link', label: 'Finance', to: ROUTES.ADMIN_FINANCE, icon: BadgeIndianRupee, soon: true },
+      {
+        type: 'link',
+        label: 'Disputes',
+        to: ROUTES.ADMIN_DISPUTES,
+        icon: Gavel,
+        description: 'Customer claims & refund arbitration',
+      },
+      {
+        type: 'link',
+        label: 'Finance',
+        to: ROUTES.ADMIN_FINANCE,
+        icon: BadgeIndianRupee,
+        description: 'Platform commission & payouts',
+      },
     ],
   },
 ];

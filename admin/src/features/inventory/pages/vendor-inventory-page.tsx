@@ -13,6 +13,7 @@ import { InventoryProductCard } from '../components/inventory-product-card';
 import { OpeningStockModal } from '../components/opening-stock-modal';
 import { StockAdjustmentModal } from '../components/stock-adjustment-modal';
 import { StockMovementsDrawer } from '../components/stock-movements-drawer';
+import { ShopSwitcher } from '@/features/vendor-shops';
 
 export function VendorInventoryPage() {
   const [search, setSearch] = useState('');
@@ -72,7 +73,8 @@ export function VendorInventoryPage() {
             Opening stock weights, midday trimming adjustments, and live cut inventory in grams.
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <ShopSwitcher />
           <Button
             variant="outline"
             size="sm"

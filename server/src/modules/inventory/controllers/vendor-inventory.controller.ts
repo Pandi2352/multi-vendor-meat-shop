@@ -18,7 +18,7 @@ import { InventoryBatchResponseDto } from '../dto/inventory-batch-response.dto.j
 import { InventoryMovementResponseDto } from '../dto/inventory-movement-response.dto.js';
 
 @ApiTags(SwaggerTag.VENDOR_INVENTORY)
-@Auth(Role.VENDOR_OWNER, Role.VENDOR_STAFF)
+@Auth(Role.VENDOR_OWNER, Role.VENDOR_STAFF, Role.ADMIN, Role.SUPER_ADMIN)
 @Controller('vendor/inventory')
 export class VendorInventoryController {
   constructor(private readonly inventory: InventoryService) {}

@@ -82,7 +82,21 @@ export function StockAdjustmentModal({
           </div>
 
           <div>
-            <label className="text-xs font-medium text-text block mb-1">Weight in Kilograms (kg)</label>
+            <div className="flex items-center justify-between mb-1">
+              <label className="text-xs font-medium text-text">Weight in Kilograms (kg)</label>
+              <div className="flex gap-1">
+                {['0.5', '1', '2', '5'].map((preset) => (
+                  <button
+                    key={preset}
+                    type="button"
+                    onClick={() => setKgValue(preset)}
+                    className="px-1.5 py-0.5 text-[10px] rounded-md bg-surface-muted border border-border hover:border-primary text-text font-medium"
+                  >
+                    {preset}kg
+                  </button>
+                ))}
+              </div>
+            </div>
             <div className="relative">
               <input
                 type="number"
