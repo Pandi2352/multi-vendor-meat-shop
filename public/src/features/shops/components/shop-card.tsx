@@ -1,7 +1,8 @@
 import { useNavigate } from 'react-router-dom';
-import { Store, MapPin, Clock, Truck, ShieldCheck, ChevronRight } from 'lucide-react';
+import { Store, MapPin, Clock, Truck, ShieldCheck, ChevronRight, Zap } from 'lucide-react';
 import { Badge, Button } from '@/components/ui';
-import { formatINR } from '@/utils';
+import { calculateDistanceKm, formatDistance, formatINR } from '@/utils';
+import { useDistrict } from '@/context/district-context';
 import type { Shop } from '../api/shops.api';
 
 interface ShopCardProps {
@@ -10,7 +11,23 @@ interface ShopCardProps {
 
 export function ShopCard({ shop }: ShopCardProps) {
   const navigate = useNavigate();
+  const { userCoords, selectedTown } = useDistrict();
   const isOpen = shop.status === 'OPEN';
+
+  const customerLat = userCoords?.lat ?? selectedTown.lat;
+  const customerLng = userCoords?.lng ?? selectedTown.lng;
+
+  const distanceKm =
+    shop.distanceMeters !== undefined
+      ? Math.round(shop.distanceMeters / 100) / 10
+      : calculateDistanceKm(
+          customerLat,
+          customerLng,
+          shop.address.location?.lat ?? 9.568,
+          shop.address.location?.lng ?? 77.9624,
+        );
+
+  const etaMins = Math.max(25, Math.min(60, Math.round(distanceKm * 3.5 + 20)));
 
   return (
     <div
@@ -26,14 +43,26 @@ export function ShopCard({ shop }: ShopCardProps) {
             <div>
               <h4 className="font-bold text-sm text-text leading-tight">{shop.name}</h4>
               <p className="text-xs text-muted flex items-center gap-1 mt-0.5">
-                <MapPin className="h-3 w-3 text-muted" />
-                {shop.address.locality}, {shop.address.city}
+                <MapPin className="h-3 w-3 text-muted shrink-0" />
+                <span>{shop.address.locality || shop.address.line1}, {shop.address.city}</span>
               </p>
             </div>
           </div>
           <Badge tone={isOpen ? 'success' : 'neutral'} size="sm" dot>
             {isOpen ? 'Open Now' : 'Closed'}
           </Badge>
+        </div>
+
+        {/* Proximity & Delivery ETA badges */}
+        <div className="flex items-center gap-1.5 flex-wrap my-2.5">
+          <span className="inline-flex items-center gap-1 text-[11px] font-medium bg-surface-muted text-text px-2 py-0.5 rounded-md border border-border">
+            <MapPin className="h-3 w-3 text-primary" />
+            <span>{formatDistance(distanceKm)}</span>
+          </span>
+          <span className="inline-flex items-center gap-1 text-[11px] font-medium bg-emerald-500/10 text-emerald-600 px-2 py-0.5 rounded-md border border-emerald-500/20">
+            <Zap className="h-3 w-3" />
+            <span>Delivers in ~{etaMins}m</span>
+          </span>
         </div>
 
         {shop.description && (
@@ -56,7 +85,7 @@ export function ShopCard({ shop }: ShopCardProps) {
           </div>
           <div className="flex items-center gap-1.5 text-primary">
             <ShieldCheck className="h-3.5 w-3.5 shrink-0" />
-            <span>FSSAI Verified Butcher</span>
+            <span>FSSAI Certified Fresh Butcher</span>
           </div>
         </div>
       </div>

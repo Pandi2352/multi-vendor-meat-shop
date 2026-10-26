@@ -376,6 +376,7 @@ modules/<feature>/
 
 ### B14. Utils (`src/utils/`) — pure, all 🧪
 - [x] **format**: `formatINR(paise)`, `formatWeight(grams)`, `formatDateIST`, `formatTimeIST` 🧪
+- [x] **distance**: `calculateDistanceKm(lat1, lon1, lat2, lon2)`, `formatDistance(km)` (Haversine proximity formula) 🧪
 - [ ] **string**: `truncate`, `initials`, `slugify`, `titleCase`
 - [ ] **url**: `toQueryString(params)` (skips empty), `parseQueryString`
 - [ ] **status**: `getStatusTone(enum, value)`, `getStatusLabel(enum, value)` from one status config map

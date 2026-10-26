@@ -1,1 +1,3 @@
-export * from './format.js';
+export * from './format';
+export * from './distance';
+

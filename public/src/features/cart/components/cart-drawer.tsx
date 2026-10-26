@@ -1,9 +1,10 @@
-import { X, Trash2, ShoppingBag, AlertTriangle, ArrowRight } from 'lucide-react';
+import { X, ShoppingBag, AlertTriangle, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui';
 import { formatINR, formatWeight } from '@/utils';
 import { useDistrict } from '@/context/district-context';
 import { useCart, useCheckoutQuote, useClearCart, useRemoveCartItem } from '../api/use-cart';
 import type { CheckoutQuoteResponse } from '../api/cart.api';
+import { CartItemRow } from './cart-item-row';
 
 interface CartDrawerProps {
   isOpen: boolean;
@@ -73,34 +74,11 @@ export function CartDrawer({ isOpen, onClose, onProceedToCheckout }: CartDrawerP
               )}
 
               {cart.items.map((item) => (
-                <div
+                <CartItemRow
                   key={item.productId}
-                  className="rounded-md border border-border bg-surface p-3 flex justify-between items-start gap-2"
-                >
-                  <div className="flex-1">
-                    <p className="font-semibold text-sm text-text">{item.name}</p>
-                    <p className="text-xs text-muted">
-                      {formatWeight(item.grams)} × {item.quantity} portion
-                      {item.cutType ? ` • ${item.cutType}` : ''}
-                      {item.preparation ? ` • ${item.preparation}` : ''}
-                    </p>
-                    <p className="text-xs font-bold text-primary mt-1">
-                      {formatINR(item.lineTotalPaise)}
-                    </p>
-                    {!item.isAvailable && (
-                      <p className="text-[11px] text-danger flex items-center gap-1 mt-0.5">
-                        <AlertTriangle className="h-3 w-3" /> Insufficient fresh daily stock
-                      </p>
-                    )}
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => removeItem.mutate(item.productId)}
-                    className="p-1 rounded-md text-muted hover:text-danger hover:bg-surface-muted"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                </div>
+                  item={item}
+                  onRemove={(id) => removeItem.mutate(id)}
+                />
               ))}
             </>
           )}

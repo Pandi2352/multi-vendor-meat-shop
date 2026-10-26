@@ -1,7 +1,9 @@
 import { http } from '@/lib/http';
 import type { components } from '@/types/api.generated';
 
-export type Shop = components['schemas']['ShopResponseDto'];
+export type Shop = components['schemas']['ShopResponseDto'] & {
+  distanceMeters?: number;
+};
 
 export const shopsApi = {
   getNearby: (params: { lat: number; lng: number; radiusKm?: number }): Promise<Shop[]> =>

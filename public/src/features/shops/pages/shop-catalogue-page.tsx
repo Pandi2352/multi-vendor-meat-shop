@@ -1,14 +1,14 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Store, MapPin, Clock, Truck, ShieldCheck } from 'lucide-react';
-import { Badge, Button } from '@/components/ui';
-import { formatINR } from '@/utils';
+import { ArrowLeft } from 'lucide-react';
+import { Button } from '@/components/ui';
 import { useCategoriesTree } from '@/features/categories/api/use-categories';
 import { useShopProducts } from '@/features/products/api/use-products';
 import { ProductCard } from '@/features/products/components/product-card';
 import { useDistrict } from '@/context/district-context';
 import { CUT_FILTER_OPTIONS } from '@/constants/tn-districts';
 import { useShopDetail } from '../api/use-shops';
+import { ShopProfileBanner } from '../components/shop-profile-banner';
 
 export function ShopCataloguePage() {
   const { shopId } = useParams<{ shopId: string }>();
@@ -56,47 +56,7 @@ export function ShopCataloguePage() {
       </button>
 
       {/* Shop profile banner */}
-      <div className="rounded-md border border-border bg-surface p-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-4 mb-4">
-          <div className="flex items-start gap-3">
-            <div className="h-12 w-12 rounded-md bg-primary/10 text-primary flex items-center justify-center shrink-0">
-              <Store className="h-6 w-6" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-xl font-bold text-text">{shop.name}</h1>
-                <Badge tone="success" size="sm" dot>FSSAI Verified</Badge>
-              </div>
-              <p className="text-xs text-muted flex items-center gap-1 mt-1">
-                <MapPin className="h-3.5 w-3.5" />
-                {shop.address.line1}, {shop.address.locality}, {shop.address.city} - {shop.address.pincode}
-              </p>
-            </div>
-          </div>
-
-          <Badge tone={shop.status === 'OPEN' ? 'success' : 'neutral'} size="md">
-            {shop.status === 'OPEN' ? 'Open Now' : 'Closed'}
-          </Badge>
-        </div>
-
-        <div className="flex flex-wrap gap-4 text-xs text-muted">
-          <div className="flex items-center gap-1.5">
-            <Clock className="h-4 w-4 text-primary" />
-            <span>Daily Hours: {shop.openingTime} - {shop.closingTime}</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <Truck className="h-4 w-4 text-primary" />
-            <span>Delivery: {shop.deliveryFeePaise === 0 ? 'FREE' : formatINR(shop.deliveryFeePaise)}</span>
-            {shop.freeDeliveryAbovePaise && (
-              <span className="text-primary font-medium">(Free above {formatINR(shop.freeDeliveryAbovePaise)})</span>
-            )}
-          </div>
-          <div className="flex items-center gap-1.5">
-            <ShieldCheck className="h-4 w-4 text-success" />
-            <span>Service Radius: {shop.serviceRadiusKm} km</span>
-          </div>
-        </div>
-      </div>
+      <ShopProfileBanner shop={shop} />
 
       {/* Category pills */}
       <div className="flex items-center gap-2 overflow-x-auto pb-2">

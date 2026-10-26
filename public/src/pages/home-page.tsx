@@ -1,18 +1,20 @@
 import { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Store, MapPin, Sparkles, Search, Scissors, Navigation } from 'lucide-react';
-import { Button } from '@/components/ui';
+import { Store, MapPin, Search } from 'lucide-react';
 import { useNearbyShops } from '@/features/shops/api/use-shops';
 import { ShopCard } from '@/features/shops/components/shop-card';
 import { useCategoriesTree } from '@/features/categories/api/use-categories';
 import { useDistrict } from '@/context/district-context';
-import { CUT_FILTER_OPTIONS, VIRUDHUNAGAR_TOWNS } from '@/constants/tn-districts';
+import { HeroBanner } from '@/features/shops/components/hero-banner';
+import { LocationPickerBar } from '@/features/shops/components/location-picker-bar';
 
 export function HomePage({ onOpenCart }: { onOpenCart: () => void }) {
-  const { selectedDistrict, setSelectedDistrict, selectedCut, setSelectedCut } = useDistrict();
+  const { selectedDistrict, selectedTown, userCoords } = useDistrict();
   const [searchTerm, setSearchTerm] = useState('');
 
-  const { data: shops = [], isLoading: shopsLoading } = useNearbyShops();
+  const activeLat = userCoords?.lat ?? selectedTown.lat;
+  const activeLng = userCoords?.lng ?? selectedTown.lng;
+
+  const { data: shops = [], isLoading: shopsLoading } = useNearbyShops(activeLat, activeLng);
   const { data: categories = [] } = useCategoriesTree();
 
   const filteredShops = useMemo(() => {
@@ -28,7 +30,7 @@ export function HomePage({ onOpenCart }: { onOpenCart: () => void }) {
         shopDistrictOrCity.includes('virudhunagar') ||
         shopDistrictOrCity.includes(townKeyword) ||
         shop.address.line1.toLowerCase().includes(townKeyword) ||
-        true; // shows available shops in Virudhunagar
+        true;
 
       return matchesSearch && matchesLocation;
     });
@@ -36,104 +38,16 @@ export function HomePage({ onOpenCart }: { onOpenCart: () => void }) {
 
   return (
     <main className="flex-1 max-w-6xl mx-auto px-4 py-8 w-full space-y-8">
-      {/* Hero Banner */}
-      <section className="rounded-md border border-border bg-surface p-6 sm:p-10">
-        <div className="max-w-2xl">
-          <div className="flex flex-wrap items-center gap-2 mb-3">
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md border border-border bg-surface-muted text-xs font-semibold text-primary">
-              <Sparkles className="h-3.5 w-3.5" /> Virudhunagar District Meat Hub
-            </span>
-            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md border border-border bg-surface text-xs font-medium text-text">
-              <MapPin className="h-3 w-3 text-primary" /> {selectedDistrict}, Virudhunagar
-            </span>
-          </div>
+      {/* Hero Banner with GPS Detect */}
+      <HeroBanner onOpenCart={onOpenCart} />
 
-          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-text mb-3">
-            Fresh cut meat delivered directly from Virudhunagar&apos;s trusted butchers
-          </h2>
-          <p className="text-sm text-muted mb-6">
-            Exact weight ordering in grams, zero hidden charges, transparent pricing in paise, and Cash on Delivery across Virudhunagar, Sivakasi, Rajapalayam, Srivilliputhur & Aruppukkottai.
-          </p>
-
-          <div className="flex flex-wrap gap-3">
-            <Button variant="primary" leftIcon={<Store className="h-4 w-4" />} onClick={onOpenCart}>
-              View Cart
-            </Button>
-            <Link to="/orders">
-              <Button variant="outline">Track Orders</Button>
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Virudhunagar Localities Quick Picker */}
-      <section className="space-y-3">
-        <div className="flex items-center justify-between">
-          <h3 className="text-sm font-bold text-text flex items-center gap-2">
-            <Navigation className="h-4 w-4 text-primary" />
-            Virudhunagar District Town Coverage
-          </h3>
-          <span className="text-xs text-muted">Hyperlocal Butcher Delivery</span>
-        </div>
-
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
-          {VIRUDHUNAGAR_TOWNS.map((town) => {
-            const isActive = selectedDistrict === town.nameEn;
-            return (
-              <button
-                key={town.code}
-                type="button"
-                onClick={() => setSelectedDistrict(town.nameEn)}
-                className={`px-3 py-1.5 text-xs rounded-md border whitespace-nowrap font-medium transition-colors ${
-                  isActive
-                    ? 'border-primary bg-primary text-primary-foreground'
-                    : 'border-border bg-surface text-muted hover:text-text hover:border-primary/40'
-                }`}
-              >
-                <span>{town.nameEn}</span>
-                <span className="opacity-75 ml-1 text-[10px]">({town.nameTa})</span>
-              </button>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* Cut Style Filter Pills */}
-      <section className="space-y-3">
-        <div className="flex items-center justify-between">
-          <h3 className="text-sm font-bold text-text flex items-center gap-2">
-            <Scissors className="h-4 w-4 text-primary" />
-            Filter by Cut Style
-          </h3>
-          <span className="text-xs text-muted">Fresh butcher preparation</span>
-        </div>
-
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
-          {CUT_FILTER_OPTIONS.map((cut) => {
-            const isActive = selectedCut === cut.code;
-            return (
-              <button
-                key={cut.code}
-                type="button"
-                onClick={() => setSelectedCut(cut.code)}
-                className={`px-3 py-1.5 text-xs rounded-md border whitespace-nowrap font-medium transition-colors ${
-                  isActive
-                    ? 'border-primary bg-primary text-primary-foreground'
-                    : 'border-border bg-surface text-muted hover:text-text hover:border-primary/40'
-                }`}
-              >
-                <span>{cut.label}</span>
-                <span className="opacity-75 ml-1 text-[10px]">({cut.labelTa})</span>
-              </button>
-            );
-          })}
-        </div>
-      </section>
+      {/* Town & Cut Style Pickers */}
+      <LocationPickerBar />
 
       {/* Categories */}
       {categories && categories.length > 0 && (
         <section>
-          <h3 className="text-lg font-bold text-text mb-3">Popular Categories</h3>
+          <h3 className="text-lg font-bold text-text mb-3">Popular Meat Categories</h3>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {categories.slice(0, 4).map((cat) => (
               <div
@@ -141,7 +55,7 @@ export function HomePage({ onOpenCart }: { onOpenCart: () => void }) {
                 className="rounded-md border border-border bg-surface p-4 hover:border-primary/40 transition-colors"
               >
                 <p className="font-semibold text-text text-sm mb-1">{cat.name}</p>
-                <span className="text-xs text-primary font-medium">Fresh Daily Cuts</span>
+                <span className="text-xs text-primary font-medium">Daily Butchery Cuts</span>
               </div>
             ))}
           </div>

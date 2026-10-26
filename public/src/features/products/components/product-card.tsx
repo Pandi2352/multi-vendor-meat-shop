@@ -5,6 +5,7 @@ import { formatINR, priceForGrams } from '@/utils';
 import { useAddCartItem } from '@/features/cart/api/use-cart';
 import type { Product } from '../api/products.api';
 import { WeightSelector } from './weight-selector';
+import { PreparationSelector } from './preparation-selector';
 
 interface ProductCardProps {
   product: Product;
@@ -77,18 +78,11 @@ export function ProductCard({ product, shopId }: ProductCardProps) {
         {/* Preparation selection if butcher offers choices */}
         {product.allowedPreparation && product.allowedPreparation.length > 1 && (
           <div className="mb-3">
-            <label className="block text-[11px] font-medium text-muted mb-1">Butcher Cut Style</label>
-            <select
-              value={selectedPrep}
-              onChange={(e) => setSelectedPrep(e.target.value)}
-              className="w-full text-xs rounded-md border border-border bg-surface px-2 py-1 text-text focus:ring-2 focus:ring-primary/40 focus:outline-none"
-            >
-              {product.allowedPreparation.map((prep) => (
-                <option key={prep} value={prep}>
-                  {prep.replace(/_/g, ' ')}
-                </option>
-              ))}
-            </select>
+            <PreparationSelector
+              options={product.allowedPreparation}
+              selectedPrep={selectedPrep}
+              onSelect={setSelectedPrep}
+            />
           </div>
         )}
       </div>
