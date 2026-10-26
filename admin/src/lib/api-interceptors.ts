@@ -45,6 +45,10 @@ export const setupInterceptors = (client: AxiosInstance): void => {
       if (token && !config.headers.Authorization) {
         config.headers.Authorization = `Bearer ${token}`;
       }
+      const activeShopId = tokenStorage.getActiveShopId();
+      if (activeShopId && !config.headers['x-shop-id']) {
+        config.headers['x-shop-id'] = activeShopId;
+      }
       return config;
     },
     (error) => Promise.reject(error),

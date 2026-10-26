@@ -99,7 +99,8 @@ export const NAV_SECTIONS: NavSection[] = [
         icon: Package,
         children: [
           { label: 'Products', to: ROUTES.VENDOR_PRODUCTS, description: 'Cuts, prices and variants' },
-          { label: 'Shop profile', to: ROUTES.VENDOR_SHOPS, description: 'Hours, slots and service area', soon: true },
+          { label: 'Shop profile', to: ROUTES.VENDOR_SHOPS, description: 'Hours, slots and service area' },
+          { label: 'Stall team', to: ROUTES.VENDOR_STAFF, description: 'Cutters, billing and staff' },
         ],
       },
       {

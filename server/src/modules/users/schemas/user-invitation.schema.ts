@@ -20,6 +20,9 @@ export class UserInvitation extends BaseEntity implements SoftDeletable {
   @Prop({ type: String, default: null, index: true })
   shopId!: string | null;
 
+  @Prop({ type: String, trim: true, default: null })
+  dutyTitle?: string | null;
+
   @Prop({ type: String, required: true, index: true })
   invitedBy!: string;
 

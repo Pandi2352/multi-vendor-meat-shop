@@ -11,16 +11,24 @@ export const CurrentUser = createParamDecorator(
   },
 );
 
-/** `@CurrentShop()` → the authenticated vendor user's shopId. */
+/** `@CurrentShop()` → the authenticated vendor user's shopId (or explicit shopId from header/query for admin). */
 export const CurrentShop = createParamDecorator((_data: unknown, ctx: ExecutionContext) => {
-  const { user } = ctx.switchToHttp().getRequest<AppRequest>();
+  const req = ctx.switchToHttp().getRequest<AppRequest>();
+  const { user } = req;
   if (!user) throw new AppException(ErrorCode.UNAUTHORIZED);
-  if (!user.shopId) {
-    throw new AppException(ErrorCode.FORBIDDEN, {
-      message: 'Authenticated user is not linked to a shop',
-    });
-  }
-  return user.shopId;
+
+  // 1. Authenticated user has an assigned shopId:
+  if (user.shopId) return user.shopId;
+
+  // 2. Caller provided explicit shopId via header 'x-shop-id' or query 'shopId':
+  const explicitShopId =
+    (req.headers['x-shop-id'] as string | undefined) ||
+    (req.query?.shopId as string | undefined);
+  if (explicitShopId) return explicitShopId;
+
+  throw new AppException(ErrorCode.FORBIDDEN, {
+    message: 'Authenticated user is not linked to a shop. Please select a stall.',
+  });
 });
 
 /** Route param that must be a UUID v7: `@UuidParam('productId') productId: string`. */

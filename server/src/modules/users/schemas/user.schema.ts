@@ -23,6 +23,9 @@ export class User extends BaseEntity implements SoftDeletable {
   @Prop({ type: String, default: null, index: true })
   shopId!: string | null;
 
+  @Prop({ type: String, trim: true, default: null })
+  dutyTitle?: string | null;
+
   @Prop({ type: String, default: null })
   passwordHash?: string | null;
 

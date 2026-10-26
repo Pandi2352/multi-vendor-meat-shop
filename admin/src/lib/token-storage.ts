@@ -1,6 +1,7 @@
 const ADMIN_ACCESS_TOKEN_KEY = 'meat_shop_admin_access_token';
 const ADMIN_REFRESH_TOKEN_KEY = 'meat_shop_admin_refresh_token';
 const ADMIN_USER_KEY = 'meat_shop_admin_user';
+const ADMIN_ACTIVE_SHOP_KEY = 'meat_shop_admin_active_shop_id';
 
 let memoryAccessToken: string | null = null;
 
@@ -69,12 +70,33 @@ export const tokenStorage = {
     }
   },
 
+  getActiveShopId: (): string | null => {
+    try {
+      return localStorage.getItem(ADMIN_ACTIVE_SHOP_KEY);
+    } catch {
+      return null;
+    }
+  },
+
+  setActiveShopId: (shopId: string | null): void => {
+    try {
+      if (shopId) {
+        localStorage.setItem(ADMIN_ACTIVE_SHOP_KEY, shopId);
+      } else {
+        localStorage.removeItem(ADMIN_ACTIVE_SHOP_KEY);
+      }
+    } catch {
+      // Storage unavailable or disabled
+    }
+  },
+
   clearTokens: (): void => {
     memoryAccessToken = null;
     try {
       localStorage.removeItem(ADMIN_ACCESS_TOKEN_KEY);
       localStorage.removeItem(ADMIN_REFRESH_TOKEN_KEY);
       localStorage.removeItem(ADMIN_USER_KEY);
+      localStorage.removeItem(ADMIN_ACTIVE_SHOP_KEY);
     } catch {
       // Storage unavailable or disabled
     }

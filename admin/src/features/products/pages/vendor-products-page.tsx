@@ -12,6 +12,7 @@ import {
 } from '../api';
 import { ProductCard } from '../components/product-card';
 import { ProductFormModal } from '../components/product-form-modal';
+import { ShopSwitcher } from '@/features/vendor-shops';
 
 export function VendorProductsPage() {
   const [search, setSearch] = useState('');
@@ -87,10 +88,13 @@ export function VendorProductsPage() {
             Configure your butcher stall cuts, price per kg, custom package sizes, and prep options
           </p>
         </div>
-        <Button variant="primary" size="sm" onClick={handleOpenAdd} className="gap-1.5 self-start sm:self-auto">
-          <Plus className="h-4 w-4" />
-          <span>Add Meat Cut</span>
-        </Button>
+        <div className="flex items-center gap-2 self-start sm:self-auto">
+          <ShopSwitcher />
+          <Button variant="primary" size="sm" onClick={handleOpenAdd} className="gap-1.5">
+            <Plus className="h-4 w-4" />
+            <span>Add Meat Cut</span>
+          </Button>
+        </div>
       </div>
 
       {/* Filter and Search Bar */}

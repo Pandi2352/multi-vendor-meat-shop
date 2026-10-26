@@ -13,10 +13,12 @@ import { AddressesService } from './services/addresses.service.js';
 import { AdminUsersService } from './services/admin-users.service.js';
 import { AdminRolesService } from './services/admin-roles.service.js';
 import { SuperAdminSeeder } from './services/super-admin-seeder.service.js';
+import { VendorStaffService } from './services/vendor-staff.service.js';
 import { UsersController } from './controllers/users.controller.js';
 import { AddressesController } from './controllers/addresses.controller.js';
 import { AdminUsersController } from './controllers/admin-users.controller.js';
 import { AdminRolesController } from './controllers/admin-roles.controller.js';
+import { VendorStaffController } from './controllers/vendor-staff.controller.js';
 
 @Module({
   imports: [
@@ -32,6 +34,7 @@ import { AdminRolesController } from './controllers/admin-roles.controller.js';
     AddressesController,
     AdminUsersController,
     AdminRolesController,
+    VendorStaffController,
   ],
   providers: [
     UserRepository,
@@ -42,6 +45,7 @@ import { AdminRolesController } from './controllers/admin-roles.controller.js';
     AddressesService,
     AdminUsersService,
     AdminRolesService,
+    VendorStaffService,
     SuperAdminSeeder,
   ],
   exports: [
@@ -50,6 +54,7 @@ import { AdminRolesController } from './controllers/admin-roles.controller.js';
     AddressRepository,
     AdminUsersService,
     AdminRolesService,
+    VendorStaffService,
     UserInvitationRepository,
     RolePermissionRepository,
   ],

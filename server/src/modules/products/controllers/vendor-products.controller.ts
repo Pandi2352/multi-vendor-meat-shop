@@ -18,7 +18,7 @@ import { QueryProductsDto } from '../dto/query-products.dto.js';
 import { ProductResponseDto } from '../dto/product-response.dto.js';
 
 @ApiTags(SwaggerTag.VENDOR_PRODUCTS)
-@Auth(Role.VENDOR_OWNER, Role.VENDOR_STAFF)
+@Auth(Role.VENDOR_OWNER, Role.VENDOR_STAFF, Role.ADMIN, Role.SUPER_ADMIN)
 @Controller('vendor/products')
 export class VendorProductsController {
   constructor(private readonly products: ProductsService) {}

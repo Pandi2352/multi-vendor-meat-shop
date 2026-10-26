@@ -356,6 +356,8 @@ modules/<feature>/
 - [ ] `features/<f>/api/use-<f>-queries.ts` — `useXList`, `useXDetail`
 - [ ] `features/<f>/api/use-<f>-mutations.ts` — `useCreateX`, `useUpdateX` built on shared `useAppMutation`
 - [x] Vendor Products Catalogue (`/vendor/products`): Meat cuts, per-kg pricing (₹/paise), package sizes (250g, 500g, 1kg), butchery prep options (Skin-on, Skin-off, Cleaned, Small pieces), daily freshness & stock status toggle
+- [x] Vendor Stall Staff Management (`/vendor/staff`): Stall cutters, billing staff, dispatch handlers, invite links, active/suspended toggle, shop isolation
+- [x] Vendor Shop Profile Operations (`/vendor/shops`): Operating schedule, delivery radius, base delivery fee, butchery schedule, stall switcher for Admin multi-tenant management
 - [ ] Shared `useAppMutation` — success toast, error toast, invalidate keys, optimistic update option
 - [ ] Shared `usePaginatedQuery` — page/limit/sort from URL state
 

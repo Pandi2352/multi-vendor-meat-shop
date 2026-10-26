@@ -16,7 +16,7 @@ import { UpdateShopDto } from '../dto/update-shop.dto.js';
 import { ShopResponseDto } from '../dto/shop-response.dto.js';
 
 @ApiTags(SwaggerTag.VENDOR_SHOP)
-@Auth(Role.VENDOR_OWNER, Role.VENDOR_STAFF)
+@Auth(Role.VENDOR_OWNER, Role.VENDOR_STAFF, Role.ADMIN, Role.SUPER_ADMIN)
 @Controller('vendor/shops')
 export class VendorShopsController {
   constructor(private readonly shops: ShopsService) {}

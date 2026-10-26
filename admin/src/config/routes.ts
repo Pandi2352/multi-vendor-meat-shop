@@ -6,6 +6,7 @@ export const ROUTES = {
   // Vendor portal
   VENDOR_SHOPS: '/vendor/shops',
   VENDOR_PRODUCTS: '/vendor/products',
+  VENDOR_STAFF: '/vendor/staff',
   VENDOR_INVENTORY: '/vendor/inventory',
   VENDOR_ORDERS: '/vendor/orders',
   VENDOR_ORDER_DETAIL: '/vendor/orders/:orderId',
