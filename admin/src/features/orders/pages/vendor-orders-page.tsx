@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Bell, Flame, CheckCircle2, History } from 'lucide-react';
-import { Spinner, ErrorState } from '@/components/ui';
+import { Spinner, ErrorState, Tabs } from '@/components/ui';
 import { useVendorOrders, useUpdateOrderStatus } from '../api/use-vendor-orders';
 import { VendorOrderCard } from '../components/vendor-order-card';
 
@@ -92,38 +92,18 @@ export function VendorOrdersPage({ onSelectOrder }: VendorOrdersPageProps) {
       </div>
 
       {/* Status filter tabs */}
-      <div className="flex items-center gap-2 border-b border-border pb-3 overflow-x-auto text-xs">
-        {[
-          { key: 'ACTIVE' as TabKey, label: 'Active Queue', count: counts.newOrders + counts.inPrep + counts.ready, icon: Flame },
-          { key: 'NEW' as TabKey, label: 'New Requests', count: counts.newOrders, alert: counts.newOrders > 0 },
-          { key: 'PREP' as TabKey, label: 'Cutting & Packing', count: counts.inPrep },
-          { key: 'READY' as TabKey, label: 'Ready for Dispatch', count: counts.ready, icon: CheckCircle2 },
-          { key: 'COMPLETED' as TabKey, label: 'Completed / Past', count: counts.completed, icon: History },
-        ].map((tab) => (
-          <button
-            key={tab.key}
-            type="button"
-            onClick={() => setActiveTab(tab.key)}
-            className={`flex items-center gap-2 px-3 py-1.5 rounded-md font-medium transition-colors whitespace-nowrap ${
-              activeTab === tab.key
-                ? 'bg-primary text-primary-foreground'
-                : 'text-muted hover:text-text hover:bg-surface-muted'
-            }`}
-          >
-            <span>{tab.label}</span>
-            <span
-              className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
-                activeTab === tab.key
-                  ? 'bg-white/20 text-primary-foreground'
-                  : tab.alert
-                  ? 'bg-warning text-black'
-                  : 'bg-surface-muted text-muted'
-              }`}
-            >
-              {tab.count}
-            </span>
-          </button>
-        ))}
+      <div className="flex items-center overflow-x-auto">
+        <Tabs<TabKey>
+          tabs={[
+            { key: 'ACTIVE', label: 'Active Queue', count: counts.newOrders + counts.inPrep + counts.ready, icon: Flame },
+            { key: 'NEW', label: 'New Requests', count: counts.newOrders, alert: counts.newOrders > 0 },
+            { key: 'PREP', label: 'Cutting & Packing', count: counts.inPrep },
+            { key: 'READY', label: 'Ready for Dispatch', count: counts.ready, icon: CheckCircle2 },
+            { key: 'COMPLETED', label: 'Completed / Past', count: counts.completed, icon: History },
+          ]}
+          activeTab={activeTab}
+          onChange={setActiveTab}
+        />
       </div>
 
       {/* Orders Grid */}

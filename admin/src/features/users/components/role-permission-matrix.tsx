@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Shield, Check, Save } from 'lucide-react';
-import { Button } from '@/components/ui';
+import { Button, LoaderState } from '@/components/ui';
 import {
   useRolesWithPermissions,
   useUpdateRolePermissions,
@@ -90,40 +90,45 @@ export function RolePermissionMatrix() {
     });
   };
 
-  if (isLoading) {
-    return <div className="p-8 text-center text-xs text-muted">Loading role permissions matrix...</div>;
+  if (isLoading || roles.length === 0) {
+    return (
+      <LoaderState
+        title="Loading permissions matrix..."
+        description="Syncing access control rules and role privileges"
+      />
+    );
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 w-full">
       <div className="border border-border rounded-md bg-surface p-3 space-y-1.5 md:col-span-1">
-        <h3 className="text-xs font-semibold text-text mb-2 px-1">Select Role:</h3>
+        <h3 className="text-sm font-semibold text-text mb-2.5 px-1">Select Role:</h3>
         {roles.map((r: RoleDetail) => (
           <button
             key={r.role}
             onClick={() => setSelectedRole(r.role)}
-            className={`w-full text-left p-2 rounded-md text-xs font-medium transition-colors flex items-center justify-between ${
+            className={`w-full text-left p-2.5 rounded-md text-sm font-medium transition-colors flex items-center justify-between ${
               selectedRole === r.role
                 ? 'bg-primary text-primary-foreground'
                 : 'text-text hover:bg-surface-muted'
             }`}
           >
             <div>
-              <p>{r.name}</p>
-              <p className={`text-[10px] ${selectedRole === r.role ? 'text-primary-foreground/80' : 'text-muted'}`}>
-                {r.userCount} users
+              <p className="font-semibold">{r.name}</p>
+              <p className={`text-xs ${selectedRole === r.role ? 'text-primary-foreground/80' : 'text-muted'}`}>
+                {r.userCount} user{r.userCount === 1 ? '' : 's'}
               </p>
             </div>
-            {selectedRole === r.role && <Check className="h-3.5 w-3.5 shrink-0" />}
+            {selectedRole === r.role && <Check className="h-4 w-4 shrink-0" />}
           </button>
         ))}
       </div>
 
-      <div className="border border-border rounded-md bg-surface p-4 md:col-span-3 space-y-4 text-xs">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border pb-3">
+      <div className="border border-border rounded-md bg-surface p-5 md:col-span-3 space-y-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border pb-4">
           <div>
-            <h3 className="text-sm font-semibold text-text flex items-center gap-1.5">
-              <Shield className="h-4 w-4 text-primary" />
+            <h3 className="text-base font-bold text-text flex items-center gap-2">
+              <Shield className="h-5 w-5 text-primary" />
               {currentRoleDetail?.name} Permissions
             </h3>
             <p className="text-xs text-muted mt-0.5">{currentRoleDetail?.description}</p>
@@ -131,9 +136,9 @@ export function RolePermissionMatrix() {
           {!currentRoleDetail?.isSystem && (
             <Button
               variant="primary"
-              size="sm"
+              size="md"
               loading={updateMutation.isPending}
-              leftIcon={<Save className="h-3.5 w-3.5" />}
+              leftIcon={<Save className="h-4 w-4" />}
               onClick={handleSave}
             >
               Save Permissions
@@ -143,26 +148,26 @@ export function RolePermissionMatrix() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {PERMISSION_GROUPS.map((grp) => (
-            <div key={grp.name} className="p-3 rounded-md bg-surface-muted/50 border border-border space-y-2">
-              <h4 className="font-semibold text-text text-xs border-b border-border pb-1">{grp.name}</h4>
-              <div className="space-y-1.5">
+            <div key={grp.name} className="p-3.5 rounded-md bg-surface-muted/50 border border-border space-y-2.5">
+              <h4 className="font-semibold text-text text-sm border-b border-border pb-1.5">{grp.name}</h4>
+              <div className="space-y-2">
                 {grp.permissions.map((p) => {
                   const isChecked = selectedPermissions.includes(p.key);
                   return (
                     <label
                       key={p.key}
-                      className="flex items-start gap-2 cursor-pointer text-text text-xs hover:text-primary transition-colors"
+                      className="flex items-start gap-2.5 cursor-pointer text-text text-sm hover:text-primary transition-colors"
                     >
                       <input
                         type="checkbox"
                         checked={isChecked}
                         disabled={currentRoleDetail?.isSystem}
                         onChange={() => togglePermission(p.key)}
-                        className="rounded-md border-border text-primary focus:ring-0 mt-0.5"
+                        className="rounded border-border text-primary focus:ring-0 mt-0.5 h-4 w-4"
                       />
-                      <span>
-                        <span className="block font-medium">{p.label}</span>
-                        <span className="block text-[10px] font-mono text-muted">{p.key}</span>
+                      <span className="leading-tight">
+                        <span className="block font-medium text-sm text-text">{p.label}</span>
+                        <span className="block text-xs font-mono text-muted">{p.key}</span>
                       </span>
                     </label>
                   );

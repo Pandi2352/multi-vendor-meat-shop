@@ -1,13 +1,15 @@
 import { useState } from 'react';
-import { Plus, Store } from 'lucide-react';
-import { Button } from '@/components/ui';
+import { Plus, Store, CheckCircle, Clock } from 'lucide-react';
+import { Button, LoaderState, Tabs, type TabItem } from '@/components/ui';
 import { useAdminVendors, type VendorProfile } from '../api';
 import { VendorCard } from '../components/vendor-card';
 import { VendorVerifyDialog } from '../components/vendor-verify-dialog';
 import { AddVendorModal } from '../components/add-vendor-modal';
 
+type VendorTab = 'ALL' | 'PENDING' | 'APPROVED';
+
 export function AdminVendorsPage() {
-  const [tab, setTab] = useState<'ALL' | 'PENDING' | 'APPROVED'>('ALL');
+  const [tab, setTab] = useState<VendorTab>('ALL');
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [actionTarget, setActionTarget] = useState<{
     vendor: VendorProfile;
@@ -26,54 +28,67 @@ export function AdminVendorsPage() {
   const pendingCount = allVendors.filter((v) => v.status === 'SUBMITTED' || v.status === 'UNDER_REVIEW').length;
   const approvedCount = allVendors.filter((v) => v.status === 'APPROVED').length;
 
+  const tabItems: TabItem<VendorTab>[] = [
+    {
+      key: 'ALL',
+      label: 'All Stalls',
+      icon: Store,
+      count: allVendors.length,
+    },
+    {
+      key: 'PENDING',
+      label: 'Pending Review',
+      icon: Clock,
+      count: pendingCount,
+      alert: pendingCount > 0,
+    },
+    {
+      key: 'APPROVED',
+      label: 'Active Stalls',
+      icon: CheckCircle,
+      count: approvedCount,
+    },
+  ];
+
   return (
     <div className="w-full space-y-4">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      {/* Page Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-1 border-b border-border/60">
         <div>
           <h1 className="text-xl font-bold text-text flex items-center gap-2">
             <Store className="h-5 w-5 text-primary" />
             Butcher Stalls & Vendors (விருதுநகர்)
           </h1>
-          <p className="text-xs text-muted">
+          <p className="text-xs text-muted mt-0.5">
             Manage Virudhunagar district butcher stalls and review public onboarding applications.
           </p>
         </div>
-        <Button variant="primary" size="sm" leftIcon={<Plus className="h-4 w-4" />} onClick={() => setIsAddOpen(true)}>
+        <Button
+          variant="primary"
+          size="sm"
+          leftIcon={<Plus className="h-3.5 w-3.5" />}
+          onClick={() => setIsAddOpen(true)}
+        >
           Add Butcher Stall
         </Button>
       </div>
 
-      <div className="flex items-center gap-2 border-b border-border pb-2 text-xs">
-        <button
-          onClick={() => setTab('ALL')}
-          className={`px-3 py-1.5 rounded-md font-medium transition-colors ${
-            tab === 'ALL' ? 'bg-primary text-primary-foreground' : 'text-muted hover:text-text hover:bg-surface-muted'
-          }`}
-        >
-          All ({allVendors.length})
-        </button>
-        <button
-          onClick={() => setTab('PENDING')}
-          className={`px-3 py-1.5 rounded-md font-medium transition-colors ${
-            tab === 'PENDING' ? 'bg-primary text-primary-foreground' : 'text-muted hover:text-text hover:bg-surface-muted'
-          }`}
-        >
-          Pending Review ({pendingCount})
-        </button>
-        <button
-          onClick={() => setTab('APPROVED')}
-          className={`px-3 py-1.5 rounded-md font-medium transition-colors ${
-            tab === 'APPROVED' ? 'bg-primary text-primary-foreground' : 'text-muted hover:text-text hover:bg-surface-muted'
-          }`}
-        >
-          Active Stalls ({approvedCount})
-        </button>
+      {/* Light-color, professional compact tabs */}
+      <div className="flex items-center justify-between">
+        <Tabs<VendorTab>
+          tabs={tabItems}
+          activeTab={tab}
+          onChange={setTab}
+        />
       </div>
 
       {isLoading ? (
-        <div className="p-8 text-center text-xs text-muted">Loading vendor applications...</div>
+        <LoaderState
+          title="Loading butcher stalls..."
+          description="Fetching verified Virudhunagar stalls and public applications"
+        />
       ) : filteredVendors.length === 0 ? (
-        <div className="p-12 text-center border border-dashed border-border rounded-md space-y-2">
+        <div className="p-12 text-center border border-dashed border-border rounded-md space-y-2 bg-surface">
           <Store className="h-8 w-8 text-muted mx-auto" />
           <p className="text-sm font-medium text-text">No stalls found</p>
           <p className="text-xs text-muted">

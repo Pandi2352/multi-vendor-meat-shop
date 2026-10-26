@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { X, Store, AlertCircle } from 'lucide-react';
-import { Button } from '@/components/ui';
+import { Button, CustomSelect } from '@/components/ui';
 import { VIRUDHUNAGAR_TOWNS } from '@/constants/virudhunagar-towns';
 import { useCreateVendor } from '../api';
 
@@ -60,7 +60,7 @@ export function AddVendorModal({ isOpen, onClose }: AddVendorModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-150">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/35 backdrop-blur-[1px] animate-in fade-in duration-150">
       <div className="bg-surface border border-border rounded-md w-full max-w-lg max-h-[90vh] flex flex-col overflow-hidden">
         <div className="flex items-center justify-between p-4 border-b border-border">
           <div className="flex items-center gap-2">
@@ -132,15 +132,19 @@ export function AddVendorModal({ isOpen, onClose }: AddVendorModalProps) {
           <div className="grid grid-cols-3 gap-3">
             <div>
               <label className="block font-medium text-text mb-1">Town *</label>
-              <select
+              <CustomSelect
                 value={town}
-                onChange={(e) => handleTownChange(e.target.value)}
-                className="w-full px-2.5 py-1.5 rounded-md border border-border bg-surface text-text focus:outline-none focus:border-primary"
-              >
-                {VIRUDHUNAGAR_TOWNS.map((t) => (
-                  <option key={t.code} value={t.nameEn}>{t.nameEn}</option>
-                ))}
-              </select>
+                onChange={(val) => handleTownChange(val as string)}
+                options={VIRUDHUNAGAR_TOWNS.map((t) => ({
+                  label: `${t.nameEn} (${t.nameTa})`,
+                  value: t.nameEn,
+                  description: `PIN ${t.pincode}`,
+                }))}
+                searchable
+                clearable={false}
+                placeholder="Choose town..."
+                size="sm"
+              />
             </div>
             <div>
               <label className="block font-medium text-text mb-1">Locality *</label>

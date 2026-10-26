@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Truck, Clock, CheckCircle2, AlertCircle } from 'lucide-react';
-import { Spinner, ErrorState } from '@/components/ui';
+import { Spinner, ErrorState, Tabs } from '@/components/ui';
 import {
   useDeliveryTasks,
   useAssignPartner,
@@ -82,37 +82,17 @@ export function DeliveryTasksPage() {
       </div>
 
       {/* Status filter tabs */}
-      <div className="flex items-center gap-2 border-b border-border pb-3 overflow-x-auto text-xs">
-        {[
-          { key: 'ALL' as TabKey, label: 'All Tasks', count: tasks.length },
-          { key: 'UNASSIGNED' as TabKey, label: 'Awaiting Courier', count: counts.unassigned, icon: Clock, alert: counts.unassigned > 0 },
-          { key: 'IN_TRANSIT' as TabKey, label: 'In Transit', count: counts.inTransit, icon: Truck },
-          { key: 'DELIVERED' as TabKey, label: 'Delivered (COD Paid)', count: counts.delivered, icon: CheckCircle2 },
-        ].map((tab) => (
-          <button
-            key={tab.key}
-            type="button"
-            onClick={() => setActiveTab(tab.key)}
-            className={`flex items-center gap-2 px-3 py-1.5 rounded-md font-medium transition-colors whitespace-nowrap ${
-              activeTab === tab.key
-                ? 'bg-primary text-primary-foreground'
-                : 'text-muted hover:text-text hover:bg-surface-muted'
-            }`}
-          >
-            <span>{tab.label}</span>
-            <span
-              className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
-                activeTab === tab.key
-                  ? 'bg-white/20 text-primary-foreground'
-                  : tab.alert
-                  ? 'bg-warning text-black'
-                  : 'bg-surface-muted text-muted'
-              }`}
-            >
-              {tab.count}
-            </span>
-          </button>
-        ))}
+      <div className="flex items-center overflow-x-auto">
+        <Tabs<TabKey>
+          tabs={[
+            { key: 'ALL', label: 'All Tasks', count: tasks.length },
+            { key: 'UNASSIGNED', label: 'Awaiting Courier', count: counts.unassigned, icon: Clock, alert: counts.unassigned > 0 },
+            { key: 'IN_TRANSIT', label: 'In Transit', count: counts.inTransit, icon: Truck },
+            { key: 'DELIVERED', label: 'Delivered (COD Paid)', count: counts.delivered, icon: CheckCircle2 },
+          ]}
+          activeTab={activeTab}
+          onChange={setActiveTab}
+        />
       </div>
 
       {/* Tasks Grid */}

@@ -21,6 +21,7 @@ import { ProductSchema } from '../../modules/products/schemas/product.schema.js'
 import { InventoryBatchSchema } from '../../modules/inventory/schemas/inventory-batch.schema.js';
 import { InventoryMovementSchema } from '../../modules/inventory/schemas/inventory-movement.schema.js';
 import {
+  DEMO_ADMINS,
   DEMO_USERS,
   VIRUDHUNAGAR_CATEGORIES,
   VIRUDHUNAGAR_SHOPS,
@@ -318,6 +319,31 @@ export async function runVirudhunagarSeed(): Promise<void> {
       shopId: null,
     });
     console.log(`  + Created super admin: ${superAdmin.name} <${superAdminEmail}>`);
+  }
+
+  // 4. Seed 5 Additional Platform Admin Users
+  console.log('\n🛡️ Seeding 5 Platform Admin Users...');
+  for (const adminDef of DEMO_ADMINS) {
+    const adminEmail = adminDef.email.toLowerCase();
+    let existingAdmin = await UserModel.findOne({ email: adminEmail });
+    if (!existingAdmin) {
+      existingAdmin = await UserModel.create({
+        _id: generateId(),
+        email: adminEmail,
+        name: adminDef.name,
+        phone: adminDef.phone,
+        role: adminDef.role,
+        status: adminDef.status,
+        shopId: null,
+      });
+      console.log(`  + Created admin user: ${existingAdmin.name} <${adminEmail}> (${adminDef.role})`);
+    } else {
+      await UserModel.updateOne(
+        { _id: existingAdmin._id },
+        { $set: { name: adminDef.name, phone: adminDef.phone, role: adminDef.role, status: adminDef.status } },
+      );
+      console.log(`  ✓ Updated admin user: ${adminDef.name} <${adminEmail}>`);
+    }
   }
 
   console.log('\n✨ Virudhunagar Marketplace Seeding Completed Successfully!');

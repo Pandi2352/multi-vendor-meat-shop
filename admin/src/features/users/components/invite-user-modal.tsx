@@ -1,16 +1,16 @@
 import { useState } from 'react';
 import { X, UserPlus, AlertCircle } from 'lucide-react';
-import { Button } from '@/components/ui';
+import { Button, CustomSelect, type SelectOption } from '@/components/ui';
 import { useInviteUser, type UserRole } from '../api';
 
-const INVITABLE_ROLES: { value: UserRole; label: string }[] = [
-  { value: 'ADMIN', label: 'Admin (System Administrator)' },
-  { value: 'OPERATIONS', label: 'Operations Staff' },
-  { value: 'FINANCE', label: 'Finance Manager' },
-  { value: 'SUPPORT', label: 'Customer Support' },
-  { value: 'VENDOR_OWNER', label: 'Butcher Stall Owner' },
-  { value: 'VENDOR_STAFF', label: 'Stall Staff / Butcher' },
-  { value: 'DELIVERY_PARTNER', label: 'Delivery Partner' },
+const INVITABLE_ROLES: (SelectOption & { value: UserRole })[] = [
+  { value: 'ADMIN', label: 'Admin', description: 'Full system management & configuration', group: 'Platform Team' },
+  { value: 'OPERATIONS', label: 'Operations Staff', description: 'Verifies stalls, catalog and tasks', group: 'Platform Team' },
+  { value: 'FINANCE', label: 'Finance Manager', description: 'Manages ledger, refunds and payouts', group: 'Platform Team' },
+  { value: 'SUPPORT', label: 'Customer Support', description: 'Manages tickets and customer issues', group: 'Platform Team' },
+  { value: 'VENDOR_OWNER', label: 'Butcher Stall Owner', description: 'Controls stall profile and stock batches', group: 'Partners' },
+  { value: 'VENDOR_STAFF', label: 'Stall Staff / Butcher', description: 'Prepares and cuts meat orders', group: 'Partners' },
+  { value: 'DELIVERY_PARTNER', label: 'Delivery Partner', description: 'Picks up packets and delivers', group: 'Partners' },
 ];
 
 interface InviteUserModalProps {
@@ -47,64 +47,61 @@ export function InviteUserModal({ isOpen, onClose }: InviteUserModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-150">
-      <div className="bg-surface border border-border rounded-md w-full max-w-md p-5 space-y-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/35 backdrop-blur-[1px] animate-in fade-in duration-150">
+      <div className="bg-surface border border-border rounded-md w-full max-w-md p-6 space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <UserPlus className="h-5 w-5 text-primary" />
-            <h3 className="text-base font-semibold text-text">Invite Portal User</h3>
+            <h3 className="text-base font-bold text-text">Invite Portal User</h3>
           </div>
-          <button onClick={onClose} className="text-muted hover:text-text p-1 rounded-md">
+          <button onClick={onClose} className="text-muted hover:text-text p-1.5 rounded-md hover:bg-surface-muted transition-colors">
             <X className="h-4 w-4" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-3 text-xs">
+        <form onSubmit={handleSubmit} className="space-y-4 text-sm">
           {inviteMutation.isError && (
-            <div className="p-2.5 rounded-md bg-danger-soft border border-danger/20 text-danger flex items-center gap-2">
+            <div className="p-3 rounded-md bg-danger-soft border border-danger/20 text-danger text-xs flex items-center gap-2">
               <AlertCircle className="h-4 w-4 shrink-0" />
               <span>Failed to send invitation. Check if email already has an active account.</span>
             </div>
           )}
 
           <div>
-            <label className="block font-medium text-text mb-1">Email Address *</label>
+            <label className="block font-medium text-sm text-text mb-1.5">Email Address *</label>
             <input
               required
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="colleague@yourshop.in"
-              className="w-full px-2.5 py-1.5 rounded-md border border-border bg-surface text-text focus:outline-none focus:border-primary"
+              className="h-10 w-full px-3 rounded-md border border-border bg-surface text-sm text-text placeholder:text-muted/70 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
             />
           </div>
 
           <div>
-            <label className="block font-medium text-text mb-1">Full Name (Optional)</label>
+            <label className="block font-medium text-sm text-text mb-1.5">Full Name (Optional)</label>
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. S. Murugesan"
-              className="w-full px-2.5 py-1.5 rounded-md border border-border bg-surface text-text focus:outline-none focus:border-primary"
+              className="h-10 w-full px-3 rounded-md border border-border bg-surface text-sm text-text placeholder:text-muted/70 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
             />
           </div>
 
           <div>
-            <label className="block font-medium text-text mb-1">Assigned Role *</label>
-            <select
+            <label className="block font-medium text-sm text-text mb-1.5">Assigned Role *</label>
+            <CustomSelect
               value={role}
-              onChange={(e) => setRole(e.target.value as UserRole)}
-              className="w-full px-2.5 py-1.5 rounded-md border border-border bg-surface text-text focus:outline-none focus:border-primary"
-            >
-              {INVITABLE_ROLES.map((r) => (
-                <option key={r.value} value={r.value}>
-                  {r.label}
-                </option>
-              ))}
-            </select>
+              onChange={(val) => setRole(val as UserRole)}
+              options={INVITABLE_ROLES}
+              searchable
+              clearable={false}
+              placeholder="Select assigned role..."
+            />
           </div>
 
-          <p className="text-[11px] text-muted leading-relaxed pt-1">
+          <p className="text-xs text-muted leading-relaxed pt-0.5">
             An onboarding invitation will be registered. When the user signs in with this email, they will be granted the selected role.
           </p>
 

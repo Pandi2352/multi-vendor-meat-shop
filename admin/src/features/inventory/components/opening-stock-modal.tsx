@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { PackagePlus, X } from 'lucide-react';
-import { Button } from '@/components/ui';
+import { Button, CustomSelect } from '@/components/ui';
 import type { Product } from '../api/inventory.api';
 
 interface OpeningStockModalProps {
@@ -59,17 +59,18 @@ export function OpeningStockModal({
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="text-xs font-medium text-text block mb-1">Meat Cut / Product</label>
-            <select
+            <CustomSelect
               value={productId}
-              onChange={(e) => setProductId(e.target.value)}
-              className="w-full px-3 py-2 text-xs rounded-md border border-border bg-surface text-text focus:outline-hidden focus:ring-1 focus:ring-primary"
-            >
-              {products.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.name}
-                </option>
-              ))}
-            </select>
+              onChange={(val) => setProductId(val as string)}
+              options={products.map((p) => ({
+                label: p.name,
+                value: p.id,
+              }))}
+              searchable
+              clearable={false}
+              placeholder="Select meat cut..."
+              size="sm"
+            />
           </div>
 
           <div>

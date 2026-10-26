@@ -33,7 +33,7 @@ export function UserStatusDialog({ user, onClose }: UserStatusDialogProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-150">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/35 backdrop-blur-[1px] animate-in fade-in duration-150">
       <div className="bg-surface border border-border rounded-md w-full max-w-md p-5 space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">

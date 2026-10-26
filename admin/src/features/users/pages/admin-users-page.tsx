@@ -1,6 +1,14 @@
 import { useState } from 'react';
-import { Users, UserPlus, Shield, Search } from 'lucide-react';
-import { Button } from '@/components/ui';
+import { Users, UserPlus, MailCheck, ShieldCheck } from 'lucide-react';
+import {
+  Button,
+  SearchInput,
+  CustomSelect,
+  Tabs,
+  Pagination,
+  type TabItem,
+  type SelectOption,
+} from '@/components/ui';
 import {
   useAdminUsers,
   useUserInvitations,
@@ -17,16 +25,24 @@ import { InviteUserModal } from '../components/invite-user-modal';
 
 type Tab = 'USERS' | 'INVITATIONS' | 'ROLES';
 
-const ROLE_OPTIONS: { label: string; value: string }[] = [
+const ROLE_OPTIONS: SelectOption[] = [
   { label: 'All Roles', value: '' },
-  { label: 'Super Admin', value: 'SUPER_ADMIN' },
-  { label: 'Admin', value: 'ADMIN' },
-  { label: 'Operations', value: 'OPERATIONS' },
-  { label: 'Finance', value: 'FINANCE' },
-  { label: 'Vendor Owner', value: 'VENDOR_OWNER' },
-  { label: 'Butcher Staff', value: 'BUTCHER' },
-  { label: 'Delivery Partner', value: 'DELIVERY_PARTNER' },
-  { label: 'Customer', value: 'CUSTOMER' },
+  { label: 'Super Admin', value: 'SUPER_ADMIN', description: 'Platform creator & root access' },
+  { label: 'Admin', value: 'ADMIN', description: 'Operations & user manager' },
+  { label: 'Operations Staff', value: 'OPERATIONS', description: 'Catalog & stall verifications' },
+  { label: 'Finance Manager', value: 'FINANCE', description: 'Ledger, settlements & payouts' },
+  { label: 'Customer Support', value: 'SUPPORT', description: 'Support tickets & reviews' },
+  { label: 'Stall Owner', value: 'VENDOR_OWNER', description: 'Butcher shop manager' },
+  { label: 'Stall Staff / Butcher', value: 'VENDOR_STAFF', description: 'Meat preparation & cutting' },
+  { label: 'Delivery Partner', value: 'DELIVERY_PARTNER', description: 'Order pickups & logistics' },
+  { label: 'Customer', value: 'CUSTOMER', description: 'Storefront consumer account' },
+];
+
+const STATUS_OPTIONS: SelectOption[] = [
+  { label: 'All Statuses', value: '' },
+  { label: 'Active', value: 'ACTIVE', description: 'Normal account standing' },
+  { label: 'Inactive', value: 'INACTIVE', description: 'Account not active' },
+  { label: 'Suspended', value: 'SUSPENDED', description: 'Temporary lock or penalty' },
 ];
 
 export function AdminUsersPage() {
@@ -34,6 +50,8 @@ export function AdminUsersPage() {
   const [search, setSearch] = useState('');
   const [selectedRole, setSelectedRole] = useState<string>('');
   const [selectedStatus, setSelectedStatus] = useState<string>('');
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
 
   const [assignRoleTarget, setAssignRoleTarget] = useState<AdminUser | null>(null);
   const [updateStatusTarget, setUpdateStatusTarget] = useState<AdminUser | null>(null);
@@ -45,6 +63,8 @@ export function AdminUsersPage() {
     isError: isUsersError,
     refetch: refetchUsers,
   } = useAdminUsers({
+    page,
+    limit,
     q: search || undefined,
     role: (selectedRole as UserRole) || undefined,
     status: (selectedStatus as UserStatus) || undefined,
@@ -55,15 +75,51 @@ export function AdminUsersPage() {
   const users = usersData?.items || [];
   const inviteList = invitations || [];
 
+  const handleSearchChange = (val: string) => {
+    setSearch(val);
+    setPage(1);
+  };
+
+  const handleRoleChange = (val: string) => {
+    setSelectedRole(val);
+    setPage(1);
+  };
+
+  const handleStatusChange = (val: string) => {
+    setSelectedStatus(val);
+    setPage(1);
+  };
+
+  const tabItems: TabItem<Tab>[] = [
+    {
+      key: 'USERS',
+      label: 'All Users',
+      icon: Users,
+      count: usersData?.meta?.total ?? users.length,
+    },
+    {
+      key: 'INVITATIONS',
+      label: 'Invited Users',
+      icon: MailCheck,
+      count: inviteList.length,
+    },
+    {
+      key: 'ROLES',
+      label: 'Roles & Permissions',
+      icon: ShieldCheck,
+    },
+  ];
+
   return (
     <div className="w-full space-y-4">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      {/* Page Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-1 border-b border-border/60">
         <div>
           <h1 className="text-xl font-bold text-text flex items-center gap-2">
             <Users className="h-5 w-5 text-primary" />
             User Management & Access Control
           </h1>
-          <p className="text-xs text-muted">
+          <p className="text-xs text-muted mt-0.5">
             Manage Virudhunagar platform users, role assignments, invitations and granular permissions.
           </p>
         </div>
@@ -71,7 +127,7 @@ export function AdminUsersPage() {
           <Button
             variant="primary"
             size="sm"
-            leftIcon={<UserPlus className="h-4 w-4" />}
+            leftIcon={<UserPlus className="h-3.5 w-3.5" />}
             onClick={() => setIsInviteOpen(true)}
           >
             Invite User
@@ -79,68 +135,46 @@ export function AdminUsersPage() {
         )}
       </div>
 
-      <div className="flex items-center gap-2 border-b border-border pb-2 text-xs">
-        <button
-          onClick={() => setTab('USERS')}
-          className={`px-3 py-1.5 rounded-md font-medium transition-colors flex items-center gap-1.5 ${
-            tab === 'USERS' ? 'bg-primary text-primary-foreground' : 'text-muted hover:text-text hover:bg-surface-muted'
-          }`}
-        >
-          <Users className="h-3.5 w-3.5" />
-          All Users ({usersData?.meta?.total ?? users.length})
-        </button>
-        <button
-          onClick={() => setTab('INVITATIONS')}
-          className={`px-3 py-1.5 rounded-md font-medium transition-colors flex items-center gap-1.5 ${
-            tab === 'INVITATIONS' ? 'bg-primary text-primary-foreground' : 'text-muted hover:text-text hover:bg-surface-muted'
-          }`}
-        >
-          <UserPlus className="h-3.5 w-3.5" />
-          Invited Users ({inviteList.length})
-        </button>
-        <button
-          onClick={() => setTab('ROLES')}
-          className={`px-3 py-1.5 rounded-md font-medium transition-colors flex items-center gap-1.5 ${
-            tab === 'ROLES' ? 'bg-primary text-primary-foreground' : 'text-muted hover:text-text hover:bg-surface-muted'
-          }`}
-        >
-          <Shield className="h-3.5 w-3.5" />
-          Roles & Permissions Matrix
-        </button>
+      {/* Light-color, professional compact tabs */}
+      <div className="flex items-center justify-between">
+        <Tabs<Tab>
+          tabs={tabItems}
+          activeTab={tab}
+          onChange={setTab}
+        />
       </div>
 
+      {/* Tab 1: All Users */}
       {tab === 'USERS' && (
-        <div className="space-y-3">
-          <div className="flex flex-col sm:flex-row items-center gap-2">
-            <div className="relative flex-1 w-full">
-              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted" />
-              <input
-                type="text"
-                placeholder="Search by name, email or phone..."
+        <div className="space-y-3.5">
+          <div className="flex flex-col sm:flex-row items-center gap-2.5">
+            <div className="flex-1 w-full">
+              <SearchInput
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="w-full pl-8 pr-3 py-1.5 text-xs bg-surface border border-border rounded-md text-text placeholder:text-muted focus:outline-none focus:ring-1 focus:ring-primary"
+                onChange={handleSearchChange}
+                placeholder="Search users by name, email, or phone number..."
               />
             </div>
-            <select
-              value={selectedRole}
-              onChange={(e) => setSelectedRole(e.target.value)}
-              className="text-xs px-2.5 py-1.5 bg-surface border border-border rounded-md text-text w-full sm:w-auto"
-            >
-              {ROLE_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>{opt.label}</option>
-              ))}
-            </select>
-            <select
-              value={selectedStatus}
-              onChange={(e) => setSelectedStatus(e.target.value)}
-              className="text-xs px-2.5 py-1.5 bg-surface border border-border rounded-md text-text w-full sm:w-auto"
-            >
-              <option value="">All Statuses</option>
-              <option value="ACTIVE">Active</option>
-              <option value="INACTIVE">Inactive</option>
-              <option value="SUSPENDED">Suspended</option>
-            </select>
+            <div className="w-full sm:w-56">
+              <CustomSelect
+                value={selectedRole}
+                onChange={(val) => handleRoleChange(val as string)}
+                options={ROLE_OPTIONS}
+                searchable
+                clearable
+                placeholder="Filter by Role..."
+              />
+            </div>
+            <div className="w-full sm:w-48">
+              <CustomSelect
+                value={selectedStatus}
+                onChange={(val) => handleStatusChange(val as string)}
+                options={STATUS_OPTIONS}
+                searchable
+                clearable
+                placeholder="Filter by Status..."
+              />
+            </div>
           </div>
 
           <UsersTable
@@ -151,14 +185,31 @@ export function AdminUsersPage() {
             onAssignRole={(user) => setAssignRoleTarget(user)}
             onUpdateStatus={(user) => setUpdateStatusTarget(user)}
           />
+
+          <Pagination
+            page={page}
+            totalPages={usersData?.meta?.totalPages || 1}
+            totalItems={usersData?.meta?.total ?? users.length}
+            pageSize={limit}
+            onPageChange={setPage}
+            onPageSizeChange={(newLimit) => {
+              setLimit(newLimit);
+              setPage(1);
+            }}
+          />
         </div>
       )}
 
+      {/* Tab 2: Invitations */}
       {tab === 'INVITATIONS' && (
         <InvitationsTable invitations={inviteList} isLoading={isInvitesLoading} />
       )}
 
+      {/* Tab 3: Roles & Permissions Matrix */}
       {tab === 'ROLES' && <RolePermissionMatrix />}
+
+      {/* Modals and Dialogs */}
+      <InviteUserModal isOpen={isInviteOpen} onClose={() => setIsInviteOpen(false)} />
 
       <AssignRoleDialog
         user={assignRoleTarget}
@@ -169,8 +220,6 @@ export function AdminUsersPage() {
         user={updateStatusTarget}
         onClose={() => setUpdateStatusTarget(null)}
       />
-
-      <InviteUserModal isOpen={isInviteOpen} onClose={() => setIsInviteOpen(false)} />
     </div>
   );
 }

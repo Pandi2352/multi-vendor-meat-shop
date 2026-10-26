@@ -273,8 +273,11 @@ modules/<feature>/
 - [ ] `Image` (lazy, aspect ratio, fallback), `ImageGallery`
 - [ ] `Rating` (display + input)
 - [ ] `DatePicker`, `DateRangePicker`, `TimePicker`, `TimeRangeInput` (business hours)
-- [ ] `FileUpload`, `ImageUploader` (preview, reorder, remove, size/mime check)
-- [ ] `SearchInput` (debounced, clear button)
+- [x] `SearchInput` (with clear X button, consistent h-10 height, and text-sm font)
+- [x] `CustomSelect` / `Select` (pure custom combobox with search, multi-select, auto-flip top/bottom, left/right collision detection, keyboard navigation, no native select tags)
+- [x] `Tabs` (compact h-8 light-color segmented tabs with icons, count pills, and zero shadows)
+- [x] `Pagination` (advanced reusable pagination with smart ellipsis, page size selector, jump to page, summary count, light-themed controls)
+- [x] `LoaderState` (clean, simple spinner with status title and description for all API loading states; zero skeletons)
 - [ ] `Icon` — single re-export point for `lucide-react` icons
 - [x] `index.ts` barrel
 
@@ -292,7 +295,8 @@ modules/<feature>/
 
 ### B7. Data display (`src/components/data/`)
 - [ ] `DataTable<T>` — columns config, sorting, row selection, loading/empty/error states, row actions, responsive (cards on mobile)
-- [ ] `Pagination` (+ page size select), `InfiniteList` (intersection observer)
+- [x] `Pagination` (+ page size select, smart ellipsis, quick jump, responsive summary)
+- [ ] `InfiniteList` (intersection observer)
 - [ ] `FilterBar` — config-driven filters synced to URL
 - [ ] `StatCard` / `KpiTile`, `KpiRow`
 - [ ] `Chart` wrapper (Recharts) — `LineChart`, `BarChart`, `DonutChart` with theme colors

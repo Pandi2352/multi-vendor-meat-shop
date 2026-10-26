@@ -1,4 +1,4 @@
-import { CutType, PreparationOption, ProductStatus, SellMode, Unit } from '#common/enums';
+import { CutType, PreparationOption, ProductStatus, Role, SellMode, Unit, UserStatus } from '#common/enums';
 
 export interface SeedProductDef {
   name: string;
@@ -606,3 +606,42 @@ export const DEMO_USERS = {
     phone: '+919842188888',
   },
 };
+
+export const DEMO_ADMINS = [
+  {
+    name: 'P. Murugesan',
+    email: 'murugesan.ops@virudhunagar-meats.in',
+    phone: '+919842111001',
+    role: Role.ADMIN,
+    status: UserStatus.ACTIVE,
+  },
+  {
+    name: 'K. Selvi',
+    email: 'selvi.finance@virudhunagar-meats.in',
+    phone: '+919842111002',
+    role: Role.ADMIN,
+    status: UserStatus.ACTIVE,
+  },
+  {
+    name: 'M. Karthikeyan',
+    email: 'karthik.admin@virudhunagar-meats.in',
+    phone: '+919842111003',
+    role: Role.ADMIN,
+    status: UserStatus.ACTIVE,
+  },
+  {
+    name: 'S. Anitha',
+    email: 'anitha.security@virudhunagar-meats.in',
+    phone: '+919842111004',
+    role: Role.ADMIN,
+    status: UserStatus.ACTIVE,
+  },
+  {
+    name: 'R. Vigneshwaran',
+    email: 'vignesh.admin@virudhunagar-meats.in',
+    phone: '+919842111005',
+    role: Role.ADMIN,
+    status: UserStatus.ACTIVE,
+  },
+];
+
