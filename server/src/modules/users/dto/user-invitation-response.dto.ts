@@ -32,8 +32,14 @@ export class UserInvitationResponseDto {
   @ApiPropertyOptional({ example: '2026-10-26T12:00:00.000Z' })
   acceptedAt?: string | null;
 
-  @ApiPropertyOptional({ example: '0192e2b3-5678-7abc-def0-123456789abc' })
-  token?: string;
+  @ApiPropertyOptional({
+    description: 'One-time set-password link. Returned only when the invitation is issued or re-sent; never stored or listed.',
+    example: 'http://localhost:3001/accept-invite?token=…',
+  })
+  inviteUrl?: string;
+
+  @ApiPropertyOptional({ description: 'Whether the invitation email was sent. Present only on issue/resend.', example: true })
+  emailSent?: boolean;
 
   @ApiProperty({ example: '2026-10-26T12:00:00.000Z' })
   createdAt!: string;

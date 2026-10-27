@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { X, Send, Link2, Check, CheckCircle2 } from 'lucide-react';
+import { X, Send } from 'lucide-react';
 import { Button } from '@/components/ui';
 import { useReinviteUser, type AdminUser, type UserInvitation } from '../api';
+import { InvitationResult } from './invitation-result';
 
 interface ReinviteUserDialogProps {
   user: AdminUser | null;
@@ -9,7 +10,6 @@ interface ReinviteUserDialogProps {
 }
 
 export function ReinviteUserDialog({ user, onClose }: ReinviteUserDialogProps) {
-  const [copied, setCopied] = useState(false);
   const [createdInvite, setCreatedInvite] = useState<UserInvitation | null>(null);
   const reinviteMutation = useReinviteUser();
 
@@ -20,18 +20,6 @@ export function ReinviteUserDialog({ user, onClose }: ReinviteUserDialogProps) {
       onSuccess: (data) => {
         setCreatedInvite(data);
       },
-    });
-  };
-
-  const inviteUrl = createdInvite?.token
-    ? `${window.location.origin}/accept-invite?token=${encodeURIComponent(createdInvite.token)}`
-    : '';
-
-  const handleCopy = () => {
-    if (!inviteUrl) return;
-    navigator.clipboard.writeText(inviteUrl).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
     });
   };
 
@@ -51,13 +39,16 @@ export function ReinviteUserDialog({ user, onClose }: ReinviteUserDialogProps) {
         {!createdInvite ? (
           <div className="space-y-3">
             <p className="text-xs text-muted leading-relaxed">
-              Generate a fresh onboarding invitation link for this user. They can use this link to set their password and access their assigned role.
+              Email this user a fresh invitation. Any earlier link stops working; the new one lets
+              them set a password for their role.
             </p>
 
             <div className="p-3 rounded-md bg-surface-muted border border-border text-xs space-y-0.5">
               <p className="font-semibold text-text">{user.name || 'Virudhunagar User'}</p>
               <p className="text-muted">{user.email}</p>
-              <p className="text-muted">Role: <span className="font-medium text-text">{user.role}</span></p>
+              <p className="text-muted">
+                Role: <span className="font-medium text-text">{user.role}</span>
+              </p>
             </div>
 
             <div className="flex items-center justify-end gap-2 pt-2 border-t border-border">
@@ -77,27 +68,8 @@ export function ReinviteUserDialog({ user, onClose }: ReinviteUserDialogProps) {
           </div>
         ) : (
           <div className="space-y-3.5">
-            <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 text-xs font-semibold">
-              <CheckCircle2 className="h-4 w-4" />
-              <span>Invitation generated and activated for 7 days!</span>
-            </div>
-
-            <div className="space-y-1">
-              <label className="block text-xs font-medium text-muted">Direct Invitation Link:</label>
-              <div className="p-2.5 rounded-md bg-surface-muted border border-border text-xs text-text break-all select-all font-mono">
-                {inviteUrl}
-              </div>
-            </div>
-
+            <InvitationResult invitation={createdInvite} />
             <div className="flex items-center justify-end gap-2 pt-2 border-t border-border">
-              <Button
-                variant="primary"
-                size="sm"
-                leftIcon={copied ? <Check className="h-3.5 w-3.5" /> : <Link2 className="h-3.5 w-3.5" />}
-                onClick={handleCopy}
-              >
-                {copied ? 'Copied Link!' : 'Copy Invite Link'}
-              </Button>
               <Button variant="outline" size="sm" onClick={onClose}>
                 Done
               </Button>

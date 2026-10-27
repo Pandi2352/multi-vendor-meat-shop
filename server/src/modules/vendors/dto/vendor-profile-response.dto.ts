@@ -1,5 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { VendorVerificationStatus } from '#common/enums';
+import { UserInvitationResponseDto } from '#modules/users';
 
 export class VendorShopSummaryDto {
   @ApiProperty({ format: 'uuid' })
@@ -93,4 +94,10 @@ export class VendorProfileResponseDto {
 
   @ApiPropertyOptional({ type: VendorShopSummaryDto })
   shop?: VendorShopSummaryDto;
+
+  @ApiPropertyOptional({
+    type: UserInvitationResponseDto,
+    description: 'Set when this action invited the shop owner (admin create or approval). Includes the one-time link.',
+  })
+  invitation?: UserInvitationResponseDto;
 }

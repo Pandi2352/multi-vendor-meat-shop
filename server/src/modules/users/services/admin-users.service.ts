@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { BusinessRuleException, ConflictAppException, NotFoundAppException } from '#common/exceptions';
 import { InvitationStatus, Role, UserStatus } from '#common/enums';
-import { generateId } from '#common/utils';
 import type { PaginatedResult } from '#common/dto';
 import { UserRepository } from '../repositories/user.repository.js';
 import { UserInvitationRepository } from '../repositories/user-invitation.repository.js';
+import { InvitationsService } from './invitations.service.js';
 import type { AdminUsersQueryDto } from '../dto/admin-users-query.dto.js';
 import type { AssignRoleDto } from '../dto/assign-role.dto.js';
 import type { UpdateUserStatusDto } from '../dto/update-user-status.dto.js';
@@ -21,6 +21,7 @@ export class AdminUsersService {
   constructor(
     private readonly userRepo: UserRepository,
     private readonly invitationRepo: UserInvitationRepository,
+    private readonly invitations: InvitationsService,
   ) {}
 
   async listUsers(query: AdminUsersQueryDto): Promise<PaginatedResult<UserResponseDto>> {
@@ -83,39 +84,18 @@ export class AdminUsersService {
     return toUserResponseDto(updated);
   }
 
+  /** Fresh invitation for an existing (e.g. revoked or never-activated) account. */
   async reinviteUser(adminId: string, targetUserId: string): Promise<UserInvitationResponseDto> {
     const target = await this.userRepo.findById(targetUserId);
     if (!target) throw new NotFoundAppException('User', targetUserId);
-
-    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-    const token = generateId();
-
-    const existingInv = await this.invitationRepo.findByEmail(target.email);
-    const inv = existingInv
-      ? await this.invitationRepo.updateByIdOrThrow(existingInv._id, {
-          name: target.name || existingInv.name,
-          role: target.role,
-          shopId: target.shopId ?? null,
-          invitedBy: adminId,
-          token,
-          status: InvitationStatus.PENDING,
-          expiresAt,
-        })
-      : await this.invitationRepo.create({
-          email: target.email,
-          name: target.name,
-          role: target.role,
-          shopId: target.shopId ?? null,
-          invitedBy: adminId,
-          token,
-          status: InvitationStatus.PENDING,
-          expiresAt,
-          acceptedAt: null,
-          deletedAt: null,
-          deletedBy: null,
-        });
-
-    return toUserInvitationResponseDto(inv);
+    return this.invitations.issue({
+      email: target.email,
+      role: target.role,
+      invitedBy: adminId,
+      name: target.name,
+      phone: target.phone,
+      shopId: target.shopId ?? null,
+    });
   }
 
   async listInvitations(status?: string): Promise<UserInvitationResponseDto[]> {
@@ -131,36 +111,13 @@ export class AdminUsersService {
     if (existingUser && existingUser.status === UserStatus.ACTIVE) {
       throw new ConflictAppException('User already has an active account on the marketplace');
     }
-
-    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-    const token = generateId();
-
-    const existingInv = await this.invitationRepo.findByEmail(email);
-    const inv = existingInv
-      ? await this.invitationRepo.updateByIdOrThrow(existingInv._id, {
-          role: dto.role,
-          name: dto.name,
-          shopId: dto.shopId ?? null,
-          invitedBy: adminId,
-          token,
-          status: InvitationStatus.PENDING,
-          expiresAt,
-        })
-      : await this.invitationRepo.create({
-          email,
-          name: dto.name,
-          role: dto.role,
-          shopId: dto.shopId ?? null,
-          invitedBy: adminId,
-          token,
-          status: InvitationStatus.PENDING,
-          expiresAt,
-          acceptedAt: null,
-          deletedAt: null,
-          deletedBy: null,
-        });
-
-    return toUserInvitationResponseDto(inv);
+    return this.invitations.issue({
+      email,
+      role: dto.role,
+      invitedBy: adminId,
+      name: dto.name,
+      shopId: dto.shopId ?? null,
+    });
   }
 
   async editInvitation(invitationId: string, dto: EditInvitationDto): Promise<UserInvitationResponseDto> {
@@ -179,13 +136,8 @@ export class AdminUsersService {
     return { success: true };
   }
 
-  async resendInvitation(id: string): Promise<UserInvitationResponseDto> {
-    const inv = await this.invitationRepo.findByIdOrThrow(id);
-    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-    const updated = await this.invitationRepo.updateByIdOrThrow(inv._id, {
-      expiresAt,
-      status: InvitationStatus.PENDING,
-    });
-    return toUserInvitationResponseDto(updated);
+  /** Issues a new link (the old one stops working) and emails it again. */
+  async resendInvitation(adminId: string, id: string): Promise<UserInvitationResponseDto> {
+    return this.invitations.resend(id, adminId);
   }
 }

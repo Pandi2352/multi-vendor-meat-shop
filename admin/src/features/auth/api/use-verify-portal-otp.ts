@@ -1,16 +1,11 @@
-import { useMutation } from '@tanstack/react-query';
-import { tokenStorage } from '@/lib/token-storage';
-import { authApi, type AuthResponse } from './auth.api';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { storeSession } from '../lib/session';
+import { authApi } from './auth.api';
 
-export const useVerifyPortalOtp = () =>
-  useMutation({
-    mutationFn: ({ email, otp }: { email: string; otp: string }) =>
-      authApi.verifyPortalOtp(email, otp),
-    onSuccess: (data: AuthResponse) => {
-      tokenStorage.setAccessToken(data.accessToken);
-      if (data.refreshToken) {
-        tokenStorage.setRefreshToken(data.refreshToken);
-      }
-      tokenStorage.setUser(data.user);
-    },
+export const useVerifyPortalOtp = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ email, otp }: { email: string; otp: string }) => authApi.verifyPortalOtp(email, otp),
+    onSuccess: (auth) => storeSession(queryClient, auth),
   });
+};

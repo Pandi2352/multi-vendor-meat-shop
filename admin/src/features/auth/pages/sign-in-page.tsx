@@ -3,7 +3,6 @@ import { Alert } from '@/components/ui';
 import { APP_CONFIG } from '@/config/app.config';
 import { SignInForm } from '../components/sign-in-form';
 import { SIGN_IN_REASON_MESSAGES, isSignInReason } from '../constants/sign-in-reasons';
-import { pendingSignIn } from '../lib/pending-sign-in';
 
 export function SignInPage() {
   const [params] = useSearchParams();
@@ -23,7 +22,7 @@ export function SignInPage() {
         </Alert>
       )}
 
-      <SignInForm defaultEmail={pendingSignIn.read()?.email} />
+      <SignInForm />
 
       <p className="border-t border-border pt-5 text-xs leading-5 text-muted">
         Access is by invitation only. If you don’t have an account, ask your shop owner or the {APP_CONFIG.brandName}{' '}

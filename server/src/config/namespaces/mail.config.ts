@@ -9,5 +9,6 @@ export const mailConfig = registerAs('mail', () => {
     user: env.SMTP_USER,
     pass: env.SMTP_PASS,
     from: env.MAIL_FROM,
+    driver: env.MAIL_DRIVER,
   };
 });

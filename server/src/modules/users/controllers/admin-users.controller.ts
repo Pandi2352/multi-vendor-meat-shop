@@ -133,10 +133,10 @@ export class AdminUsersController {
 
   @Post('invitations/:id/resend')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Resend / extend a user invitation' })
+  @ApiOperation({ summary: 'Email a fresh invitation link (the previous link stops working)' })
   @ApiOkEnvelope(UserInvitationResponseDto)
   @ApiStandardResponses()
-  resendInvitation(@UuidParam('id') invitationId: string) {
-    return this.adminUsersService.resendInvitation(invitationId);
+  resendInvitation(@CurrentUser('id') adminId: string, @UuidParam('id') invitationId: string) {
+    return this.adminUsersService.resendInvitation(adminId, invitationId);
   }
 }

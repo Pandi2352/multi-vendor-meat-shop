@@ -4,6 +4,8 @@ export const APP_CONFIG = {
   brandTagline: 'Operations portal',
   regionLabel: 'Virudhunagar district',
   version: '0.1.0',
+  /** Shown on the suspended screen. Leave empty to hide. */
+  supportEmail: '' as string,
   currency: 'INR',
   currencySymbol: '₹',
   timezone: 'Asia/Kolkata',

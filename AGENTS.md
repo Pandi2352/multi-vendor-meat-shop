@@ -49,6 +49,8 @@ Key docs:
 - Never trust client-sent `vendorId` / `shopId` / `userId` for ownership; derive from the authenticated user.
 - Every endpoint has Swagger decorators via the shared composites (`@ApiStandardResponses`, `@ApiPaginatedResponse`, `@Auth()`).
 - Errors throw `AppException` with an `ErrorCode`. No raw strings in `throw new Error()`.
+- Invitations only through `InvitationsService.issue()` / `resend()` (users module): never write invitation tokens yourself, never return or list them. Existing accounts are never re-roled at invite time; the role is applied when the invite is accepted.
+- Local email testing: set `MAIL_DRIVER=log` in `server/.env` to print emails (with links) to the server log instead of sending.
 - All responses go through the response envelope interceptor. Lists are paginated with the shared DTOs.
 
 ### 5. Frontend rules

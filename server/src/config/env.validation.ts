@@ -12,6 +12,7 @@ import {
   Min,
   MinLength,
   validateSync,
+  IsUrl,
 } from 'class-validator';
 import { ToBoolean, ToInt } from '#common/transformers';
 
@@ -30,9 +31,13 @@ export class EnvironmentVariables {
   @IsEnum(NodeEnv) NODE_ENV: NodeEnv = NodeEnv.DEVELOPMENT;
   @ToInt() @IsInt() @Min(1) @Max(65535) PORT = 4000;
   @IsString() APP_NAME = 'Meat Shop API';
+  /** Brand shown to people (emails, page titles). APP_NAME stays the technical service name. */
+  @IsString() APP_DISPLAY_NAME = 'TN Meat Market';
   @IsString() API_PREFIX = 'api';
   @IsString() API_VERSION = '1';
   @IsString() CORS_ORIGINS = 'http://localhost:3000,http://localhost:3001';
+  /** Base URL of the admin portal, used for links in emails (invitations). */
+  @IsUrl({ require_tld: false }) ADMIN_APP_URL = 'http://localhost:3001';
   @ToInt() @IsInt() @Min(1000) REQUEST_TIMEOUT_MS = 15_000;
   @Matches(/^\d+(kb|mb)$/) BODY_LIMIT = '1mb';
   @ToBoolean() @IsBoolean() TRUST_PROXY = false;
@@ -55,6 +60,7 @@ export class EnvironmentVariables {
   @ToInt() @IsInt() @Min(60) OTP_TTL_SECONDS = 300;
   @ToInt() @IsInt() @Min(1) OTP_MAX_ATTEMPTS = 5;
   @ToInt() @IsInt() @Min(10) OTP_RESEND_COOLDOWN_SECONDS = 60;
+  @ToInt() @IsInt() @Min(1) @Max(30) INVITATION_TTL_DAYS = 7;
 
   // Super admin — created on boot if missing (the first portal account; everyone else is invited)
   @Transform(({ value }: { value: unknown }) => (value === '' ? undefined : value))
@@ -74,6 +80,8 @@ export class EnvironmentVariables {
   @IsString() @MinLength(1) SMTP_USER!: string;
   @IsString() @MinLength(1) SMTP_PASS!: string;
   @IsString() @MinLength(3) MAIL_FROM!: string;
+  /** smtp = send for real; log = write emails to the server log (local testing, no mail leaves). */
+  @IsIn(['smtp', 'log']) MAIL_DRIVER: 'smtp' | 'log' = 'smtp';
 
   // Swagger
   @ToBoolean() @IsBoolean() SWAGGER_ENABLED = true;

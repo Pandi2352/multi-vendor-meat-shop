@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import type { Model } from 'mongoose';
+import { sha256 } from '#common/utils';
 import { BaseRepository } from '#database';
 import { UserInvitation } from '../schemas/user-invitation.schema.js';
 
@@ -14,7 +15,8 @@ export class UserInvitationRepository extends BaseRepository<UserInvitation> {
     return this.findOne({ email: email.toLowerCase().trim() });
   }
 
-  findByToken(token: string): Promise<UserInvitation | null> {
-    return this.findOne({ token });
+  /** Invitations store only the SHA-256 of the link token; look up by hashing the raw token. */
+  findByToken(rawToken: string): Promise<UserInvitation | null> {
+    return this.findOne({ token: sha256(rawToken) });
   }
 }

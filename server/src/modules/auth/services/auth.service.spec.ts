@@ -94,4 +94,14 @@ describe('AuthService — admin portal sign-in', () => {
     const { service } = setup(makeUser(Role.OPERATIONS, UserStatus.SUSPENDED));
     await expectCode(service.verifyPortalOtp({ email: 'ops@tnmeat.in', otp: '123456' }), ErrorCode.ACCOUNT_SUSPENDED);
   });
+
+  it('refuses pending accounts on every sign-in path, including the code fallback', async () => {
+    const { service } = setup(makeUser(Role.VENDOR_OWNER, UserStatus.PENDING_VERIFICATION));
+    await expectCode(service.verifyPortalOtp({ email: 'ops@tnmeat.in', otp: '123456' }), ErrorCode.ACCOUNT_PENDING);
+  });
+
+  it('treats deleted accounts as unknown credentials', async () => {
+    const { service } = setup(makeUser(Role.ADMIN, UserStatus.DELETED));
+    await expectCode(service.verifyPortalOtp({ email: 'ops@tnmeat.in', otp: '123456' }), ErrorCode.AUTH_INVALID_CREDENTIALS);
+  });
 });

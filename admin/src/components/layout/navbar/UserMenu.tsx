@@ -1,23 +1,13 @@
 import { ChevronDown, CircleHelp, LogOut, Settings } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { useQueryClient } from '@tanstack/react-query';
 import { Avatar, Dropdown, DropdownItem, DropdownSeparator } from '@/components/ui';
 import { ROUTES } from '@/config/routes';
-import { SIGN_IN_REASON } from '@/features/auth';
-import { useCurrentUser } from '@/hooks';
+import { useCurrentUser, useSignOut } from '@/features/auth';
 import { cn } from '@/lib/cn';
-import { tokenStorage } from '@/lib/token-storage';
 
 export function UserMenu() {
   const user = useCurrentUser();
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
-
-  const signOut = () => {
-    tokenStorage.clearTokens();
-    queryClient.clear();
-    navigate(`${ROUTES.LOGIN}?reason=${SIGN_IN_REASON.SIGNED_OUT}`, { replace: true });
-  };
+  const signOut = useSignOut();
+  if (!user) return null;
 
   return (
     <Dropdown
@@ -55,7 +45,7 @@ export function UserMenu() {
       <DropdownItem to={ROUTES.SETTINGS} label="Account settings" icon={<Settings className="h-4 w-4" />} />
       <DropdownItem to={ROUTES.SUPPORT} label="Help & support" icon={<CircleHelp className="h-4 w-4" />} />
       <DropdownSeparator />
-      <DropdownItem label="Sign out" tone="danger" onSelect={signOut} icon={<LogOut className="h-4 w-4" />} />
+      <DropdownItem label="Sign out" tone="danger" onSelect={() => void signOut()} icon={<LogOut className="h-4 w-4" />} />
     </Dropdown>
   );
 }

@@ -9,7 +9,6 @@ export const toUserInvitationResponseDto = (inv: UserInvitation): UserInvitation
   role: inv.role,
   shopId: inv.shopId,
   invitedBy: inv.invitedBy,
-  token: inv.token,
   status: inv.status,
   expiresAt: inv.expiresAt.toISOString(),
   acceptedAt: inv.acceptedAt ? inv.acceptedAt.toISOString() : null,

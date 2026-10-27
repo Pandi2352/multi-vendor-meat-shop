@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { UsersModule } from '#modules/users';
 import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema, UserRepository } from '#modules/users';
 import { Shop, ShopSchema } from '../shops/schemas/shop.schema.js';
@@ -12,6 +13,7 @@ import { PublicVendorsController } from './controllers/public-vendors.controller
 
 @Module({
   imports: [
+    UsersModule,
     MongooseModule.forFeature([
       { name: VendorProfile.name, schema: VendorProfileSchema },
       { name: User.name, schema: UserSchema },

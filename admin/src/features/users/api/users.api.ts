@@ -34,7 +34,9 @@ export interface UserInvitation {
   role: UserRole;
   shopId?: string | null;
   invitedBy: string;
-  token?: string;
+  /** One-time link; present only in the response that issued/re-sent the invitation. */
+  inviteUrl?: string;
+  emailSent?: boolean;
   status: InvitationStatus;
   expiresAt: string;
   acceptedAt?: string | null;

@@ -3,12 +3,15 @@ import { Link, useLocation } from 'react-router-dom';
 import { buttonVariants } from '@/components/ui';
 import { findNavEntry } from '@/config/nav.utils';
 import { ROUTES } from '@/config/routes';
+import { getRoleHome, useCurrentUser } from '@/features/auth';
 
 /** Placeholder for pages listed in the sidebar but not built yet. */
 export function ComingSoonPage({ title }: { title?: string }) {
   const { pathname } = useLocation();
   const entry = findNavEntry(pathname);
   const name = title ?? entry?.label ?? 'This page';
+  const role = useCurrentUser()?.role;
+  const home = role ? getRoleHome(role) : ROUTES.DASHBOARD;
 
   return (
     <div className="flex min-h-[60vh] items-center justify-center">
@@ -19,9 +22,9 @@ export function ComingSoonPage({ title }: { title?: string }) {
         <h1 className="text-lg font-semibold text-text">{name} is on the way</h1>
         {entry?.description && <p className="mt-2 text-sm font-medium text-text/80">{entry.description}</p>}
         <p className="mt-1 text-sm text-muted">This part of the operations portal is being built and will appear here once the module ships.</p>
-        <Link to={ROUTES.DASHBOARD} className={buttonVariants({ variant: 'outline', size: 'sm', className: 'mt-6' })}>
+        <Link to={home} className={buttonVariants({ variant: 'outline', size: 'sm', className: 'mt-6' })}>
           <ArrowLeft aria-hidden="true" className="h-4 w-4" />
-          Back to dashboard
+          Go to my home
         </Link>
       </div>
     </div>

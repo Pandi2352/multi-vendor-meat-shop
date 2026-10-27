@@ -5,7 +5,8 @@ export interface ApplyVendorPayload {
   ownerName: string;
   businessName: string;
   phone: string;
-  email?: string;
+  /** Required: once approved, the set-password invitation is emailed here. */
+  email: string;
   town: string;
   locality: string;
   addressLine: string;

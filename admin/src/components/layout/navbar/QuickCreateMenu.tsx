@@ -1,6 +1,8 @@
 import { Package, Plus, Store, Truck, Warehouse, type LucideIcon } from 'lucide-react';
 import { Badge, Button, Dropdown, DropdownItem, DropdownLabel } from '@/components/ui';
+import { canAccessPath } from '@/config/route-access';
 import { ROUTES } from '@/config/routes';
+import { useCurrentUser } from '@/features/auth';
 
 interface QuickAction {
   label: string;
@@ -23,11 +25,15 @@ const QUICK_ACTIONS: QuickAction[] = [
     to: ROUTES.DELIVERY_TASKS,
     icon: Truck,
   },
-  { label: 'Add product', description: 'New cut with price per kg', to: ROUTES.VENDOR_PRODUCTS, icon: Package, soon: true },
-  { label: 'Onboard vendor', description: 'Register a new meat shop', to: ROUTES.ADMIN_VENDORS, icon: Store, soon: true },
+  { label: 'Add product', description: 'New cut with price per kg', to: ROUTES.VENDOR_PRODUCTS, icon: Package },
+  { label: 'Onboard vendor', description: 'Register a new meat shop', to: ROUTES.ADMIN_VENDORS, icon: Store },
 ];
 
 export function QuickCreateMenu() {
+  const role = useCurrentUser()?.role;
+  const actions = role ? QUICK_ACTIONS.filter((action) => canAccessPath(role, action.to)) : [];
+  if (actions.length === 0) return null;
+
   return (
     <Dropdown
       trigger={({ triggerProps }) => (
@@ -37,7 +43,7 @@ export function QuickCreateMenu() {
       )}
     >
       <DropdownLabel>Quick actions</DropdownLabel>
-      {QUICK_ACTIONS.map((action) => (
+      {actions.map((action) => (
         <DropdownItem
           key={action.label}
           to={action.to}

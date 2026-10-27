@@ -20,13 +20,18 @@ export interface AvatarProps extends VariantProps<typeof avatarVariants> {
   className?: string;
 }
 
+/**
+ * First letter of the first two words, skipping punctuation: 'Ravi (counter)' → 'RC'.
+ * Keeps combining marks with their letter so Tamil initials stay whole ('முருகேசன் பி' → 'முபி').
+ */
 export const getInitials = (name: string): string =>
   name
     .split(/\s+/)
-    .filter(Boolean)
+    .map((part) => part.match(/\p{L}\p{M}*/u)?.[0])
+    .filter((letter): letter is string => Boolean(letter))
     .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase())
-    .join('');
+    .join('')
+    .toUpperCase();
 
 /** Initials avatar. One of the few places `rounded-full` is allowed. */
 export function Avatar({ name, size, className }: AvatarProps) {

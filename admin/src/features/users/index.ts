@@ -9,6 +9,7 @@ export * from './components/revoke-user-dialog';
 export * from './components/reinvite-user-dialog';
 export * from './components/edit-invitation-modal';
 export * from './components/invitations-table';
+export * from './components/invitation-result';
 export * from './components/users-table';
 export * from './components/role-permission-matrix';
 export * from './pages/admin-users-page';

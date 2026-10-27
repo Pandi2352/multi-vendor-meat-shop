@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { Role, ShopStatus, VendorVerificationStatus } from '#common/enums';
+import { Role, ShopStatus, UserStatus, VendorVerificationStatus } from '#common/enums';
 import { NotFoundAppException } from '#common/exceptions';
 import type { ListQueryDto, PaginatedResult } from '#common/dto';
-import { UserRepository } from '#modules/users';
+import { InvitationsService, UserRepository, type User, type UserInvitationResponseDto } from '#modules/users';
+import type { Shop } from '../../shops/schemas/shop.schema.js';
 import { ShopRepository } from '../../shops/repositories/shop.repository.js';
 import { VendorProfileRepository } from '../repositories/vendor-profile.repository.js';
 import { VENDOR_VERIFICATION_MACHINE } from '../constants/vendor.constants.js';
@@ -23,6 +24,7 @@ export class VendorProfileService {
     private readonly vendorRepo: VendorProfileRepository,
     private readonly userRepo: UserRepository,
     private readonly shopRepo: ShopRepository,
+    private readonly invitations: InvitationsService,
   ) {}
 
   async getProfileByUserId(userId: string): Promise<VendorProfileResponseDto> {
@@ -143,7 +145,12 @@ export class VendorProfileService {
     }
 
     const currentShop = await this.shopRepo.findByVendorId(profile._id);
-    return toVendorProfileResponseDto(updated, currentShop);
+    const response = toVendorProfileResponseDto(updated, currentShop);
+    if (isApproved && currentShop) {
+      const owner = await this.userRepo.findByIdOrThrow(profile.userId);
+      response.invitation = await this.inviteOwnerIfNeeded(owner, currentShop, adminId);
+    }
+    return response;
   }
 
   async updatePermissions(
@@ -162,11 +169,14 @@ export class VendorProfileService {
     adminId: string,
     dto: AdminCreateVendorDto,
   ): Promise<VendorProfileResponseDto> {
-    return executeAdminCreateVendor(
+    const { profile, shop, user } = await executeAdminCreateVendor(
       { userRepo: this.userRepo, vendorRepo: this.vendorRepo, shopRepo: this.shopRepo },
       adminId,
       dto,
     );
+    const response = toVendorProfileResponseDto(profile, shop);
+    response.invitation = await this.inviteOwnerIfNeeded(user, shop, adminId);
+    return response;
   }
 
   async applyVendor(dto: ApplyVendorDto): Promise<VendorApplicationResponseDto> {
@@ -174,5 +184,29 @@ export class VendorProfileService {
       { userRepo: this.userRepo, vendorRepo: this.vendorRepo, shopRepo: this.shopRepo },
       dto,
     );
+  }
+
+  /**
+   * Emails the owner a set-password invitation, unless they can already sign in as an active owner.
+   * Returns the issued invitation (with its one-time link) or undefined when none was needed.
+   */
+  private async inviteOwnerIfNeeded(
+    owner: User,
+    shop: Shop,
+    adminId: string,
+  ): Promise<UserInvitationResponseDto | undefined> {
+    const canAlreadySignIn =
+      owner.role === Role.VENDOR_OWNER && owner.status === UserStatus.ACTIVE && Boolean(owner.passwordHash);
+    if (canAlreadySignIn) return undefined;
+
+    return this.invitations.issue({
+      email: owner.email,
+      role: Role.VENDOR_OWNER,
+      invitedBy: adminId,
+      name: owner.name,
+      phone: owner.phone,
+      shopId: shop._id,
+      shopName: shop.name,
+    });
   }
 }

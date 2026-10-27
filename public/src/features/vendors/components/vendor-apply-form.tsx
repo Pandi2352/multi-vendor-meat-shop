@@ -50,7 +50,7 @@ export function VendorApplyForm({ onSuccess, onCancel }: VendorApplyFormProps) {
         ownerName: ownerName.trim(),
         businessName: businessName.trim(),
         phone: phone.trim(),
-        email: email.trim() || undefined,
+        email: email.trim(),
         town,
         locality: locality.trim() || town,
         addressLine: addressLine.trim(),
@@ -111,8 +111,9 @@ export function VendorApplyForm({ onSuccess, onCancel }: VendorApplyFormProps) {
           />
         </div>
         <div>
-          <label className="block font-medium text-text mb-1">Email (Optional)</label>
+          <label className="block font-medium text-text mb-1">Email *</label>
           <input
+            required
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}

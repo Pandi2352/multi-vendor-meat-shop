@@ -1,6 +1,7 @@
 import { Suspense, useCallback, useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import { Spinner } from '@/components/ui';
+import { RouteAccessGuard } from '@/features/auth';
 import { useIsDesktop, usePersistedState } from '@/hooks';
 import { Navbar } from './navbar';
 import { Sidebar } from './sidebar';
@@ -31,7 +32,9 @@ export function AdminLayout() {
               </div>
             }
           >
-            <Outlet />
+            <RouteAccessGuard>
+              <Outlet />
+            </RouteAccessGuard>
           </Suspense>
         </main>
       </div>

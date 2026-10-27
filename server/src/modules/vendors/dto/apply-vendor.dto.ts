@@ -7,6 +7,7 @@ import {
   IsString,
   Matches,
 } from 'class-validator';
+import { ToLowerCase, Trim } from '#common/transformers';
 
 export class ApplyVendorDto {
   @ApiProperty({ example: 'M. Ramasamy' })
@@ -23,10 +24,11 @@ export class ApplyVendorDto {
   @Matches(/^[6-9]\d{9}$/, { message: 'Must be a valid 10-digit Indian mobile number' })
   phone!: string;
 
-  @ApiPropertyOptional({ example: 'ramasamy@example.com' })
-  @IsEmail()
-  @IsOptional()
-  email?: string;
+  @ApiProperty({ example: 'ramasamy@example.com', description: 'Sign-in email. The invitation to set a password is sent here.' })
+  @Trim()
+  @ToLowerCase()
+  @IsEmail({}, { message: 'Enter a valid email address' })
+  email!: string;
 
   @ApiProperty({ example: 'Sattur' })
   @IsString()

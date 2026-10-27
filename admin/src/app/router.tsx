@@ -1,6 +1,14 @@
 import { createBrowserRouter, useRouteError, type RouteObject } from 'react-router-dom';
 import { AdminLayout, AuthLayout, NotFoundPage, RouteErrorPage } from '@/components/layout';
-import { AcceptInvitePage, SignInPage, VerifyCodePage } from '@/features/auth';
+import {
+  AcceptInvitePage,
+  AccessDeniedPage,
+  RedirectIfSignedIn,
+  RequireSession,
+  SignInPage,
+  SuspendedPage,
+  VerifyCodePage,
+} from '@/features/auth';
 import { flattenNav } from '@/config/nav.utils';
 import { ROUTES } from '@/config/routes';
 import { DeliveryTasksPage } from '@/features/delivery';
@@ -31,14 +39,35 @@ export const router = createBrowserRouter([
     element: <AuthLayout />,
     errorElement: <RouterErrorElement />,
     children: [
-      { path: ROUTES.LOGIN, element: <SignInPage /> },
-      { path: ROUTES.LOGIN_VERIFY, element: <VerifyCodePage /> },
+      {
+        path: ROUTES.LOGIN,
+        element: (
+          <RedirectIfSignedIn>
+            <SignInPage />
+          </RedirectIfSignedIn>
+        ),
+      },
+      {
+        path: ROUTES.LOGIN_VERIFY,
+        element: (
+          <RedirectIfSignedIn>
+            <VerifyCodePage />
+          </RedirectIfSignedIn>
+        ),
+      },
+      // Open even when signed in: the invite may be for a different account.
       { path: ROUTES.ACCEPT_INVITE, element: <AcceptInvitePage /> },
+      { path: ROUTES.ACCESS_DENIED, element: <AccessDeniedPage /> },
+      { path: ROUTES.SUSPENDED, element: <SuspendedPage /> },
     ],
   },
   {
     path: ROUTES.DASHBOARD,
-    element: <AdminLayout />,
+    element: (
+      <RequireSession>
+        <AdminLayout />
+      </RequireSession>
+    ),
     errorElement: <RouterErrorElement />,
     children: [
       { index: true, element: <DashboardRoute /> },

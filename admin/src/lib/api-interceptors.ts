@@ -29,7 +29,10 @@ const redirectToLogin = (reason = 'expired'): void => {
   if (typeof window !== 'undefined') {
     const path = window.location.pathname;
     if (!path.startsWith('/login') && !path.startsWith('/accept-invite')) {
-      window.location.replace(`/login?reason=${reason}`);
+      // Keep the page the user was on so signing back in returns them there.
+      const params = new URLSearchParams({ reason });
+      if (path !== '/') params.set('next', path + window.location.search);
+      window.location.replace(`/login?${params.toString()}`);
     }
   }
 };

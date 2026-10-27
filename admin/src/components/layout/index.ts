@@ -1,5 +1,6 @@
 export * from './AdminLayout';
 export * from './AuthLayout';
+export * from './FullPageLoader';
 export * from './error-boundary';
 export * from './not-found-page';
 export * from './forbidden-page';

@@ -54,3 +54,8 @@ export const truncate = (value: string, maxLength: number, suffix = '…'): stri
 
 export const randomCode = (length: number, alphabet: string = READABLE_ALPHABET): string =>
   Array.from({ length }, () => alphabet[randomInt(alphabet.length)]).join('');
+
+const HTML_ESCAPES: Record<string, string> = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+
+/** For user-supplied text placed into HTML (emails). */
+export const escapeHtml = (value: string): string => value.replace(/[&<>"']/g, (ch) => HTML_ESCAPES[ch]);

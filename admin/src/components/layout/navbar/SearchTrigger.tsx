@@ -5,6 +5,7 @@ import { Badge, Button, Dialog, Kbd, Tooltip } from '@/components/ui';
 import { searchNav, type FlatNavEntry } from '@/config/nav.utils';
 import { isMacPlatform, useHotkey } from '@/hooks';
 import { cn } from '@/lib/cn';
+import { useVisibleNav } from '../use-visible-nav';
 
 /** "Search…" box in the navbar plus a Ctrl/⌘+K page switcher over the sidebar's pages. */
 export function SearchTrigger() {
@@ -12,7 +13,8 @@ export function SearchTrigger() {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [activeIndex, setActiveIndex] = useState(0);
-  const results = useMemo(() => searchNav(query), [query]);
+  const sections = useVisibleNav();
+  const results = useMemo(() => searchNav(query, sections), [query, sections]);
   const modKey = isMacPlatform() ? '⌘' : 'Ctrl';
 
   const openSearch = () => {

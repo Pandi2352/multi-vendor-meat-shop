@@ -14,6 +14,7 @@ export const authConfig = registerAs('auth', () => {
       maxAttempts: env.OTP_MAX_ATTEMPTS,
       resendCooldownSeconds: env.OTP_RESEND_COOLDOWN_SECONDS,
     },
+    invitationTtlDays: env.INVITATION_TTL_DAYS,
     superAdmin: {
       email: env.SUPER_ADMIN_EMAIL?.trim().toLowerCase(),
       name: env.SUPER_ADMIN_NAME,

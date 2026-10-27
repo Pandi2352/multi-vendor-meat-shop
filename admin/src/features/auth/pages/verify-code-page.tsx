@@ -6,6 +6,7 @@ import { ROUTES } from '@/config/routes';
 import { getErrorMessage } from '@/lib/api-error';
 import { useSendPortalOtp } from '../api/use-send-portal-otp';
 import { useVerifyPortalOtp } from '../api/use-verify-portal-otp';
+import { usePostLoginRedirect } from '../api/use-post-login-redirect';
 import { pendingSignIn } from '../lib/pending-sign-in';
 
 export function VerifyCodePage() {
@@ -20,6 +21,7 @@ export function VerifyCodePage() {
   const [cooldown, setCooldown] = useState(initialCooldown);
 
   const verifyOtp = useVerifyPortalOtp();
+  const redirectAfterLogin = usePostLoginRedirect();
   const sendOtp = useSendPortalOtp();
 
   useEffect(() => {
@@ -39,9 +41,9 @@ export function VerifyCodePage() {
     if (!email || otp.length < 6) return;
 
     try {
-      await verifyOtp.mutateAsync({ email, otp: otp.trim() });
+      const auth = await verifyOtp.mutateAsync({ email, otp: otp.trim() });
       pendingSignIn.clear();
-      navigate(ROUTES.DASHBOARD, { replace: true });
+      redirectAfterLogin(auth.user);
     } catch {
       // Error handled by verifyOtp.error
     }

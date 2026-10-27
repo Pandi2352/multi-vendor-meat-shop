@@ -13,12 +13,14 @@ interface InvitationsTableProps {
 
 export function InvitationsTable({ invitations, isLoading, onEditInvitation }: InvitationsTableProps) {
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  // One-time links returned by Resend in this session (the server never lists them).
+  const [freshLinks, setFreshLinks] = useState<Record<string, string>>({});
   const revokeMutation = useRevokeInvitation();
   const resendMutation = useResendInvitation();
 
   const handleCopyLink = (inv: UserInvitation) => {
-    if (!inv.token) return;
-    const url = `${window.location.origin}/accept-invite?token=${encodeURIComponent(inv.token)}`;
+    const url = freshLinks[inv.id];
+    if (!url) return;
     navigator.clipboard.writeText(url).then(() => {
       setCopiedId(inv.id);
       setTimeout(() => setCopiedId(null), 2000);
@@ -76,11 +78,11 @@ export function InvitationsTable({ invitations, isLoading, onEditInvitation }: I
                     {isPending && (
                       <div className="flex items-center justify-end gap-1.5">
                         {/* Copy Link - Purple */}
-                        {inv.token && (
+                        {freshLinks[inv.id] && (
                           <button
                             type="button"
                             onClick={() => handleCopyLink(inv)}
-                            title="Copy setup link for this invited user"
+                            title="Copy the link from the invitation you just re-sent"
                             className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-md transition-colors bg-purple-50 text-purple-700 border border-purple-200 hover:bg-purple-100 hover:border-purple-300 dark:bg-purple-950/40 dark:text-purple-300 dark:border-purple-800"
                           >
                             {isCopied ? (
@@ -109,7 +111,13 @@ export function InvitationsTable({ invitations, isLoading, onEditInvitation }: I
                         <button
                           type="button"
                           disabled={resendMutation.isPending}
-                          onClick={() => resendMutation.mutate(inv.id)}
+                          onClick={() =>
+                            resendMutation.mutate(inv.id, {
+                              onSuccess: (sent) => {
+                                if (sent.inviteUrl) setFreshLinks((prev) => ({ ...prev, [inv.id]: sent.inviteUrl! }));
+                              },
+                            })
+                          }
                           title="Extend invitation validity by 7 days"
                           className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-md transition-colors bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 hover:border-emerald-300 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800"
                         >

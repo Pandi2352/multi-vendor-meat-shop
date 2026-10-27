@@ -99,8 +99,9 @@ export function ProductForm({ defaultValues, onSubmit }: ProductFormProps) {
 ## Adding an admin page (sidebar, breadcrumb, search)
 1. Add the path to `admin/src/config/routes.ts`.
 2. Add one entry to `NAV_SECTIONS` in `admin/src/config/nav.config.ts` (`type: 'link'`, or a child of a `type: 'group'`). The sidebar, collapsed flyouts, navbar breadcrumb and Ctrl+K search all read from it. Mark unbuilt pages `soon: true` — they get a "coming soon" route automatically.
-3. Register the page element in `admin/src/app/router.tsx` (inside the `AdminLayout` children) and remove `soon`.
-4. Pages render inside `AdminLayout` (`components/layout/AdminLayout.tsx`) — never add another header, sidebar or page-width container. Callback-style pages get an adapter in `app/route-elements.tsx`.
+3. Add who may open it to `ROUTE_ACCESS` in `admin/src/config/route-access.ts` (mirror the server `@Auth` roles of the API it calls). The sidebar, search, breadcrumb, quick actions and the route guard all follow it. Unlisted pages are open to every portal user.
+4. Register the page element in `admin/src/app/router.tsx` (inside the `AdminLayout` children) and remove `soon`.
+5. Pages render inside `AdminLayout` (`components/layout/AdminLayout.tsx`) — never add another header, sidebar or page-width container. Callback-style pages get an adapter in `app/route-elements.tsx`.
 
 ## Rules
 - Filters, pagination and sort live in the URL (`useUrlState`) so pages are shareable and back-button safe.

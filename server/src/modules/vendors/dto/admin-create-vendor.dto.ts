@@ -9,6 +9,7 @@ import {
   Matches,
   ValidateNested,
 } from 'class-validator';
+import { ToLowerCase, Trim } from '#common/transformers';
 
 export class AdminCreateVendorLocationDto {
   @ApiProperty({ example: 9.568 })
@@ -67,10 +68,11 @@ export class AdminCreateVendorDto {
   @Matches(/^[6-9]\d{9}$/, { message: 'Must be a 10-digit mobile number' })
   phone!: string;
 
-  @ApiPropertyOptional({ example: 'ramasamy@example.com' })
-  @IsEmail()
-  @IsOptional()
-  email?: string;
+  @ApiProperty({ example: 'ramasamy@example.com', description: 'Sign-in email. The invitation to set a password is sent here.' })
+  @Trim()
+  @ToLowerCase()
+  @IsEmail({}, { message: 'Enter a valid email address' })
+  email!: string;
 
   @ApiProperty({ example: 'Sattur Highway Chicken & Mutton' })
   @IsString()

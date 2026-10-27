@@ -63,6 +63,10 @@ export const ERROR_CATALOG: Readonly<Record<E, ErrorDefinition>> = {
     message: 'Too many OTP attempts',
   },
   [E.ACCOUNT_SUSPENDED]: { status: HttpStatus.FORBIDDEN, message: 'Account is suspended' },
+  [E.ACCOUNT_PENDING]: {
+    status: HttpStatus.FORBIDDEN,
+    message: 'Your account is not active yet. Open the invitation link we emailed you to set your password.',
+  },
 
   [E.VENDOR_NOT_APPROVED]: { status: HttpStatus.FORBIDDEN, message: 'Vendor is not approved yet' },
   [E.SHOP_CLOSED]: { status: HttpStatus.UNPROCESSABLE_ENTITY, message: 'Shop is closed right now' },

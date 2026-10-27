@@ -23,3 +23,4 @@ export * from './services/users.service.js';
 export * from './services/addresses.service.js';
 export * from './services/admin-users.service.js';
 export * from './users.module.js';
+export * from './services/invitations.service.js';

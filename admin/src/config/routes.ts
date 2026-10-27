@@ -2,6 +2,8 @@ export const ROUTES = {
   LOGIN: '/login',
   LOGIN_VERIFY: '/login/verify',
   ACCEPT_INVITE: '/accept-invite',
+  ACCESS_DENIED: '/access-denied',
+  SUSPENDED: '/suspended',
   DASHBOARD: '/',
   // Vendor portal
   VENDOR_SHOPS: '/vendor/shops',
@@ -12,7 +14,10 @@ export const ROUTES = {
   VENDOR_ORDER_DETAIL: '/vendor/orders/:orderId',
   VENDOR_SETTLEMENTS: '/vendor/settlements',
   // Delivery portal
+  /** Dispatch board for the operations team (admin delivery endpoints). */
   DELIVERY_TASKS: '/delivery/tasks',
+  /** A delivery partner's own assignments. */
+  DELIVERY_MY_TASKS: '/delivery/my-tasks',
   DELIVERY_EARNINGS: '/delivery/earnings',
   // Admin ops
   ADMIN_VENDORS: '/admin/vendors',

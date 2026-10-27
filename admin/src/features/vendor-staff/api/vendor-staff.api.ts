@@ -18,7 +18,6 @@ export interface StaffInvitation {
   name?: string;
   dutyTitle?: string;
   status: string;
-  token: string;
   expiresAt: string;
 }
 

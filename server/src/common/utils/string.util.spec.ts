@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   READABLE_ALPHABET,
+  escapeHtml,
   maskEmail,
   maskPhone,
   normalizePhone,
@@ -45,5 +46,9 @@ describe('string.util', () => {
     const code = randomCode(8);
     expect(code).toHaveLength(8);
     expect([...code].every((c) => READABLE_ALPHABET.includes(c))).toBe(true);
+  });
+
+  it('escapes HTML', () => {
+    expect(escapeHtml('<b>Ravi & "Sons"</b>')).toBe('&lt;b&gt;Ravi &amp; &quot;Sons&quot;&lt;/b&gt;');
   });
 });

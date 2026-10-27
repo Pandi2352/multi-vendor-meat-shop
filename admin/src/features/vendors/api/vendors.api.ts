@@ -1,4 +1,5 @@
 import { http, type PaginatedResponse } from '@/lib/http';
+import type { UserInvitation } from '@/features/users';
 
 export interface VendorShopSummary {
   id: string;
@@ -43,12 +44,15 @@ export interface VendorProfile {
   createdAt: string;
   updatedAt: string;
   shop?: VendorShopSummary;
+  /** Set when the action invited the owner (create / approve); carries the one-time link. */
+  invitation?: UserInvitation;
 }
 
 export interface AdminCreateVendorPayload {
   ownerName: string;
   phone: string;
-  email?: string;
+  /** Required: the owner signs in with it and the invitation is emailed there. */
+  email: string;
   shopName: string;
   fssaiNumber: string;
   fssaiDocumentUrl?: string;

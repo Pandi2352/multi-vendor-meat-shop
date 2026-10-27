@@ -9,3 +9,9 @@ export const METADATA_KEY = {
   PERMISSIONS: 'app:permissions',
   SKIP_ENVELOPE: 'app:skipEnvelope',
 } as const;
+
+/** Admin portal pages that the server links to from emails. Keep in sync with admin `config/routes.ts`. */
+export const ADMIN_APP_PATH = {
+  ACCEPT_INVITE: '/accept-invite',
+  LOGIN: '/login',
+} as const;

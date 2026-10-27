@@ -308,7 +308,7 @@ modules/<feature>/
 - [x] admin `layout/sidebar/*` — `Sidebar`, `SidebarBrand`, `SidebarNav`, `SidebarSection`, `SidebarGroup` (expandable), `SidebarLink` (badges, Soon), `SidebarFlyout` (collapsed hover/focus panels), `SidebarIcon`, `SidebarFooter`, `sidebarStyles.ts`
 - [x] admin `layout/navbar/*` — `Navbar` (breadcrumb), `SidebarToggle`, `SearchTrigger` (Ctrl/⌘+K page search), `QuickCreateMenu`, `NotificationsMenu` (empty state until an API exists), `UserMenu`
 - [x] admin `config/nav.config.ts` + `nav.utils.ts` — one nav list drives sidebar, breadcrumb, search and coming-soon routes
-- [ ] Sidebar permission filtering (needs admin auth)
+- [x] Sidebar filtered by role (`filterNavForRole` + `useVisibleNav`)
 - [ ] `MobileBottomNav` (storefront)
 - [ ] `PageHeader` (title, description, breadcrumbs, actions slot)
 - [ ] `PageContainer`, `Section`, `Stack`, `Inline`, `Grid`
@@ -319,6 +319,14 @@ modules/<feature>/
 - [x] admin form layer: `Input` (icon, invalid, sizes), `FormField` (label/hint/error + aria ids), `Alert`, `useZodForm`, `applyServerErrors`, `utils/validation` (`zEmail`, `zOtp`, `zRequiredString`)
 - [x] admin `AuthLayout` — split screen (brand panel + form column) for every sign-in page
 - [x] admin auth (invite-only): portal endpoints `/auth/portal/otp/send|verify` never create accounts; `features/auth` with `pendingSignIn` hand-off and `?reason=signed-out|expired` notices
+- [x] admin session: `useSession` (/auth/me, statuses anonymous/expired/loading/authenticated/error), `RequireSession`, `RedirectIfSignedIn`, `RoleHomeRoute`, `useSignOut` (revokes server sessions), `usePostLoginRedirect` (safe `?next=`), `storeSession`/`clearSession`, `getRoleHome`, `buildLoginPath`
+- [x] server `InvitationsService.issue()/resend()` (users module) — the only way to create/re-send invitations: 256-bit token, only its SHA-256 stored, set-password link emailed, one-time `inviteUrl` + `emailSent` returned (never listed). Used by admin invites, vendor create/approve and shop staff
+- [x] server `MailService` with `MAIL_DRIVER=smtp|log` (log prints emails + links for local testing), templates in `infra/mail/templates` (shared layout, escaped values), `escapeHtml` util, `ROLE_LABELS`, `ADMIN_APP_URL` / `APP_DISPLAY_NAME` config
+- [x] server sign-in status gate (`assertCanSignIn`): suspended → ACCOUNT_SUSPENDED, pending → ACCOUNT_PENDING, deleted → invalid credentials — applies to password, code, invite and refresh
+- [x] admin `InvitationResult` (users) + `VendorInvitedPanel` (vendors) — show emailed / not-emailed with the one-time copy link; `InvitationUnavailable` for used/expired/revoked/invalid links
+- [x] admin `config/route-access.ts` — `ROUTE_ACCESS` (who may open each page, mirrors server `@Auth`), `canAccessPath`, `roleAllowed` (super admin ⊇ ADMIN). Single source for `RouteAccessGuard` (403 inside the layout), `filterNavForRole` (sidebar/search/breadcrumb via `useVisibleNav`) and quick actions. New page → add a rule here, nothing else
+- [x] admin `constants/roles.ts` — role groups (admin / vendor / delivery / portal) + `ROLE_LABELS`, typed from the generated API
+- [x] admin `FullPageLoader`, `AccessDeniedPage`, `SuspendedPage`
 - [x] admin `Tooltip` — dark chip + arrow, `side` top/right/bottom/left, optional `shortcut` keys, portaled, hides on scroll. Use it instead of `title=` attributes
 - [x] admin theme base layer: pointer cursor on every interactive element (not-allowed when disabled), custom rounded scrollbars, `scrollbar-subtle` utility (thumb shows on hover), `animate-pop-in`
 - [x] admin content area is full width (no centered max-width wrapper) — pages must not add their own `max-w-* mx-auto` page container

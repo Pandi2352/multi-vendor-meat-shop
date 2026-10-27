@@ -1,13 +1,19 @@
 import { ShopStatus, VendorVerificationStatus } from '#common/enums';
-import { UserRepository } from '#modules/users';
+import { UserRepository, type User } from '#modules/users';
+import type { Shop } from '../../shops/schemas/shop.schema.js';
+import type { VendorProfile } from '../schemas/vendor-profile.schema.js';
 import { ShopRepository } from '../../shops/repositories/shop.repository.js';
 import { VendorProfileRepository } from '../repositories/vendor-profile.repository.js';
 import type { AdminCreateVendorDto } from '../dto/admin-create-vendor.dto.js';
 import type { ApplyVendorDto } from '../dto/apply-vendor.dto.js';
-import type { VendorProfileResponseDto } from '../dto/vendor-profile-response.dto.js';
 import type { VendorApplicationResponseDto } from '../dto/vendor-application-response.dto.js';
-import { toVendorProfileResponseDto } from '../mappers/vendor-profile.mapper.js';
-import { createVendorShop, findOrCreateVendorUser } from './vendor-shop.helper.js';
+import { createVendorShop, resolveVendorOwnerUser } from './vendor-shop.helper.js';
+
+export interface OnboardedVendor {
+  profile: VendorProfile;
+  shop: Shop;
+  user: User;
+}
 
 interface OnboardingContext {
   userRepo: UserRepository;
@@ -19,10 +25,9 @@ export async function executeAdminCreateVendor(
   ctx: OnboardingContext,
   adminId: string,
   dto: AdminCreateVendorDto,
-): Promise<VendorProfileResponseDto> {
+): Promise<OnboardedVendor> {
   const { userRepo, vendorRepo, shopRepo } = ctx;
-  const email = dto.email?.toLowerCase().trim() || `${dto.phone}@vendor.virudhunagar-meat.local`;
-  const user = await findOrCreateVendorUser(userRepo, email, dto.phone, dto.ownerName);
+  const user = await resolveVendorOwnerUser(userRepo, { email: dto.email, phone: dto.phone, name: dto.ownerName });
 
   let profile = await vendorRepo.findByUserId(user._id);
   const defaultCategories = ['broiler-chicken', 'goat-mutton', 'nattu-kozhi'];
@@ -68,8 +73,8 @@ export async function executeAdminCreateVendor(
     });
   }
 
-  await userRepo.updateById(user._id, { shopId: shop._id });
-  return toVendorProfileResponseDto(profile, shop);
+  const linkedUser = await userRepo.updateByIdOrThrow(user._id, { shopId: shop._id });
+  return { profile, shop, user: linkedUser };
 }
 
 export async function executeApplyVendor(
@@ -77,8 +82,7 @@ export async function executeApplyVendor(
   dto: ApplyVendorDto,
 ): Promise<VendorApplicationResponseDto> {
   const { userRepo, vendorRepo, shopRepo } = ctx;
-  const email = dto.email?.toLowerCase().trim() || `${dto.phone}@vendor.virudhunagar-meat.local`;
-  const user = await findOrCreateVendorUser(userRepo, email, dto.phone, dto.ownerName);
+  const user = await resolveVendorOwnerUser(userRepo, { email: dto.email, phone: dto.phone, name: dto.ownerName });
 
   let profile = await vendorRepo.findByUserId(user._id);
   if (!profile) {

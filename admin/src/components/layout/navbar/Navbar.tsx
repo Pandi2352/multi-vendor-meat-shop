@@ -1,6 +1,7 @@
 import { ChevronRight } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 import { findNavEntry } from '@/config/nav.utils';
+import { useVisibleNav } from '../use-visible-nav';
 import { NotificationsMenu } from './NotificationsMenu';
 import { QuickCreateMenu } from './QuickCreateMenu';
 import { SearchTrigger } from './SearchTrigger';
@@ -15,7 +16,7 @@ interface NavbarProps {
 
 export function Navbar({ collapsed, isDesktop, onToggleSidebar }: NavbarProps) {
   const { pathname } = useLocation();
-  const current = findNavEntry(pathname);
+  const current = findNavEntry(pathname, useVisibleNav());
 
   return (
     <header className="sticky top-0 z-30 flex h-16 shrink-0 items-center gap-3 border-b border-border bg-surface/90 px-3 backdrop-blur sm:px-4 lg:px-6">

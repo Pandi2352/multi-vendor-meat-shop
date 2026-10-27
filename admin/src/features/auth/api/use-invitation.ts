@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { tokenStorage } from '@/lib/token-storage';
-import { authApi, type AuthResponse, type InvitationDetailsResponse } from './auth.api';
+import { storeSession } from '../lib/session';
+import { authApi, type InvitationDetailsResponse } from './auth.api';
 
 export const useInvitationDetails = (token: string) =>
   useQuery<InvitationDetailsResponse>({
@@ -16,13 +16,6 @@ export const useAcceptInvitation = () => {
   return useMutation({
     mutationFn: (data: { token: string; password: string; name?: string }) =>
       authApi.acceptInvitation(data),
-    onSuccess: (data: AuthResponse) => {
-      tokenStorage.setAccessToken(data.accessToken);
-      if (data.refreshToken) {
-        tokenStorage.setRefreshToken(data.refreshToken);
-      }
-      tokenStorage.setUser(data.user);
-      queryClient.setQueryData(['currentUser'], data.user);
-    },
+    onSuccess: (auth) => storeSession(queryClient, auth),
   });
 };

@@ -1,23 +1,26 @@
 import { useState } from 'react';
-import { useSearchParams, useNavigate, Link } from 'react-router-dom';
+import { useSearchParams, Link } from 'react-router-dom';
 import { ArrowRight, Eye, EyeOff, Lock, UserCheck } from 'lucide-react';
 import { Alert, Button, FormField, Input, LoaderState, fieldDescriptionId } from '@/components/ui';
 import { APP_CONFIG } from '@/config/app.config';
 import { ROUTES } from '@/config/routes';
+import { ROLE_LABELS } from '@/constants/roles';
 import { useZodForm } from '@/hooks';
 import { getErrorMessage } from '@/lib/api-error';
 import { useAcceptInvitation, useInvitationDetails } from '../api/use-invitation';
+import { usePostLoginRedirect } from '../api/use-post-login-redirect';
+import { InvitationUnavailable } from '../components/invitation-unavailable';
 import { acceptInviteSchema, type AcceptInviteValues } from '../schemas/accept-invite.schema';
 
 export function AcceptInvitePage() {
   const [params] = useSearchParams();
-  const navigate = useNavigate();
+  const redirectAfterLogin = usePostLoginRedirect();
   const token = params.get('token') || '';
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const { data: invite, isLoading, isError, error } = useInvitationDetails(token);
+  const { data: invite, isLoading, isError } = useInvitationDetails(token);
   const acceptMutation = useAcceptInvitation();
 
   const form = useZodForm(acceptInviteSchema, {
@@ -33,12 +36,12 @@ export function AcceptInvitePage() {
 
   const onSubmit = form.handleSubmit(async (values: AcceptInviteValues) => {
     try {
-      await acceptMutation.mutateAsync({
+      const auth = await acceptMutation.mutateAsync({
         token,
         password: values.password,
         name: values.name || invite?.name,
       });
-      navigate('/', { replace: true });
+      redirectAfterLogin(auth.user);
     } catch {
       // Handled by error state below
     }
@@ -68,23 +71,12 @@ export function AcceptInvitePage() {
     );
   }
 
-  if (isError || !invite) {
-    return (
-      <div className="flex flex-col gap-5">
-        <Alert tone="danger" title="Invalid or Expired Invitation">
-          {error ? getErrorMessage(error) : 'This invitation link has expired or has already been accepted.'}
-        </Alert>
-        <p className="text-xs text-muted">
-          If you already set your password, you can sign in directly with your email and password.
-        </p>
-        <Link to={ROUTES.LOGIN}>
-          <Button variant="primary" size="md" fullWidth>
-            Sign in with Password
-          </Button>
-        </Link>
-      </div>
-    );
-  }
+  if (isError || !invite) return <InvitationUnavailable problem="invalid" />;
+  if (invite.status === 'ACCEPTED') return <InvitationUnavailable problem="accepted" />;
+  if (invite.status === 'REVOKED') return <InvitationUnavailable problem="revoked" />;
+  if (invite.isExpired || invite.status === 'EXPIRED') return <InvitationUnavailable problem="expired" />;
+
+  const roleLabel = ROLE_LABELS[invite.role] ?? invite.role;
 
   const serverError = acceptMutation.isError ? getErrorMessage(acceptMutation.error) : null;
 
@@ -96,7 +88,7 @@ export function AcceptInvitePage() {
           Activate Your Portal Account
         </h1>
         <p className="text-sm text-muted">
-          You have been invited to join the {APP_CONFIG.brandName} team as <strong className="text-text font-semibold">{invite.role}</strong>.
+          You’ve been invited to {APP_CONFIG.brandName} as <strong className="text-text font-semibold">{roleLabel}</strong>. Set a password to activate your account.
         </p>
       </header>
 
@@ -108,7 +100,7 @@ export function AcceptInvitePage() {
         </div>
         <div className="flex items-center justify-between">
           <span className="text-muted">Assigned Role:</span>
-          <span className="font-semibold text-primary">{invite.role}</span>
+          <span className="font-semibold text-text">{roleLabel}</span>
         </div>
       </div>
 

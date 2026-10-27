@@ -22,6 +22,18 @@ interface RequestContext {
 
 const SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 
+/**
+ * The one status gate for every way of getting a session (password, code, invite, refresh):
+ * suspended → ACCOUNT_SUSPENDED; pending (invited / applied, not activated) → ACCOUNT_PENDING;
+ * deleted → treated as unknown credentials.
+ */
+const assertCanSignIn = (user: User): void => {
+  if (user.status === UserStatus.ACTIVE) return;
+  if (user.status === UserStatus.SUSPENDED) throw new AppException(ErrorCode.ACCOUNT_SUSPENDED);
+  if (user.status === UserStatus.PENDING_VERIFICATION) throw new AppException(ErrorCode.ACCOUNT_PENDING);
+  throw new AppException(ErrorCode.AUTH_INVALID_CREDENTIALS, { message: 'Invalid email or password' });
+};
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -66,10 +78,6 @@ export class AuthService {
     const isMatch = verifyPassword(dto.password, user.passwordHash);
     if (!isMatch) {
       throw new AppException(ErrorCode.AUTH_INVALID_CREDENTIALS, { message: 'Invalid email or password' });
-    }
-
-    if (user.status !== UserStatus.ACTIVE) {
-      throw new AppException(ErrorCode.ACCOUNT_SUSPENDED, { message: 'Your account is suspended or inactive' });
     }
 
     return this.issueSession(user, ctx);
@@ -175,7 +183,7 @@ export class AuthService {
 
   /** Creates a refresh session and signs the token pair. Suspended accounts are refused. */
   private async issueSession(user: User, ctx: RequestContext): Promise<AuthResponseDto> {
-    if (user.status === UserStatus.SUSPENDED) throw new AppException(ErrorCode.ACCOUNT_SUSPENDED);
+    assertCanSignIn(user);
 
     const session = await this.sessionRepo.create({
       userId: user._id,
