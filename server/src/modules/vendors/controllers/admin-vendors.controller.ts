@@ -45,10 +45,7 @@ export class AdminVendorsController {
   @ApiOperation({ summary: 'Directly add a new vendor and stall as an administrator' })
   @ApiCreatedEnvelope(VendorProfileResponseDto)
   @ApiStandardResponses()
-  create(
-    @CurrentUser('id') adminId: string,
-    @Body() dto: AdminCreateVendorDto,
-  ) {
+  create(@CurrentUser('id') adminId: string, @Body() dto: AdminCreateVendorDto) {
     return this.vendorProfile.adminCreateVendor(adminId, dto);
   }
 
@@ -67,13 +64,12 @@ export class AdminVendorsController {
 
   @Patch(':id/permissions')
   @Auth(Role.ADMIN)
-  @ApiOperation({ summary: 'Configure authorized meat categories (mutton, country chicken, fish, etc.) for stall' })
+  @ApiOperation({
+    summary: 'Configure authorized meat categories (mutton, country chicken, fish, etc.) for stall',
+  })
   @ApiOkEnvelope(VendorProfileResponseDto)
   @ApiStandardResponses()
-  updatePermissions(
-    @UuidParam('id') vendorId: string,
-    @Body() dto: UpdateVendorPermissionsDto,
-  ) {
+  updatePermissions(@UuidParam('id') vendorId: string, @Body() dto: UpdateVendorPermissionsDto) {
     return this.vendorProfile.updatePermissions(vendorId, dto);
   }
 }

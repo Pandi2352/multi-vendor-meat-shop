@@ -25,7 +25,13 @@ const dummyShop = {
   name: 'Murugan Meats',
   phone: '9842012345',
   status: ShopStatus.OPEN,
-  address: { line1: '12 Main Rd', locality: 'Town Centre', city: 'Virudhunagar', district: 'Virudhunagar', pincode: '626001' },
+  address: {
+    line1: '12 Main Rd',
+    locality: 'Town Centre',
+    city: 'Virudhunagar',
+    district: 'Virudhunagar',
+    pincode: '626001',
+  },
 };
 
 const pendingOwner = {
@@ -38,7 +44,11 @@ const pendingOwner = {
   passwordHash: null,
 };
 
-const issuedInvite = { id: 'inv-1', inviteUrl: 'http://localhost:3001/accept-invite?token=abc', emailSent: true };
+const issuedInvite = {
+  id: 'inv-1',
+  inviteUrl: 'http://localhost:3001/accept-invite?token=abc',
+  emailSent: true,
+};
 
 const applyDto = {
   ownerName: 'M. Ramasamy',
@@ -68,7 +78,9 @@ describe('VendorProfileService', () => {
     const { service } = build({
       vendor: {
         findByUserId: vi.fn().mockResolvedValue(dummyProfile),
-        updateByIdOrThrow: vi.fn().mockResolvedValue({ ...dummyProfile, status: VendorVerificationStatus.SUBMITTED }),
+        updateByIdOrThrow: vi
+          .fn()
+          .mockResolvedValue({ ...dummyProfile, status: VendorVerificationStatus.SUBMITTED }),
       },
       shop: { findByVendorId: vi.fn().mockResolvedValue(dummyShop) },
     });
@@ -78,22 +90,42 @@ describe('VendorProfileService', () => {
 
   it('approving makes the user a shop owner and emails a set-password invitation', async () => {
     const submitted = { ...dummyProfile, status: VendorVerificationStatus.SUBMITTED };
-    const user = { updateById: vi.fn().mockResolvedValue({}), findByIdOrThrow: vi.fn().mockResolvedValue(pendingOwner) };
+    const user = {
+      updateById: vi.fn().mockResolvedValue({}),
+      findByIdOrThrow: vi.fn().mockResolvedValue(pendingOwner),
+    };
     const { service, invitations } = build({
       vendor: {
         findByIdOrThrow: vi.fn().mockResolvedValue(submitted),
-        updateByIdOrThrow: vi.fn().mockResolvedValue({ ...submitted, status: VendorVerificationStatus.APPROVED, verifiedAt: new Date() }),
+        updateByIdOrThrow: vi
+          .fn()
+          .mockResolvedValue({
+            ...submitted,
+            status: VendorVerificationStatus.APPROVED,
+            verifiedAt: new Date(),
+          }),
       },
       user,
-      shop: { findByVendorId: vi.fn().mockResolvedValue(dummyShop), updateById: vi.fn().mockResolvedValue(dummyShop) },
+      shop: {
+        findByVendorId: vi.fn().mockResolvedValue(dummyShop),
+        updateById: vi.fn().mockResolvedValue(dummyShop),
+      },
     });
 
-    const result = await service.verifyVendor('admin-1', dummyProfile._id, { status: VendorVerificationStatus.APPROVED });
+    const result = await service.verifyVendor('admin-1', dummyProfile._id, {
+      status: VendorVerificationStatus.APPROVED,
+    });
 
     expect(result.status).toBe(VendorVerificationStatus.APPROVED);
     expect(user.updateById).toHaveBeenCalledWith(OWNER_ID, { role: Role.VENDOR_OWNER });
     expect(invitations.issue).toHaveBeenCalledWith(
-      expect.objectContaining({ email: pendingOwner.email, role: Role.VENDOR_OWNER, shopId: dummyShop._id, shopName: dummyShop.name, invitedBy: 'admin-1' }),
+      expect.objectContaining({
+        email: pendingOwner.email,
+        role: Role.VENDOR_OWNER,
+        shopId: dummyShop._id,
+        shopName: dummyShop.name,
+        invitedBy: 'admin-1',
+      }),
     );
     expect(result.invitation).toEqual(issuedInvite);
   });
@@ -104,13 +136,17 @@ describe('VendorProfileService', () => {
     const { service, invitations } = build({
       vendor: {
         findByIdOrThrow: vi.fn().mockResolvedValue(suspended),
-        updateByIdOrThrow: vi.fn().mockResolvedValue({ ...suspended, status: VendorVerificationStatus.APPROVED }),
+        updateByIdOrThrow: vi
+          .fn()
+          .mockResolvedValue({ ...suspended, status: VendorVerificationStatus.APPROVED }),
       },
       user: { updateById: vi.fn(), findByIdOrThrow: vi.fn().mockResolvedValue(activeOwner) },
       shop: { findByVendorId: vi.fn().mockResolvedValue(dummyShop), updateById: vi.fn() },
     });
 
-    const result = await service.verifyVendor('admin-1', dummyProfile._id, { status: VendorVerificationStatus.APPROVED });
+    const result = await service.verifyVendor('admin-1', dummyProfile._id, {
+      status: VendorVerificationStatus.APPROVED,
+    });
     expect(invitations.issue).not.toHaveBeenCalled();
     expect(result.invitation).toBeUndefined();
   });
@@ -121,14 +157,18 @@ describe('VendorProfileService', () => {
       shop: { findByVendorId: vi.fn().mockResolvedValue(null) },
     });
     await expect(
-      service.verifyVendor('admin-1', dummyProfile._id, { status: VendorVerificationStatus.APPROVED }),
+      service.verifyVendor('admin-1', dummyProfile._id, {
+        status: VendorVerificationStatus.APPROVED,
+      }),
     ).rejects.toThrow(AppException);
   });
 
   describe('public application', () => {
     const vendorRepo = () => ({
       findByUserId: vi.fn().mockResolvedValue(null),
-      create: vi.fn().mockResolvedValue({ ...dummyProfile, status: VendorVerificationStatus.SUBMITTED }),
+      create: vi
+        .fn()
+        .mockResolvedValue({ ...dummyProfile, status: VendorVerificationStatus.SUBMITTED }),
     });
     const shopRepo = () => ({
       findByVendorId: vi.fn().mockResolvedValue(null),
@@ -148,7 +188,11 @@ describe('VendorProfileService', () => {
 
       expect(result.applicationId).toBe(dummyProfile._id);
       expect(user.create).toHaveBeenCalledWith(
-        expect.objectContaining({ email: applyDto.email, role: Role.VENDOR_OWNER, status: UserStatus.PENDING_VERIFICATION }),
+        expect.objectContaining({
+          email: applyDto.email,
+          role: Role.VENDOR_OWNER,
+          status: UserStatus.PENDING_VERIFICATION,
+        }),
       );
       expect(invitations.issue).not.toHaveBeenCalled(); // invited only once approved
     });
@@ -169,8 +213,17 @@ describe('VendorProfileService', () => {
     });
 
     it('leaves an existing customer account as it is', async () => {
-      const customer = { _id: 'cust-1', email: applyDto.email, role: Role.CUSTOMER, status: UserStatus.ACTIVE };
-      const user = { findByEmail: vi.fn().mockResolvedValue(customer), updateById: vi.fn().mockResolvedValue({}), create: vi.fn() };
+      const customer = {
+        _id: 'cust-1',
+        email: applyDto.email,
+        role: Role.CUSTOMER,
+        status: UserStatus.ACTIVE,
+      };
+      const user = {
+        findByEmail: vi.fn().mockResolvedValue(customer),
+        updateById: vi.fn().mockResolvedValue({}),
+        create: vi.fn(),
+      };
       const { service } = build({ vendor: vendorRepo(), user, shop: shopRepo() });
 
       await service.applyVendor(applyDto);
@@ -189,10 +242,16 @@ describe('VendorProfileService', () => {
     const { service, invitations } = build({
       vendor: {
         findByUserId: vi.fn().mockResolvedValue(null),
-        create: vi.fn().mockResolvedValue({ ...dummyProfile, status: VendorVerificationStatus.APPROVED }),
+        create: vi
+          .fn()
+          .mockResolvedValue({ ...dummyProfile, status: VendorVerificationStatus.APPROVED }),
       },
       user,
-      shop: { findByVendorId: vi.fn().mockResolvedValue(null), findBySlug: vi.fn().mockResolvedValue(null), create: vi.fn().mockResolvedValue(dummyShop) },
+      shop: {
+        findByVendorId: vi.fn().mockResolvedValue(null),
+        findBySlug: vi.fn().mockResolvedValue(null),
+        create: vi.fn().mockResolvedValue(dummyShop),
+      },
     });
 
     const result = await service.adminCreateVendor('admin-1', {
@@ -200,10 +259,17 @@ describe('VendorProfileService', () => {
       shopName: 'Murugan Meats',
       phone: '9842012345',
       email: pendingOwner.email,
-      address: { line1: '12 Main Rd', locality: 'Town Centre', city: 'Virudhunagar', pincode: '626001' },
+      address: {
+        line1: '12 Main Rd',
+        locality: 'Town Centre',
+        city: 'Virudhunagar',
+        pincode: '626001',
+      },
     } as never);
 
-    expect(invitations.issue).toHaveBeenCalledWith(expect.objectContaining({ email: pendingOwner.email, shopName: 'Murugan Meats' }));
+    expect(invitations.issue).toHaveBeenCalledWith(
+      expect.objectContaining({ email: pendingOwner.email, shopName: 'Murugan Meats' }),
+    );
     expect(result.invitation?.inviteUrl).toContain('/accept-invite?token=');
   });
 });

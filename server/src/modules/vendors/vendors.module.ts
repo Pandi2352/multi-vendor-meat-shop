@@ -1,5 +1,8 @@
 import { Module } from '@nestjs/common';
 import { UsersModule } from '#modules/users';
+import { VendorStatusController } from './controllers/vendor-status.controller.js';
+import { ApprovedVendorGuard } from './guards/approved-vendor.guard.js';
+import { VendorAccessService } from './services/vendor-access.service.js';
 import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema, UserRepository } from '#modules/users';
 import { Shop, ShopSchema } from '../shops/schemas/shop.schema.js';
@@ -24,13 +27,21 @@ import { PublicVendorsController } from './controllers/public-vendors.controller
     VendorProfileController,
     AdminVendorsController,
     PublicVendorsController,
+    VendorStatusController,
   ],
   providers: [
     VendorProfileRepository,
     UserRepository,
     ShopRepository,
     VendorProfileService,
+    VendorAccessService,
+    ApprovedVendorGuard,
   ],
-  exports: [VendorProfileService, VendorProfileRepository],
+  exports: [
+    VendorProfileService,
+    VendorProfileRepository,
+    VendorAccessService,
+    ApprovedVendorGuard,
+  ],
 })
 export class VendorsModule {}

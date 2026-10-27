@@ -97,7 +97,8 @@ export class VendorProfileResponseDto {
 
   @ApiPropertyOptional({
     type: UserInvitationResponseDto,
-    description: 'Set when this action invited the shop owner (admin create or approval). Includes the one-time link.',
+    description:
+      'Set when this action invited the shop owner (admin create or approval). Includes the one-time link.',
   })
   invitation?: UserInvitationResponseDto;
 }

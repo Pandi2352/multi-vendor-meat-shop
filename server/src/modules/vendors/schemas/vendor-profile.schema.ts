@@ -1,7 +1,13 @@
 import { Prop, Schema } from '@nestjs/mongoose';
 import type { HydratedDocument } from 'mongoose';
 import { VendorVerificationStatus } from '#common/enums';
-import { BaseEntity, CollectionName, baseSchemaOptions, createSchema, type SoftDeletable } from '#database';
+import {
+  BaseEntity,
+  CollectionName,
+  baseSchemaOptions,
+  createSchema,
+  type SoftDeletable,
+} from '#database';
 
 @Schema({ ...baseSchemaOptions, collection: CollectionName.VENDOR_PROFILES })
 export class VendorProfile extends BaseEntity implements SoftDeletable {

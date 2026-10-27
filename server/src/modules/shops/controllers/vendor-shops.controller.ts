@@ -9,6 +9,7 @@ import {
   Auth,
   CurrentShop,
   CurrentUser,
+  RequireApprovedVendor,
 } from '#common/decorators';
 import { ShopsService } from '../services/shops.service.js';
 import { CreateShopDto } from '../dto/create-shop.dto.js';
@@ -18,11 +19,14 @@ import { ShopResponseDto } from '../dto/shop-response.dto.js';
 @ApiTags(SwaggerTag.VENDOR_SHOP)
 @Auth(Role.VENDOR_OWNER, Role.VENDOR_STAFF, Role.ADMIN, Role.SUPER_ADMIN)
 @Controller('vendor/shops')
+@RequireApprovedVendor()
 export class VendorShopsController {
   constructor(private readonly shops: ShopsService) {}
 
   @Post()
   @Auth(Role.VENDOR_OWNER, Role.CUSTOMER)
+  // Shop creation has its own approval check in ShopsService.
+  @RequireApprovedVendor(false)
   @ApiOperation({ summary: 'Register a new shop for the vendor' })
   @ApiCreatedEnvelope(ShopResponseDto)
   @ApiStandardResponses()

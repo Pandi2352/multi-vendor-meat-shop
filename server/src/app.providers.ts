@@ -6,6 +6,7 @@ import { PermissionsGuard, RolesGuard } from '#common/guards';
 import { ResponseEnvelopeInterceptor, TimeoutInterceptor } from '#common/interceptors';
 import { createValidationPipe } from '#common/pipes';
 import { JwtAuthGuard } from '#modules/auth';
+import { ApprovedVendorGuard } from '#modules/vendors';
 
 /**
  * Global pipeline. Guards run in order: rate limit → JWT auth → roles → permissions.
@@ -18,6 +19,8 @@ export const APP_PROVIDERS: Provider[] = [
   { provide: APP_GUARD, useClass: JwtAuthGuard },
   { provide: APP_GUARD, useClass: RolesGuard },
   { provide: APP_GUARD, useClass: PermissionsGuard },
+  // After auth + roles: vendor owners/staff can only change catalogue, stock, shop and staff while approved.
+  { provide: APP_GUARD, useClass: ApprovedVendorGuard },
   { provide: APP_INTERCEPTOR, useClass: TimeoutInterceptor },
   { provide: APP_INTERCEPTOR, useClass: ResponseEnvelopeInterceptor },
 ];

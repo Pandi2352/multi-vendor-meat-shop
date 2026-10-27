@@ -1,12 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import {
-  IsArray,
-  IsEmail,
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-  Matches,
-} from 'class-validator';
+import { IsArray, IsEmail, IsNotEmpty, IsOptional, IsString, Matches } from 'class-validator';
 import { ToLowerCase, Trim } from '#common/transformers';
 
 export class ApplyVendorDto {
@@ -24,7 +17,10 @@ export class ApplyVendorDto {
   @Matches(/^[6-9]\d{9}$/, { message: 'Must be a valid 10-digit Indian mobile number' })
   phone!: string;
 
-  @ApiProperty({ example: 'ramasamy@example.com', description: 'Sign-in email. The invitation to set a password is sent here.' })
+  @ApiProperty({
+    example: 'ramasamy@example.com',
+    description: 'Sign-in email. The invitation to set a password is sent here.',
+  })
   @Trim()
   @ToLowerCase()
   @IsEmail({}, { message: 'Enter a valid email address' })
@@ -46,7 +42,9 @@ export class ApplyVendorDto {
   addressLine!: string;
 
   @ApiProperty({ example: '626203' })
-  @Matches(/^626\d{3}$/, { message: 'Pincode must be a 6-digit Virudhunagar district PIN (626xxx)' })
+  @Matches(/^626\d{3}$/, {
+    message: 'Pincode must be a 6-digit Virudhunagar district PIN (626xxx)',
+  })
   pincode!: string;
 
   @ApiProperty({ example: '12426008000456' })

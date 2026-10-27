@@ -22,13 +22,9 @@ export const toVendorProfileResponseDto = (
   verificationNotes: profile.verificationNotes,
   verifiedAt: profile.verifiedAt?.toISOString(),
   createdAt:
-    profile.createdAt instanceof Date
-      ? profile.createdAt.toISOString()
-      : String(profile.createdAt),
+    profile.createdAt instanceof Date ? profile.createdAt.toISOString() : String(profile.createdAt),
   updatedAt:
-    profile.updatedAt instanceof Date
-      ? profile.updatedAt.toISOString()
-      : String(profile.updatedAt),
+    profile.updatedAt instanceof Date ? profile.updatedAt.toISOString() : String(profile.updatedAt),
   shop: shop
     ? {
         id: shop._id,

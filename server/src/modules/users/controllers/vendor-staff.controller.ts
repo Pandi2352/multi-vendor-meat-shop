@@ -10,6 +10,7 @@ import {
   CurrentShop,
   CurrentUser,
   UuidParam,
+  RequireApprovedVendor,
 } from '#common/decorators';
 import { VendorStaffService } from '../services/vendor-staff.service.js';
 import {
@@ -22,6 +23,7 @@ import {
 @ApiTags(SwaggerTag.VENDOR_SHOP)
 @Auth(Role.VENDOR_OWNER, Role.VENDOR_STAFF, Role.ADMIN, Role.SUPER_ADMIN)
 @Controller('vendor/staff')
+@RequireApprovedVendor()
 export class VendorStaffController {
   constructor(private readonly staffService: VendorStaffService) {}
 

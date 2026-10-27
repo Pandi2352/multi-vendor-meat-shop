@@ -10,6 +10,7 @@ import {
   CurrentShop,
   CurrentUser,
   UuidParam,
+  RequireApprovedVendor,
 } from '#common/decorators';
 import { InventoryService } from '../services/inventory.service.js';
 import { SetOpeningStockDto } from '../dto/set-opening-stock.dto.js';
@@ -20,6 +21,7 @@ import { InventoryMovementResponseDto } from '../dto/inventory-movement-response
 @ApiTags(SwaggerTag.VENDOR_INVENTORY)
 @Auth(Role.VENDOR_OWNER, Role.VENDOR_STAFF, Role.ADMIN, Role.SUPER_ADMIN)
 @Controller('vendor/inventory')
+@RequireApprovedVendor()
 export class VendorInventoryController {
   constructor(private readonly inventory: InventoryService) {}
 
@@ -35,15 +37,14 @@ export class VendorInventoryController {
   @ApiOperation({ summary: 'Get current stock status for a product' })
   @ApiOkEnvelope(InventoryBatchResponseDto)
   @ApiStandardResponses()
-  getProductStock(
-    @CurrentShop() shopId: string,
-    @UuidParam('productId') productId: string,
-  ) {
+  getProductStock(@CurrentShop() shopId: string, @UuidParam('productId') productId: string) {
     return this.inventory.getTodayStock(shopId, productId);
   }
 
   @Post('opening')
-  @ApiOperation({ summary: "Set or update morning opening stock for a product in today's fresh batch" })
+  @ApiOperation({
+    summary: "Set or update morning opening stock for a product in today's fresh batch",
+  })
   @ApiOkEnvelope(InventoryBatchResponseDto)
   @ApiStandardResponses()
   setOpeningStock(
@@ -68,7 +69,11 @@ export class VendorInventoryController {
 
   @Get(':productId/movements')
   @ApiOperation({ summary: 'Get audit movement history for a product stock' })
-  @ApiQuery({ name: 'limit', required: false, description: 'Number of movements to return (default 50)' })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    description: 'Number of movements to return (default 50)',
+  })
   @ApiEnvelope(InventoryMovementResponseDto, { isArray: true })
   @ApiStandardResponses()
   getMovements(

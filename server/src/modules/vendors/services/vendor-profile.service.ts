@@ -2,7 +2,12 @@ import { Injectable } from '@nestjs/common';
 import { Role, ShopStatus, UserStatus, VendorVerificationStatus } from '#common/enums';
 import { NotFoundAppException } from '#common/exceptions';
 import type { ListQueryDto, PaginatedResult } from '#common/dto';
-import { InvitationsService, UserRepository, type User, type UserInvitationResponseDto } from '#modules/users';
+import {
+  InvitationsService,
+  UserRepository,
+  type User,
+  type UserInvitationResponseDto,
+} from '#modules/users';
 import type { Shop } from '../../shops/schemas/shop.schema.js';
 import { ShopRepository } from '../../shops/repositories/shop.repository.js';
 import { VendorProfileRepository } from '../repositories/vendor-profile.repository.js';
@@ -79,7 +84,10 @@ export class VendorProfileService {
     const profile = await this.vendorRepo.findByUserId(userId);
     if (!profile) throw new NotFoundAppException('VendorProfile', userId);
 
-    VENDOR_VERIFICATION_MACHINE.assertTransition(profile.status, VendorVerificationStatus.SUBMITTED);
+    VENDOR_VERIFICATION_MACHINE.assertTransition(
+      profile.status,
+      VendorVerificationStatus.SUBMITTED,
+    );
 
     const updated = await this.vendorRepo.updateByIdOrThrow(profile._id, {
       status: VendorVerificationStatus.SUBMITTED,
@@ -196,7 +204,9 @@ export class VendorProfileService {
     adminId: string,
   ): Promise<UserInvitationResponseDto | undefined> {
     const canAlreadySignIn =
-      owner.role === Role.VENDOR_OWNER && owner.status === UserStatus.ACTIVE && Boolean(owner.passwordHash);
+      owner.role === Role.VENDOR_OWNER &&
+      owner.status === UserStatus.ACTIVE &&
+      Boolean(owner.passwordHash);
     if (canAlreadySignIn) return undefined;
 
     return this.invitations.issue({

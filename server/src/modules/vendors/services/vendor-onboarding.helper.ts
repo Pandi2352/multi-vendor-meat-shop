@@ -27,7 +27,11 @@ export async function executeAdminCreateVendor(
   dto: AdminCreateVendorDto,
 ): Promise<OnboardedVendor> {
   const { userRepo, vendorRepo, shopRepo } = ctx;
-  const user = await resolveVendorOwnerUser(userRepo, { email: dto.email, phone: dto.phone, name: dto.ownerName });
+  const user = await resolveVendorOwnerUser(userRepo, {
+    email: dto.email,
+    phone: dto.phone,
+    name: dto.ownerName,
+  });
 
   let profile = await vendorRepo.findByUserId(user._id);
   const defaultCategories = ['broiler-chicken', 'goat-mutton', 'nattu-kozhi'];
@@ -54,7 +58,9 @@ export async function executeAdminCreateVendor(
       businessName: dto.shopName,
       ownerName: dto.ownerName,
       fssaiNumber: dto.fssaiNumber,
-      allowedCategories: profile.allowedCategories?.length ? profile.allowedCategories : defaultCategories,
+      allowedCategories: profile.allowedCategories?.length
+        ? profile.allowedCategories
+        : defaultCategories,
     });
   }
 
@@ -82,7 +88,11 @@ export async function executeApplyVendor(
   dto: ApplyVendorDto,
 ): Promise<VendorApplicationResponseDto> {
   const { userRepo, vendorRepo, shopRepo } = ctx;
-  const user = await resolveVendorOwnerUser(userRepo, { email: dto.email, phone: dto.phone, name: dto.ownerName });
+  const user = await resolveVendorOwnerUser(userRepo, {
+    email: dto.email,
+    phone: dto.phone,
+    name: dto.ownerName,
+  });
 
   let profile = await vendorRepo.findByUserId(user._id);
   if (!profile) {
@@ -131,6 +141,7 @@ export async function executeApplyVendor(
     applicationId: profile._id,
     status: profile.status,
     shopId: shop._id,
-    message: 'Vendor application submitted successfully. Verification pending by marketplace admin.',
+    message:
+      'Vendor application submitted successfully. Verification pending by marketplace admin.',
   };
 }

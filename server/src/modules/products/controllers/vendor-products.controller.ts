@@ -10,6 +10,7 @@ import {
   Auth,
   CurrentShop,
   UuidParam,
+  RequireApprovedVendor,
 } from '#common/decorators';
 import { ProductsService } from '../services/products.service.js';
 import { CreateProductDto } from '../dto/create-product.dto.js';
@@ -20,6 +21,7 @@ import { ProductResponseDto } from '../dto/product-response.dto.js';
 @ApiTags(SwaggerTag.VENDOR_PRODUCTS)
 @Auth(Role.VENDOR_OWNER, Role.VENDOR_STAFF, Role.ADMIN, Role.SUPER_ADMIN)
 @Controller('vendor/products')
+@RequireApprovedVendor()
 export class VendorProductsController {
   constructor(private readonly products: ProductsService) {}
 

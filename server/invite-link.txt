@@ -1,1 +1,1 @@
-http://localhost:3001/accept-invite?token=vax03Ehb_SZZwXemjBspKwcL6lqw-pSJps4FmJVo9O4
+http://localhost:3001/accept-invite?token=-gFg9Z8RCwyWQFmgs4JMAoX1KQxW5rTphrlue3bIdKA

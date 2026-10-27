@@ -68,7 +68,10 @@ export class AdminCreateVendorDto {
   @Matches(/^[6-9]\d{9}$/, { message: 'Must be a 10-digit mobile number' })
   phone!: string;
 
-  @ApiProperty({ example: 'ramasamy@example.com', description: 'Sign-in email. The invitation to set a password is sent here.' })
+  @ApiProperty({
+    example: 'ramasamy@example.com',
+    description: 'Sign-in email. The invitation to set a password is sent here.',
+  })
   @Trim()
   @ToLowerCase()
   @IsEmail({}, { message: 'Enter a valid email address' })

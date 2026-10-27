@@ -11,3 +11,6 @@ export * from './dto/vendor-profile-response.dto.js';
 export * from './dto/vendor-application-response.dto.js';
 export * from './services/vendor-profile.service.js';
 export * from './vendors.module.js';
+export * from './dto/vendor-access-status.dto.js';
+export * from './services/vendor-access.service.js';
+export * from './guards/approved-vendor.guard.js';

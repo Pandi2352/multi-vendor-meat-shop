@@ -8,6 +8,7 @@ export const METADATA_KEY = {
   ROLES: 'app:roles',
   PERMISSIONS: 'app:permissions',
   SKIP_ENVELOPE: 'app:skipEnvelope',
+  REQUIRE_APPROVED_VENDOR: 'app:requireApprovedVendor',
 } as const;
 
 /** Admin portal pages that the server links to from emails. Keep in sync with admin `config/routes.ts`. */
