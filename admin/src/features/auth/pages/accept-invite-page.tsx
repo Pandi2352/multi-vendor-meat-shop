@@ -1,7 +1,6 @@
-import { useState } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
-import { ArrowRight, Eye, EyeOff, Lock, UserCheck } from 'lucide-react';
-import { Alert, Button, FormField, Input, LoaderState, fieldDescriptionId } from '@/components/ui';
+import { ArrowRight, UserCheck } from 'lucide-react';
+import { Alert, Button, FormField, Input, LoaderState } from '@/components/ui';
 import { APP_CONFIG } from '@/config/app.config';
 import { ROUTES } from '@/config/routes';
 import { ROLE_LABELS } from '@/constants/roles';
@@ -10,15 +9,13 @@ import { getErrorMessage } from '@/lib/api-error';
 import { useAcceptInvitation, useInvitationDetails } from '../api/use-invitation';
 import { usePostLoginRedirect } from '../api/use-post-login-redirect';
 import { InvitationUnavailable } from '../components/invitation-unavailable';
+import { NewPasswordFields } from '../components/new-password-fields';
 import { acceptInviteSchema, type AcceptInviteValues } from '../schemas/accept-invite.schema';
 
 export function AcceptInvitePage() {
   const [params] = useSearchParams();
   const redirectAfterLogin = usePostLoginRedirect();
   const token = params.get('token') || '';
-
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const { data: invite, isLoading, isError } = useInvitationDetails(token);
   const acceptMutation = useAcceptInvitation();
@@ -120,53 +117,13 @@ export function AcceptInvitePage() {
           />
         </FormField>
 
-        <FormField htmlFor="password" label="Create Password *" error={passwordError} hint="Must be at least 6 characters.">
-          <div className="relative">
-            <Input
-              id="password"
-              type={showPassword ? 'text' : 'password'}
-              autoComplete="new-password"
-              placeholder="••••••••"
-              inputSize="lg"
-              invalid={Boolean(passwordError)}
-              aria-describedby={fieldDescriptionId('password')}
-              leftIcon={<Lock className="h-4 w-4" />}
-              {...form.register('password')}
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword((prev) => !prev)}
-              aria-label={showPassword ? 'Hide password' : 'Show password'}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-text transition-colors p-1"
-            >
-              {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-            </button>
-          </div>
-        </FormField>
-
-        <FormField htmlFor="confirmPassword" label="Confirm Password *" error={confirmPasswordError}>
-          <div className="relative">
-            <Input
-              id="confirmPassword"
-              type={showConfirmPassword ? 'text' : 'password'}
-              autoComplete="new-password"
-              placeholder="••••••••"
-              inputSize="lg"
-              invalid={Boolean(confirmPasswordError)}
-              aria-describedby={fieldDescriptionId('confirmPassword')}
-              leftIcon={<Lock className="h-4 w-4" />}
-              {...form.register('confirmPassword')}
-            />
-            <button
-              type="button"
-              onClick={() => setShowConfirmPassword((prev) => !prev)}
-              aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-text transition-colors p-1"
-            >
-              {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-            </button>
-          </div>
-        </FormField>
+        <NewPasswordFields
+          label="Create password"
+          password={form.register('password')}
+          confirmPassword={form.register('confirmPassword')}
+          passwordError={passwordError}
+          confirmPasswordError={confirmPasswordError}
+        />
 
         <Button
           type="submit"

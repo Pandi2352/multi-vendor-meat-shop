@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { zEmail, zOtp, zRequiredString } from './primitives';
+import { zEmail, zNewPassword, zOtp, zRequiredString } from './primitives';
 
 describe('validation primitives', () => {
   it('normalises and validates email', () => {
@@ -19,5 +19,11 @@ describe('validation primitives', () => {
     expect(zRequiredString('Name', 3).safeParse('ab').error?.issues[0].message).toBe(
       'Name must be at least 3 characters',
     );
+  });
+
+  it('enforces new password length like the server', () => {
+    expect(zNewPassword().safeParse('Short@1').error?.issues[0].message).toBe('Use at least 8 characters');
+    expect(zNewPassword().safeParse('Mutton@2026').success).toBe(true);
+    expect(zNewPassword().safeParse('x'.repeat(129)).success).toBe(false);
   });
 });

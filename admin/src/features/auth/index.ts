@@ -3,11 +3,14 @@ export * from './api/use-send-portal-otp';
 export * from './api/use-verify-portal-otp';
 export * from './api/use-portal-login';
 export * from './api/use-invitation';
+export * from './api/use-password-reset';
 export * from './constants/sign-in-reasons';
 export * from './lib/pending-sign-in';
 export * from './pages/sign-in-page';
 export * from './pages/verify-code-page';
 export * from './pages/accept-invite-page';
+export * from './pages/forgot-password-page';
+export * from './pages/reset-password-page';
 
 export * from './api/use-session';
 export * from './api/use-sign-out';

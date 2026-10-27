@@ -1,5 +1,6 @@
 export * from './schemas/otp-challenge.schema.js';
 export * from './schemas/refresh-session.schema.js';
+export * from './schemas/password-reset.schema.js';
 export * from './dto/send-otp.dto.js';
 export * from './dto/verify-otp.dto.js';
 export * from './dto/refresh-token.dto.js';
@@ -7,5 +8,6 @@ export * from './dto/auth-response.dto.js';
 export * from './services/token.service.js';
 export * from './services/otp.service.js';
 export * from './services/auth.service.js';
+export * from './services/password-reset.service.js';
 export * from './guards/jwt-auth.guard.js';
 export * from './auth.module.js';

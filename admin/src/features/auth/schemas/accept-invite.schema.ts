@@ -1,14 +1,8 @@
 import { z } from 'zod';
+import { PASSWORDS_MISMATCH, newPasswordShape, passwordsMatch } from './new-password.schema';
 
 export const acceptInviteSchema = z
-  .object({
-    name: z.string().optional(),
-    password: z.string().min(6, 'Password must be at least 6 characters'),
-    confirmPassword: z.string().min(6, 'Please confirm your password'),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: 'Passwords do not match',
-    path: ['confirmPassword'],
-  });
+  .object({ name: z.string().optional(), ...newPasswordShape })
+  .refine(passwordsMatch, PASSWORDS_MISMATCH);
 
 export type AcceptInviteValues = z.output<typeof acceptInviteSchema>;

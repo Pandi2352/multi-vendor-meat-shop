@@ -61,6 +61,8 @@ export class EnvironmentVariables {
   @ToInt() @IsInt() @Min(1) OTP_MAX_ATTEMPTS = 5;
   @ToInt() @IsInt() @Min(10) OTP_RESEND_COOLDOWN_SECONDS = 60;
   @ToInt() @IsInt() @Min(1) @Max(30) INVITATION_TTL_DAYS = 7;
+  @ToInt() @IsInt() @Min(5) @Max(1440) PASSWORD_RESET_TTL_MINUTES = 30;
+  @ToInt() @IsInt() @Min(10) PASSWORD_RESET_COOLDOWN_SECONDS = 60;
 
   // Super admin — created on boot if missing (the first portal account; everyone else is invited)
   @Transform(({ value }: { value: unknown }) => (value === '' ? undefined : value))

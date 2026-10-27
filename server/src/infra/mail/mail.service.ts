@@ -6,6 +6,8 @@ import { AppLogger } from '#infra/logger';
 import type { EmailMessage } from './templates/email-layout.js';
 import { invitationEmail, type InvitationEmailData } from './templates/invitation.template.js';
 import { otpEmail } from './templates/otp.template.js';
+import { passwordChangedEmail, type PasswordChangedEmailData } from './templates/password-changed.template.js';
+import { passwordResetEmail, type PasswordResetEmailData } from './templates/password-reset.template.js';
 
 /**
  * Transactional email. `MAIL_DRIVER=smtp` sends through SMTP; `MAIL_DRIVER=log` writes the
@@ -42,6 +44,14 @@ export class MailService {
 
   sendInvitationEmail(to: string, data: Omit<InvitationEmailData, 'appName'>): Promise<void> {
     return this.deliver(to, invitationEmail({ ...data, appName: this.config.app.displayName }), 'invitation');
+  }
+
+  sendPasswordResetEmail(to: string, data: Omit<PasswordResetEmailData, 'appName'>): Promise<void> {
+    return this.deliver(to, passwordResetEmail({ ...data, appName: this.config.app.displayName }), 'password reset');
+  }
+
+  sendPasswordChangedEmail(to: string, data: Omit<PasswordChangedEmailData, 'appName'>): Promise<void> {
+    return this.deliver(to, passwordChangedEmail({ ...data, appName: this.config.app.displayName }), 'password changed');
   }
 
   private async deliver(to: string, message: EmailMessage, kind: string): Promise<void> {

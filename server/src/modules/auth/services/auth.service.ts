@@ -15,7 +15,7 @@ import type { PortalLoginDto } from '../dto/portal-login.dto.js';
 import type { AcceptInvitationDto } from '../dto/accept-invitation.dto.js';
 import type { InvitationDetailsResponseDto } from '../dto/invitation-details-response.dto.js';
 
-interface RequestContext {
+export interface RequestContext {
   userAgent?: string;
   ipAddress?: string;
 }
@@ -182,7 +182,7 @@ export class AuthService {
   }
 
   /** Creates a refresh session and signs the token pair. Suspended accounts are refused. */
-  private async issueSession(user: User, ctx: RequestContext): Promise<AuthResponseDto> {
+  async issueSession(user: User, ctx: RequestContext): Promise<AuthResponseDto> {
     assertCanSignIn(user);
 
     const session = await this.sessionRepo.create({

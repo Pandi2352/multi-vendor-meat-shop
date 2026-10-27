@@ -3,6 +3,7 @@ import { ArrowLeft, ArrowRight, KeyRound } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Alert, Button, FormField, Input } from '@/components/ui';
 import { ROUTES } from '@/config/routes';
+import { useCountdown } from '@/hooks';
 import { getErrorMessage } from '@/lib/api-error';
 import { useSendPortalOtp } from '../api/use-send-portal-otp';
 import { useVerifyPortalOtp } from '../api/use-verify-portal-otp';
@@ -18,7 +19,7 @@ export function VerifyCodePage() {
   const initialCooldown = pending?.resendAt
     ? Math.max(0, Math.ceil((pending.resendAt - Date.now()) / 1000))
     : 60;
-  const [cooldown, setCooldown] = useState(initialCooldown);
+  const { seconds: cooldown, start: setCooldown } = useCountdown(initialCooldown);
 
   const verifyOtp = useVerifyPortalOtp();
   const redirectAfterLogin = usePostLoginRedirect();
@@ -29,12 +30,6 @@ export function VerifyCodePage() {
       navigate(ROUTES.LOGIN, { replace: true });
     }
   }, [email, navigate]);
-
-  useEffect(() => {
-    if (cooldown <= 0) return;
-    const interval = setInterval(() => setCooldown((prev: number) => Math.max(0, prev - 1)), 1000);
-    return () => clearInterval(interval);
-  }, [cooldown]);
 
   const handleVerify = async (e: React.FormEvent) => {
     e.preventDefault();

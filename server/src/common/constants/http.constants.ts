@@ -14,5 +14,7 @@ export const METADATA_KEY = {
 /** Admin portal pages that the server links to from emails. Keep in sync with admin `config/routes.ts`. */
 export const ADMIN_APP_PATH = {
   ACCEPT_INVITE: '/accept-invite',
+  FORGOT_PASSWORD: '/forgot-password',
+  RESET_PASSWORD: '/reset-password',
   LOGIN: '/login',
 } as const;

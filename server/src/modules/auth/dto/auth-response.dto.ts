@@ -16,6 +16,6 @@ export class SentOtpResponseDto {
   @ApiProperty({ example: true })
   sent!: boolean;
 
-  @ApiProperty({ example: 60, description: 'Seconds until next OTP can be requested' })
+  @ApiProperty({ example: 60, description: 'Seconds until another code or link can be requested' })
   cooldownSeconds!: number;
 }

@@ -1,6 +1,8 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsOptional, IsString, MinLength } from 'class-validator';
+import { IsOptional, IsString } from 'class-validator';
+import { LIMITS } from '#common/constants';
 import { Trim } from '#common/transformers';
+import { IsAccountPassword } from '#common/validators';
 
 export class AcceptInvitationDto {
   @ApiProperty({ description: 'Secure invitation onboarding token' })
@@ -8,9 +10,8 @@ export class AcceptInvitationDto {
   @IsString()
   token!: string;
 
-  @ApiProperty({ example: 'SecurePassword123!', description: 'New account password' })
-  @IsString()
-  @MinLength(6, { message: 'Password must be at least 6 characters' })
+  @ApiProperty({ description: 'New account password', minLength: LIMITS.PASSWORD_MIN_LENGTH, maxLength: LIMITS.PASSWORD_MAX_LENGTH })
+  @IsAccountPassword()
   password!: string;
 
   @ApiPropertyOptional({ example: 'Murugesan Pandian', description: 'User full name' })

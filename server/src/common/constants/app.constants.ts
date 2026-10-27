@@ -21,4 +21,7 @@ export const LIMITS = {
   MAX_PRODUCT_IMAGES: 8,
   MAX_CART_ITEMS: 30,
   MAX_ADDRESSES: 10,
+  /** Portal account passwords (invite acceptance and reset). */
+  PASSWORD_MIN_LENGTH: 8,
+  PASSWORD_MAX_LENGTH: 128,
 } as const;

@@ -3,6 +3,7 @@ export enum CollectionName {
   USERS = 'users',
   REFRESH_SESSIONS = 'refresh_sessions',
   OTP_CHALLENGES = 'otp_challenges',
+  PASSWORD_RESETS = 'password_resets',
   VENDOR_PROFILES = 'vendor_profiles',
   SHOPS = 'shops',
   DELIVERY_ZONES = 'delivery_zones',

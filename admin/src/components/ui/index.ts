@@ -11,6 +11,7 @@ export * from './input';
 export * from './kbd';
 export * from './loader-state';
 export * from './pagination';
+export * from './password-input';
 export * from './search-input';
 export * from './select';
 export * from './spinner';

@@ -3,8 +3,10 @@ import { AdminLayout, AuthLayout, NotFoundPage, RouteErrorPage } from '@/compone
 import {
   AcceptInvitePage,
   AccessDeniedPage,
+  ForgotPasswordPage,
   RedirectIfSignedIn,
   RequireSession,
+  ResetPasswordPage,
   SignInPage,
   SuspendedPage,
   VerifyCodePage,
@@ -55,8 +57,17 @@ export const router = createBrowserRouter([
           </RedirectIfSignedIn>
         ),
       },
-      // Open even when signed in: the invite may be for a different account.
+      {
+        path: ROUTES.FORGOT_PASSWORD,
+        element: (
+          <RedirectIfSignedIn>
+            <ForgotPasswordPage />
+          </RedirectIfSignedIn>
+        ),
+      },
+      // Open even when signed in: the invite or reset link may be for a different account.
       { path: ROUTES.ACCEPT_INVITE, element: <AcceptInvitePage /> },
+      { path: ROUTES.RESET_PASSWORD, element: <ResetPasswordPage /> },
       { path: ROUTES.ACCESS_DENIED, element: <AccessDeniedPage /> },
       { path: ROUTES.SUSPENDED, element: <SuspendedPage /> },
     ],

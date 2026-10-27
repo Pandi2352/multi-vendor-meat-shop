@@ -2,6 +2,8 @@ export const ROUTES = {
   LOGIN: '/login',
   LOGIN_VERIFY: '/login/verify',
   ACCEPT_INVITE: '/accept-invite',
+  FORGOT_PASSWORD: '/forgot-password',
+  RESET_PASSWORD: '/reset-password',
   ACCESS_DENIED: '/access-denied',
   SUSPENDED: '/suspended',
   DASHBOARD: '/',

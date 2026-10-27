@@ -67,6 +67,10 @@ export const ERROR_CATALOG: Readonly<Record<E, ErrorDefinition>> = {
     status: HttpStatus.FORBIDDEN,
     message: 'Your account is not active yet. Open the invitation link we emailed you to set your password.',
   },
+  [E.RESET_LINK_INVALID]: {
+    status: HttpStatus.BAD_REQUEST,
+    message: 'This password reset link is invalid or has expired. Request a new one.',
+  },
 
   [E.VENDOR_NOT_APPROVED]: { status: HttpStatus.FORBIDDEN, message: 'Vendor is not approved yet' },
   [E.SHOP_CLOSED]: { status: HttpStatus.UNPROCESSABLE_ENTITY, message: 'Shop is closed right now' },
