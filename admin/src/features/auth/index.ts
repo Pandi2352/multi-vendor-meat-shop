@@ -23,3 +23,4 @@ export * from './lib/session';
 export * from './pages/access-denied-page';
 export * from './pages/suspended-page';
 export * from './api/use-current-user';
+export * from './api/use-permission';

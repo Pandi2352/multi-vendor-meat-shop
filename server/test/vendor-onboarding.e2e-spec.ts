@@ -38,7 +38,7 @@ describe('Vendor Onboarding & Admin Management (e2e)', () => {
 
     adminToken = tokenService.signAccessToken({
       id: adminId,
-      role: Role.ADMIN,
+      role: admin!.role, // must match the account: the auth guard checks role against the database
       permissions: [],
     });
   });

@@ -57,7 +57,7 @@ Server facts: NestJS 12 is **ESM-only** → relative imports end in `.js`, cross
 ### A5. Database layer (`src/database/`) ⭐
 - [x] `base.entity.ts` — `baseSchemaOptions` (timestamps, no `__v`, `_id → id` in JSON) + `BaseEntity` (`_id: string` UUID v7)
 - [x] `create-schema.ts` — `createSchema(Class, { softDelete })`, use instead of `SchemaFactory.createForClass`
-- [x] `plugins/soft-delete.plugin.ts` — `deletedAt`/`deletedBy`, hidden from queries + aggregations unless `withDeleted` 🧪 (e2e)
+- [x] `plugins/soft-delete.plugin.ts` — `deletedAt`/`deletedBy`, hidden from queries + aggregations unless `withDeleted` (a leading `$geoNear` gets the filter in its `query`, since it must stay first) 🧪 (e2e)
 - [ ] `plugins/audit-fields.plugin.ts` — `createdBy`, `updatedBy` (add with auth context)
 - [x] `base.repository.ts` — `findById`, `findByIdOrThrow`, `findOne`, `findMany`, `paginate`, `create`, `createMany`, `updateById`, `updateByIdOrThrow`, `updateOne`, `softDelete`, `restore`, `exists`, `count`, `countByField` (docs per value, e.g. orders per status), `sumField` (dot paths, e.g. `totals.totalPaise`), `aggregate`; optional `session` + `withDeleted` everywhere 🧪 (e2e)
 - [x] `transaction.helper.ts` — `runInTransaction(connection, fn)`; clear TRANSACTION_NOT_SUPPORTED error on standalone MongoDB
@@ -331,6 +331,10 @@ modules/<feature>/
 - [x] admin auth: `NewPasswordFields` + `newPasswordSchema` / `newPasswordShape` (accept-invite and reset), `ForgotPasswordPage`, `ResetPasswordPage`, `ResetLinkUnavailable`, `getResetLinkProblem`
 - [x] server dashboards module: `GET /vendor/dashboard` (owner + staff; `payouts` owner only) and `GET /admin/dashboard` (all admin roles; `money` for ADMIN/FINANCE only). Read-only, built on existing repositories; `buildStockSummary` + `toOrderPreviewDto` mappers. Order status groups `IN_PROGRESS_ORDER_STATUSES`, `UNFULFILLED_ORDER_STATUSES`, `NON_SALE_ORDER_STATUSES` (orders constants)
 - [x] admin `features/dashboard` — `VendorDashboardPage` (`/vendor`, vendor home) and `AdminDashboardPage` (`/`); `DashboardHeader`, `SummaryList`; admin cards and shortcuts link only where `canAccessPath` allows. Orders tabs: `VENDOR_ORDER_TABS`, `vendorOrdersTabPath(tab)`. Format: `formatNumber`, `formatDayIST`
+- [x] server permissions on vendor endpoints: `@Permissions()` on orders (`order.read`/`order.fulfil`), stock (`inventory.manage`), catalogue (`product.manage`), shop settings (`shop.manage`), staff (`staff.manage`, new), finance (`settlement.read`, `payout.request`, new). Locked by `src/modules/vendor-permissions.spec.ts`. User responses carry `permissions`
+- [x] server `SessionUserService` (auth) — the auth guard re-reads the account per request: suspended/removed → refused at once, role or shop changed → `AUTH_SESSION_REVOKED` (app refreshes), permissions from the current role. `assertCanSignIn` moved to `auth/utils/account-status.util.ts`
+- [x] server `resolveShopId` behind `@CurrentShop()` — vendors get their own shop only; admin roles choose by UUID (`x-shop-id` / `?shopId=`)
+- [x] admin `useHasPermission(...)` / `usePermissionCheck()` (auth) + `Permission` type (`constants/permissions.ts`); quick actions take an optional `permission`; `ShopSwitcher` is admin-only; any `ACCOUNT_SUSPENDED` response sends the app to `/suspended`
 - [x] admin `InvitationResult` (users) + `VendorInvitedPanel` (vendors) — show emailed / not-emailed with the one-time copy link; `InvitationUnavailable` for used/expired/revoked/invalid links
 - [x] admin `config/route-access.ts` — `ROUTE_ACCESS` (who may open each page, mirrors server `@Auth`), `canAccessPath`, `roleAllowed` (super admin ⊇ ADMIN). Single source for `RouteAccessGuard` (403 inside the layout), `filterNavForRole` (sidebar/search/breadcrumb via `useVisibleNav`) and quick actions. New page → add a rule here, nothing else
 - [x] admin `constants/roles.ts` — role groups (admin / vendor / delivery / portal) + `ROLE_LABELS`, typed from the generated API

@@ -1,7 +1,7 @@
 import { Body, Controller, Delete, Get, Patch, Post, Query } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { SwaggerTag } from '#common/constants';
-import { Role } from '#common/enums';
+import { Role, Permission } from '#common/enums';
 import {
   ApiCreatedEnvelope,
   ApiOkEnvelope,
@@ -11,6 +11,7 @@ import {
   CurrentShop,
   UuidParam,
   RequireApprovedVendor,
+  Permissions,
 } from '#common/decorators';
 import { ProductsService } from '../services/products.service.js';
 import { CreateProductDto } from '../dto/create-product.dto.js';
@@ -42,6 +43,7 @@ export class VendorProductsController {
   }
 
   @Post()
+  @Permissions(Permission.PRODUCT_MANAGE)
   @ApiOperation({ summary: 'Add a new product to vendor shop catalogue' })
   @ApiCreatedEnvelope(ProductResponseDto)
   @ApiStandardResponses()
@@ -50,6 +52,7 @@ export class VendorProductsController {
   }
 
   @Patch(':id')
+  @Permissions(Permission.PRODUCT_MANAGE)
   @ApiOperation({ summary: 'Update product details, pricing, cuts or status' })
   @ApiOkEnvelope(ProductResponseDto)
   @ApiStandardResponses()
@@ -62,6 +65,7 @@ export class VendorProductsController {
   }
 
   @Delete(':id')
+  @Permissions(Permission.PRODUCT_MANAGE)
   @ApiOperation({ summary: 'Archive a product from vendor catalogue' })
   @ApiOkEnvelope(ProductResponseDto)
   @ApiStandardResponses()

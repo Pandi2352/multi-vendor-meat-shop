@@ -4,14 +4,17 @@ import { Role } from './role.enum.js';
 export const ROLE_PERMISSIONS: Readonly<Record<Role, readonly P[]>> = {
   [Role.SUPER_ADMIN]: Object.values(P),
   [Role.CUSTOMER]: [],
+  // Owner: the whole shop. Staff: the day-to-day counter work only (orders and stock).
   [Role.VENDOR_OWNER]: [
     P.SHOP_MANAGE,
+    P.STAFF_MANAGE,
     P.PRODUCT_MANAGE,
     P.INVENTORY_MANAGE,
     P.ORDER_READ,
     P.ORDER_FULFIL,
     P.PROMOTION_MANAGE,
     P.SETTLEMENT_READ,
+    P.PAYOUT_REQUEST,
     P.ANALYTICS_READ,
   ],
   [Role.VENDOR_STAFF]: [P.INVENTORY_MANAGE, P.ORDER_READ, P.ORDER_FULFIL],

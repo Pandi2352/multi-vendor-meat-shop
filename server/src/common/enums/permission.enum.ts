@@ -4,6 +4,8 @@ export enum Permission {
   VENDOR_READ = 'vendor.read',
   VENDOR_VERIFY = 'vendor.verify',
   SHOP_MANAGE = 'shop.manage',
+  /** Invite, edit and remove a shop's staff. */
+  STAFF_MANAGE = 'staff.manage',
   CATEGORY_MANAGE = 'category.manage',
   PRODUCT_MANAGE = 'product.manage',
   PRODUCT_MODERATE = 'product.moderate',
@@ -16,6 +18,8 @@ export enum Permission {
   COMMISSION_MANAGE = 'commission.manage',
   SETTLEMENT_READ = 'settlement.read',
   SETTLEMENT_MANAGE = 'settlement.manage',
+  /** Ask for a payout of the shop's settled balance. */
+  PAYOUT_REQUEST = 'payout.request',
   PROMOTION_MANAGE = 'promotion.manage',
   TICKET_MANAGE = 'ticket.manage',
   ANALYTICS_READ = 'analytics.read',

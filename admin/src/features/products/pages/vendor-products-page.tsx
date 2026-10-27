@@ -12,6 +12,7 @@ import {
 } from '../api';
 import { ProductCard } from '../components/product-card';
 import { ProductFormModal } from '../components/product-form-modal';
+import { useHasPermission } from '@/features/auth';
 import { ShopSwitcher } from '@/features/vendor-shops';
 
 export function VendorProductsPage() {
@@ -20,6 +21,7 @@ export function VendorProductsPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<VendorProduct | null>(null);
+  const canManage = useHasPermission('product.manage');
 
   const { data: productsData, isLoading } = useVendorProducts();
   const { data: categories = [] } = useCategories();
@@ -85,15 +87,19 @@ export function VendorProductsPage() {
             <h1 className="text-xl font-bold text-text">Meat Cuts & Daily Catalogue</h1>
           </div>
           <p className="text-xs text-muted mt-1">
-            Configure your butcher stall cuts, price per kg, custom package sizes, and prep options
+            {canManage
+              ? 'Configure your butcher stall cuts, price per kg, custom package sizes, and prep options'
+              : 'Cuts and prices for your shop. Only the shop owner can add or change them.'}
           </p>
         </div>
         <div className="flex items-center gap-2 self-start sm:self-auto">
           <ShopSwitcher />
-          <Button variant="primary" size="sm" onClick={handleOpenAdd} className="gap-1.5">
-            <Plus className="h-4 w-4" />
-            <span>Add Meat Cut</span>
-          </Button>
+          {canManage && (
+            <Button variant="primary" size="sm" onClick={handleOpenAdd} className="gap-1.5">
+              <Plus className="h-4 w-4" />
+              <span>Add Meat Cut</span>
+            </Button>
+          )}
         </div>
       </div>
 
@@ -175,6 +181,7 @@ export function VendorProductsPage() {
                 onEdit={handleEdit}
                 onToggleStatus={handleToggleStatus}
                 onArchive={handleArchive}
+                readOnly={!canManage}
               />
             );
           })}

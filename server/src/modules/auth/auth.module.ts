@@ -12,6 +12,7 @@ import { TokenService } from './services/token.service.js';
 import { OtpService } from './services/otp.service.js';
 import { AuthService } from './services/auth.service.js';
 import { PasswordResetService } from './services/password-reset.service.js';
+import { SessionUserService } from './services/session-user.service.js';
 import { JwtAuthGuard } from './guards/jwt-auth.guard.js';
 import { AuthController } from './controllers/auth.controller.js';
 import { PortalAuthController } from './controllers/portal-auth.controller.js';
@@ -37,8 +38,9 @@ import { PortalPasswordController } from './controllers/portal-password.controll
     OtpService,
     AuthService,
     PasswordResetService,
+    SessionUserService,
     JwtAuthGuard,
   ],
-  exports: [TokenService, AuthService, JwtAuthGuard],
+  exports: [TokenService, AuthService, SessionUserService, JwtAuthGuard],
 })
 export class AuthModule {}

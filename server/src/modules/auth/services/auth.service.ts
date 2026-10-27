@@ -1,11 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { AppException, ErrorCode } from '#common/exceptions';
-import { InvitationStatus, ROLE_PERMISSIONS, UserStatus, isPortalRole } from '#common/enums';
+import { InvitationStatus, ROLE_PERMISSIONS, isPortalRole } from '#common/enums';
 import { hashPassword, sha256, verifyPassword } from '#common/utils';
 import { AppConfigService } from '#config';
 import { UserInvitationRepository, UsersService, toUserResponseDto, type User } from '#modules/users';
 import { OtpService } from './otp.service.js';
 import { TokenService } from './token.service.js';
+import { assertCanSignIn } from '../utils/account-status.util.js';
 import { RefreshSessionRepository } from '../repositories/refresh-session.repository.js';
 import type { SendOtpDto } from '../dto/send-otp.dto.js';
 import type { VerifyOtpDto } from '../dto/verify-otp.dto.js';
@@ -21,18 +22,6 @@ export interface RequestContext {
 }
 
 const SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1000;
-
-/**
- * The one status gate for every way of getting a session (password, code, invite, refresh):
- * suspended → ACCOUNT_SUSPENDED; pending (invited / applied, not activated) → ACCOUNT_PENDING;
- * deleted → treated as unknown credentials.
- */
-const assertCanSignIn = (user: User): void => {
-  if (user.status === UserStatus.ACTIVE) return;
-  if (user.status === UserStatus.SUSPENDED) throw new AppException(ErrorCode.ACCOUNT_SUSPENDED);
-  if (user.status === UserStatus.PENDING_VERIFICATION) throw new AppException(ErrorCode.ACCOUNT_PENDING);
-  throw new AppException(ErrorCode.AUTH_INVALID_CREDENTIALS, { message: 'Invalid email or password' });
-};
 
 @Injectable()
 export class AuthService {

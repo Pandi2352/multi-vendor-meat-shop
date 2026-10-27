@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { OrderStatus, ProductStatus, Role } from '#common/enums';
+import { OrderStatus, Permission, ProductStatus } from '#common/enums';
 import { AppException, ErrorCode } from '#common/exceptions';
 import type { AuthUser } from '#common/interfaces';
 import { todayIST, todayRangeIST } from '#common/utils';
@@ -52,8 +52,8 @@ export class VendorDashboardService {
       this.orders.findMany(inProgress, { sort: { createdAt: 1 }, limit: QUEUE_PREVIEW_SIZE }),
       this.products.findMany({ shopId, status: ProductStatus.ACTIVE }, { projection: { name: 1 } }),
       this.batches.findBatchesForDate(shopId, date),
-      // Money is for the owner only (staff can't open Settlements either).
-      user.role === Role.VENDOR_OWNER ? this.payouts(shopId) : Promise.resolve(null),
+      // Same permission as the Settlements endpoints: owners have it, staff don't.
+      user.permissions.includes(Permission.SETTLEMENT_READ) ? this.payouts(shopId) : Promise.resolve(null),
     ]);
 
     const n = (counts: Record<string, number>, ...statuses: OrderStatus[]) =>

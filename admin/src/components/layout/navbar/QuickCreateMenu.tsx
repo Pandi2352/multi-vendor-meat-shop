@@ -2,7 +2,8 @@ import { Package, Plus, Store, Truck, Warehouse, type LucideIcon } from 'lucide-
 import { Badge, Button, Dropdown, DropdownItem, DropdownLabel } from '@/components/ui';
 import { canAccessPath } from '@/config/route-access';
 import { ROUTES } from '@/config/routes';
-import { useCurrentUser } from '@/features/auth';
+import type { Permission } from '@/constants/permissions';
+import { useCurrentUser, usePermissionCheck } from '@/features/auth';
 
 interface QuickAction {
   label: string;
@@ -10,6 +11,8 @@ interface QuickAction {
   to: string;
   icon: LucideIcon;
   soon?: boolean;
+  /** Also needed to do the action (the page itself may be open to more people). */
+  permission?: Permission;
 }
 
 const QUICK_ACTIONS: QuickAction[] = [
@@ -18,6 +21,7 @@ const QUICK_ACTIONS: QuickAction[] = [
     description: "Start today's stock count",
     to: ROUTES.VENDOR_INVENTORY,
     icon: Warehouse,
+    permission: 'inventory.manage',
   },
   {
     label: 'Assign a delivery',
@@ -25,13 +29,22 @@ const QUICK_ACTIONS: QuickAction[] = [
     to: ROUTES.DELIVERY_TASKS,
     icon: Truck,
   },
-  { label: 'Add product', description: 'New cut with price per kg', to: ROUTES.VENDOR_PRODUCTS, icon: Package },
+  {
+    label: 'Add product',
+    description: 'New cut with price per kg',
+    to: ROUTES.VENDOR_PRODUCTS,
+    icon: Package,
+    permission: 'product.manage',
+  },
   { label: 'Onboard vendor', description: 'Register a new meat shop', to: ROUTES.ADMIN_VENDORS, icon: Store },
 ];
 
 export function QuickCreateMenu() {
   const role = useCurrentUser()?.role;
-  const actions = role ? QUICK_ACTIONS.filter((action) => canAccessPath(role, action.to)) : [];
+  const can = usePermissionCheck();
+  const actions = role
+    ? QUICK_ACTIONS.filter((action) => canAccessPath(role, action.to) && (!action.permission || can(action.permission)))
+    : [];
   if (actions.length === 0) return null;
 
   return (

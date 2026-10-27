@@ -9,5 +9,7 @@ export * from './services/token.service.js';
 export * from './services/otp.service.js';
 export * from './services/auth.service.js';
 export * from './services/password-reset.service.js';
+export * from './services/session-user.service.js';
+export * from './utils/account-status.util.js';
 export * from './guards/jwt-auth.guard.js';
 export * from './auth.module.js';

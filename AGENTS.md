@@ -51,6 +51,9 @@ Key docs:
 - Errors throw `AppException` with an `ErrorCode`. No raw strings in `throw new Error()`.
 - Invitations only through `InvitationsService.issue()` / `resend()` (users module): never write invitation tokens yourself, never return or list them. Existing accounts are never re-roled at invite time; the role is applied when the invite is accepted.
 - Password resets only through `PasswordResetService` (auth module). New portal passwords use `@IsAccountPassword()` on the server and `zNewPassword()` in the admin app (same 8–128 limits). Never reveal whether an email has an account.
+- `@Auth(roles)` says who may call an endpoint; `@Permissions(...)` says what they may do. Every vendor endpoint that is not open to all shop staff carries `@Permissions()` (owner work: `product.manage`, `shop.manage`, `staff.manage`, `settlement.read`, `payout.request`). Add each new vendor endpoint to `src/modules/vendor-permissions.spec.ts`.
+- `@CurrentShop()` is the only way to get the shop a request acts on. Vendors always get their own shop; only the admin team may choose one (`x-shop-id`).
+- The auth guard re-checks the account on every request (`SessionUserService`): suspensions and removals apply at once, and permissions come from the current role. Tests that sign tokens must use the account's real role and shop.
 - New vendor controllers that change shop data get `@RequireApprovedVendor()` so suspended, rejected or pending shops can't write. Don't re-check vendor status by hand in controllers.
 - Local email testing: set `MAIL_DRIVER=log` in `server/.env` to print emails (with links) to the server log instead of sending.
 - All responses go through the response envelope interceptor. Lists are paginated with the shared DTOs.
@@ -58,6 +61,7 @@ Key docs:
 ### 5. Frontend rules
 - No `import.meta.env` outside `src/config/env.ts`.
 - Admin app: a link or button to another page is shown only when `canAccessPath(role, path)` allows it (`config/route-access.ts`). Never show a button that leads to a 403.
+- Admin app: an action the API guards with a permission is shown only when `useHasPermission('…')` (or `usePermissionCheck()` for lists) allows it.
 - All HTTP through `lib/api-client`. All server state through TanStack Query hooks in `features/<name>/api/`. Query keys from the feature's `keys.ts` factory.
 - Forms: React Hook Form + Zod, built from `components/form` field components. Schemas reuse `utils/validation` primitives (phone, pincode, price, weight).
 - Display formatting only via `utils/format` (`formatINR`, `formatWeight`, `formatDateIST`). Never inline `toFixed` / `toLocaleString` in a component.

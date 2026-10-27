@@ -9,8 +9,9 @@ import {
   CurrentShop,
   CurrentUser,
   UuidParam,
+  Permissions,
 } from '#common/decorators';
-import { Role } from '#common/enums';
+import { Role, Permission } from '#common/enums';
 import { PaginatedResult } from '#common/dto';
 import { OrderFulfilmentService } from '../services/order-fulfilment.service.js';
 import { UpdateOrderStatusDto } from '../dto/update-order-status.dto.js';
@@ -24,6 +25,7 @@ export class VendorOrdersController {
   constructor(private readonly fulfilment: OrderFulfilmentService) {}
 
   @Get()
+  @Permissions(Permission.ORDER_READ)
   @ApiOperation({ summary: 'List shop orders with date and status filters' })
   @ApiPaginatedResponse(OrderResponseDto)
   @ApiStandardResponses()
@@ -35,6 +37,7 @@ export class VendorOrdersController {
   }
 
   @Get(':id')
+  @Permissions(Permission.ORDER_READ)
   @ApiOperation({ summary: 'Get shop order details with tracking timeline' })
   @ApiOkEnvelope(OrderResponseDto)
   @ApiStandardResponses()
@@ -46,6 +49,7 @@ export class VendorOrdersController {
   }
 
   @Patch(':id/status')
+  @Permissions(Permission.ORDER_FULFIL)
   @ApiOperation({ summary: 'Update order status and optionally record actual packed weight' })
   @ApiOkEnvelope(OrderResponseDto)
   @ApiStandardResponses()

@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { OrderStatus, Role } from '#common/enums';
+import { OrderStatus, ROLE_PERMISSIONS, Role } from '#common/enums';
 import { ErrorCode } from '#common/exceptions';
 import type { AuthUser } from '#common/interfaces';
 import type { FinanceService, SettlementRepository } from '#modules/finance';
@@ -43,7 +43,7 @@ const setup = () => {
   return { service, orders, finance };
 };
 
-const owner: AuthUser = { id: 'u1', role: Role.VENDOR_OWNER, permissions: [], shopId: 'shop-1' };
+const owner: AuthUser = { id: 'u1', role: Role.VENDOR_OWNER, permissions: ROLE_PERMISSIONS[Role.VENDOR_OWNER], shopId: 'shop-1' };
 
 describe('VendorDashboardService', () => {
   it('groups order statuses into the queue stages and today numbers', async () => {
@@ -65,7 +65,7 @@ describe('VendorDashboardService', () => {
 
   it('never shows money to shop staff', async () => {
     const { service, finance } = setup();
-    const dashboard = await service.get({ ...owner, role: Role.VENDOR_STAFF });
+    const dashboard = await service.get({ ...owner, role: Role.VENDOR_STAFF, permissions: ROLE_PERMISSIONS[Role.VENDOR_STAFF] });
     expect(dashboard.payouts).toBeNull();
     expect(finance.getFinanceSummary).not.toHaveBeenCalled();
   });

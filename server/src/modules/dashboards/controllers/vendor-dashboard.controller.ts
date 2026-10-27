@@ -16,7 +16,7 @@ export class VendorDashboardController {
   @Get()
   @ApiOperation({
     summary: 'My shop dashboard: orders in progress, today’s numbers, stock alerts and payouts',
-    description: '`payouts` is only filled for the shop owner.',
+    description: '`payouts` is only filled for users with the settlement.read permission (shop owners).',
   })
   @ApiOkEnvelope(VendorDashboardResponseDto)
   @ApiStandardResponses()

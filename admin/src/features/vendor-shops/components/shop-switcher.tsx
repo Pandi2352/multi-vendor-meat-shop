@@ -1,20 +1,28 @@
 import { useEffect } from 'react';
 import { Store, ChevronDown } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
+import { isAdminRole } from '@/constants/roles';
+import { useCurrentUser } from '@/features/auth';
 import { tokenStorage } from '@/lib/token-storage';
 import { useAllShops } from '../api';
 
+/**
+ * Lets the admin team pick which shop the vendor pages show (sent as `x-shop-id`). Hidden for shop
+ * owners and staff: the server always uses the shop on their account.
+ */
 export function ShopSwitcher() {
   const queryClient = useQueryClient();
-  const { data: shopsData } = useAllShops();
+  const role = useCurrentUser()?.role;
+  const isAdmin = !!role && isAdminRole(role);
+  const { data: shopsData } = useAllShops(isAdmin);
   const shops = shopsData?.items || [];
   const currentShopId = tokenStorage.getActiveShopId() || shops[0]?.id || '';
 
   useEffect(() => {
-    if (!tokenStorage.getActiveShopId() && shops.length > 0 && shops[0]?.id) {
+    if (isAdmin && !tokenStorage.getActiveShopId() && shops.length > 0 && shops[0]?.id) {
       tokenStorage.setActiveShopId(shops[0].id);
     }
-  }, [shops]);
+  }, [isAdmin, shops]);
 
   const handleSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newShopId = e.target.value;
@@ -22,7 +30,7 @@ export function ShopSwitcher() {
     queryClient.invalidateQueries();
   };
 
-  if (shops.length === 0) return null;
+  if (!isAdmin || shops.length === 0) return null;
 
   return (
     <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-surface border border-border text-xs">

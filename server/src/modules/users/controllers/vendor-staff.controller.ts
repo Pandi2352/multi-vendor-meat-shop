@@ -1,7 +1,7 @@
 import { Body, Controller, Delete, Get, Patch, Post } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { SwaggerTag } from '#common/constants';
-import { Role } from '#common/enums';
+import { Role, Permission } from '#common/enums';
 import {
   ApiCreatedEnvelope,
   ApiOkEnvelope,
@@ -11,6 +11,7 @@ import {
   CurrentUser,
   UuidParam,
   RequireApprovedVendor,
+  Permissions,
 } from '#common/decorators';
 import { VendorStaffService } from '../services/vendor-staff.service.js';
 import {
@@ -23,6 +24,7 @@ import {
 @ApiTags(SwaggerTag.VENDOR_SHOP)
 @Auth(Role.VENDOR_OWNER, Role.VENDOR_STAFF, Role.ADMIN, Role.SUPER_ADMIN)
 @Controller('vendor/staff')
+@Permissions(Permission.STAFF_MANAGE)
 @RequireApprovedVendor()
 export class VendorStaffController {
   constructor(private readonly staffService: VendorStaffService) {}

@@ -36,19 +36,18 @@ describe('Admin User Management & RBAC Permissions (e2e)', () => {
       permissions: [],
     });
 
-    let customer = await userRepo.findOne({ role: Role.CUSTOMER });
-    if (!customer) {
-      customer = await userRepo.create({
-        email: `customer.${Date.now()}@test.in`,
-        phone: '9842011111',
-        name: 'Test Customer',
-        role: Role.CUSTOMER,
-        status: UserStatus.ACTIVE,
-        shopId: null,
-        deletedAt: null,
-        deletedBy: null,
-      });
-    }
+    // A throwaway account: this suite changes its role and status, so it must never be a shared
+    // seeded user (other suites sign in as the demo customer).
+    const customer = await userRepo.create({
+      email: `customer.${Date.now()}@test.in`,
+      phone: '9842011111',
+      name: 'Test Customer',
+      role: Role.CUSTOMER,
+      status: UserStatus.ACTIVE,
+      shopId: null,
+      deletedAt: null,
+      deletedBy: null,
+    });
     expect(customer).toBeTruthy();
     customerId = customer!._id;
   });

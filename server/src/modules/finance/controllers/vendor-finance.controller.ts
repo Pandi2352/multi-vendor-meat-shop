@@ -1,19 +1,19 @@
 import { Body, Controller, Get, Post, Query } from '@nestjs/common';
 import { ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { SwaggerTag } from '#common/constants';
-import { Role } from '#common/enums';
+import { Role, Permission } from '#common/enums';
 import {
   ApiEnvelope,
   ApiOkEnvelope,
   ApiStandardResponses,
   Auth,
   CurrentShop,
+  Permissions,
 } from '#common/decorators';
 import { FinanceService } from '../services/finance.service.js';
 import { FinanceSummaryResponseDto } from '../dto/finance-summary-response.dto.js';
 import { LedgerEntryResponseDto } from '../dto/ledger-entry-response.dto.js';
 import { SettlementResponseDto } from '../dto/settlement-response.dto.js';
-import { CreateSettlementDto } from '../dto/create-settlement.dto.js';
 
 @ApiTags(SwaggerTag.VENDOR_SETTLEMENTS)
 @Auth(Role.VENDOR_OWNER, Role.VENDOR_STAFF)
@@ -22,6 +22,7 @@ export class VendorFinanceController {
   constructor(private readonly finance: FinanceService) {}
 
   @Get('summary')
+  @Permissions(Permission.SETTLEMENT_READ)
   @ApiOperation({ summary: 'Get financial balance, sales, commission, and pending settlements' })
   @ApiOkEnvelope(FinanceSummaryResponseDto)
   @ApiStandardResponses()
@@ -30,6 +31,7 @@ export class VendorFinanceController {
   }
 
   @Get('ledger')
+  @Permissions(Permission.SETTLEMENT_READ)
   @ApiOperation({ summary: 'Get double-entry running ledger history for vendor shop' })
   @ApiEnvelope(LedgerEntryResponseDto, { isArray: true })
   @ApiQuery({ name: 'limit', required: false, type: Number })
@@ -42,6 +44,7 @@ export class VendorFinanceController {
   }
 
   @Get('settlements')
+  @Permissions(Permission.SETTLEMENT_READ)
   @ApiOperation({ summary: 'Get list of disbursed settlements and bank payout history' })
   @ApiEnvelope(SettlementResponseDto, { isArray: true })
   @ApiQuery({ name: 'limit', required: false, type: Number })
@@ -54,6 +57,7 @@ export class VendorFinanceController {
   }
 
   @Post('settlements/request')
+  @Permissions(Permission.PAYOUT_REQUEST)
   @ApiOperation({ summary: 'Request payout settlement for current pending delivered orders' })
   @ApiOkEnvelope(SettlementResponseDto)
   @ApiStandardResponses()

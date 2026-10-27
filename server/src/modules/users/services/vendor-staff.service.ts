@@ -101,6 +101,12 @@ export class VendorStaffService {
     if (!user || user.shopId !== shopId) {
       throw new NotFoundAppException('Stall Staff Member', staffId);
     }
+    if (user.role === Role.VENDOR_OWNER) {
+      throw new BusinessRuleException(undefined, 'The shop owner’s own details can’t be changed from the staff list');
+    }
+    if (dto.status !== undefined && user.status === UserStatus.PENDING_VERIFICATION) {
+      throw new BusinessRuleException(undefined, 'This person hasn’t accepted their invite yet. Resend or cancel the invite instead.');
+    }
 
     const updated = await this.userRepo.updateByIdOrThrow(staffId, {
       ...(dto.name !== undefined && { name: dto.name }),

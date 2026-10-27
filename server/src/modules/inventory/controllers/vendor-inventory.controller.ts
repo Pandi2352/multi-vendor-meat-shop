@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Post, Query } from '@nestjs/common';
 import { ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { SwaggerTag } from '#common/constants';
-import { Role } from '#common/enums';
+import { Role, Permission } from '#common/enums';
 import {
   ApiEnvelope,
   ApiOkEnvelope,
@@ -11,6 +11,7 @@ import {
   CurrentUser,
   UuidParam,
   RequireApprovedVendor,
+  Permissions,
 } from '#common/decorators';
 import { InventoryService } from '../services/inventory.service.js';
 import { SetOpeningStockDto } from '../dto/set-opening-stock.dto.js';
@@ -42,6 +43,7 @@ export class VendorInventoryController {
   }
 
   @Post('opening')
+  @Permissions(Permission.INVENTORY_MANAGE)
   @ApiOperation({
     summary: "Set or update morning opening stock for a product in today's fresh batch",
   })
@@ -56,6 +58,7 @@ export class VendorInventoryController {
   }
 
   @Post('adjust')
+  @Permissions(Permission.INVENTORY_MANAGE)
   @ApiOperation({ summary: 'Record inventory adjustment (additional restock or cutting wastage)' })
   @ApiOkEnvelope(InventoryBatchResponseDto)
   @ApiStandardResponses()

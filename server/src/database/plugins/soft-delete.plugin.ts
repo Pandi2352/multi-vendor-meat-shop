@@ -33,6 +33,13 @@ export const softDeletePlugin = (schema: Schema): void => {
   schema.pre('aggregate', function () {
     const options = this.options as { withDeleted?: boolean };
     if (options.withDeleted) return;
-    this.pipeline().unshift({ $match: { deletedAt: null } });
+    const pipeline = this.pipeline();
+    const first = pipeline[0] as { $geoNear?: { query?: Record<string, unknown> } } | undefined;
+    // $geoNear must stay the first stage, so the filter goes inside it instead of in front.
+    if (first?.$geoNear) {
+      first.$geoNear.query = { ...first.$geoNear.query, deletedAt: null };
+      return;
+    }
+    pipeline.unshift({ $match: { deletedAt: null } });
   });
 };

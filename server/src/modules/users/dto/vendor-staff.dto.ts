@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsOptional, IsString, IsIn } from 'class-validator';
 import { UserStatus } from '#common/enums';
 
 export class AddVendorStaffDto {
@@ -34,10 +34,10 @@ export class UpdateVendorStaffDto {
   @IsString()
   phone?: string;
 
-  @ApiPropertyOptional({ enum: UserStatus })
+  @ApiPropertyOptional({ enum: [UserStatus.ACTIVE, UserStatus.SUSPENDED], description: 'Suspend or re-activate a staff member' })
   @IsOptional()
-  @IsEnum(UserStatus)
-  status?: UserStatus;
+  @IsIn([UserStatus.ACTIVE, UserStatus.SUSPENDED])
+  status?: UserStatus.ACTIVE | UserStatus.SUSPENDED;
 
   @ApiPropertyOptional({ example: 'Master Cutter / Butcher' })
   @IsOptional()

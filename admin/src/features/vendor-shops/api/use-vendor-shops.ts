@@ -9,10 +9,11 @@ export const useVendorShop = () => {
   });
 };
 
-export const useAllShops = () => {
+export const useAllShops = (enabled = true) => {
   return useQuery({
     queryKey: vendorShopKeys.allShops(),
     queryFn: () => vendorShopsApi.listAllShops(),
+    enabled,
   });
 };
 

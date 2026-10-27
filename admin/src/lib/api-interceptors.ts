@@ -1,6 +1,7 @@
 import type { AxiosError, AxiosInstance, InternalAxiosRequestConfig } from 'axios';
 import axios from 'axios';
 import { env } from '@/config/env';
+import { ROUTES } from '@/config/routes';
 import { ApiError, type BackendErrorResponse } from './api-error';
 import { tokenStorage } from './token-storage';
 
@@ -24,6 +25,13 @@ const processQueue = (error: Error | null): void => {
 };
 
 /** Clear user session and immediately navigate to the login page on authentication failure */
+/** The account was suspended while signed in (any request can report it). */
+const redirectToSuspended = (): void => {
+  if (typeof window !== 'undefined' && window.location.pathname !== ROUTES.SUSPENDED) {
+    window.location.replace(ROUTES.SUSPENDED);
+  }
+};
+
 const redirectToLogin = (reason = 'expired'): void => {
   tokenStorage.clearTokens();
   if (typeof window !== 'undefined') {
@@ -117,6 +125,10 @@ export const setupInterceptors = (client: AxiosInstance): void => {
       // If already retried or unrecoverable 401 on non-auth endpoint, navigate to login
       if (status === 401 && !isAuthEndpoint) {
         redirectToLogin('expired');
+      }
+
+      if (status === 403 && errorBody?.code === 'ACCOUNT_SUSPENDED' && !isAuthEndpoint) {
+        redirectToSuspended();
       }
 
       // Format any other error as standard ApiError

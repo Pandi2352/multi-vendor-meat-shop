@@ -10,6 +10,8 @@ interface ProductCardProps {
   onEdit: (product: VendorProduct) => void;
   onToggleStatus: (product: VendorProduct) => void;
   onArchive: (product: VendorProduct) => void;
+  /** Hides edit, pause and archive (for staff without product.manage). */
+  readOnly?: boolean;
 }
 
 export function ProductCard({
@@ -18,6 +20,7 @@ export function ProductCard({
   onEdit,
   onToggleStatus,
   onArchive,
+  readOnly = false,
 }: ProductCardProps) {
   const cutMeta = CUT_TYPES.find((c) => c.value === product.cutType);
   const isActive = product.status === 'ACTIVE';
@@ -46,9 +49,13 @@ export function ProductCard({
           <div className="flex items-baseline justify-between">
             <span className="text-muted text-[11px]">Price per kg:</span>
             <div className="flex items-baseline gap-1.5">
-              <span className="text-base font-bold text-text">{formatINR(product.pricePerKgPaise)}</span>
+              <span className="text-base font-bold text-text">
+                {formatINR(product.pricePerKgPaise)}
+              </span>
               {product.mrpPerKgPaise && product.mrpPerKgPaise > product.pricePerKgPaise && (
-                <span className="text-xs line-through text-muted">{formatINR(product.mrpPerKgPaise)}</span>
+                <span className="text-xs line-through text-muted">
+                  {formatINR(product.mrpPerKgPaise)}
+                </span>
               )}
               <span className="text-[11px] text-muted">/ kg</span>
             </div>
@@ -66,12 +73,17 @@ export function ProductCard({
             <span className="text-muted">Available sizes:</span>
             <div className="flex flex-wrap gap-1 justify-end">
               {product.allowedWeightsGrams.slice(0, 3).map((w) => (
-                <span key={w} className="px-1.5 py-0.2 rounded-md bg-surface border border-border text-[10px] font-medium text-text">
+                <span
+                  key={w}
+                  className="px-1.5 py-0.2 rounded-md bg-surface border border-border text-[10px] font-medium text-text"
+                >
                   {formatWeight(w)}
                 </span>
               ))}
               {product.allowedWeightsGrams.length > 3 && (
-                <span className="text-[10px] text-muted">+{product.allowedWeightsGrams.length - 3}</span>
+                <span className="text-[10px] text-muted">
+                  +{product.allowedWeightsGrams.length - 3}
+                </span>
               )}
             </div>
           </div>
@@ -88,7 +100,10 @@ export function ProductCard({
               {product.allowedPreparation.map((prep) => {
                 const opt = PREPARATION_OPTIONS.find((p) => p.value === prep);
                 return (
-                  <span key={prep} className="px-1.5 py-0.5 rounded-md bg-primary/5 text-primary border border-primary/20 text-[10px] font-medium">
+                  <span
+                    key={prep}
+                    className="px-1.5 py-0.5 rounded-md bg-primary/5 text-primary border border-primary/20 text-[10px] font-medium"
+                  >
                     {opt?.label || prep}
                   </span>
                 );
@@ -106,44 +121,46 @@ export function ProductCard({
       </div>
 
       {/* Action Buttons */}
-      <div className="pt-2 border-t border-border flex items-center justify-between gap-1.5">
-        {/* Edit Button - Sky Blue */}
-        <button
-          type="button"
-          onClick={() => onEdit(product)}
-          className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-md transition-colors bg-sky-50 text-sky-700 border border-sky-200 hover:bg-sky-100 hover:border-sky-300 dark:bg-sky-950/40 dark:text-sky-300 dark:border-sky-800"
-        >
-          <Pencil className="h-3 w-3 text-sky-600 dark:text-sky-400" />
-          <span>Edit Cut</span>
-        </button>
-
-        <div className="flex items-center gap-1.5">
-          {/* Toggle In-Stock / Out-of-Stock */}
+      {!readOnly && (
+        <div className="pt-2 border-t border-border flex items-center justify-between gap-1.5">
+          {/* Edit Button - Sky Blue */}
           <button
             type="button"
-            onClick={() => onToggleStatus(product)}
-            title={isActive ? 'Mark as Out of Stock' : 'Mark as In Stock'}
-            className={`inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-md transition-colors ${
-              isActive
-                ? 'bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800'
-                : 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800'
-            }`}
+            onClick={() => onEdit(product)}
+            className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-md transition-colors bg-sky-50 text-sky-700 border border-sky-200 hover:bg-sky-100 hover:border-sky-300 dark:bg-sky-950/40 dark:text-sky-300 dark:border-sky-800"
           >
-            <Power className="h-3 w-3" />
-            <span>{isActive ? 'Pause Stock' : 'Activate'}</span>
+            <Pencil className="h-3 w-3 text-sky-600 dark:text-sky-400" />
+            <span>Edit Cut</span>
           </button>
 
-          {/* Archive / Delete */}
-          <button
-            type="button"
-            onClick={() => onArchive(product)}
-            title="Archive this meat cut"
-            className="inline-flex items-center gap-1 p-1 text-xs font-medium rounded-md transition-colors text-muted hover:text-rose-600 hover:bg-rose-50"
-          >
-            <Trash2 className="h-3.5 w-3.5" />
-          </button>
+          <div className="flex items-center gap-1.5">
+            {/* Toggle In-Stock / Out-of-Stock */}
+            <button
+              type="button"
+              onClick={() => onToggleStatus(product)}
+              title={isActive ? 'Mark as Out of Stock' : 'Mark as In Stock'}
+              className={`inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-md transition-colors ${
+                isActive
+                  ? 'bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800'
+                  : 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800'
+              }`}
+            >
+              <Power className="h-3 w-3" />
+              <span>{isActive ? 'Pause Stock' : 'Activate'}</span>
+            </button>
+
+            {/* Archive / Delete */}
+            <button
+              type="button"
+              onClick={() => onArchive(product)}
+              title="Archive this meat cut"
+              className="inline-flex items-center gap-1 p-1 text-xs font-medium rounded-md transition-colors text-muted hover:text-rose-600 hover:bg-rose-50"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+            </button>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

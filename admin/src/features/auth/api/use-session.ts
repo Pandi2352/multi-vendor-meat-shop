@@ -39,6 +39,10 @@ export const useSession = (): Session => {
   // Checked before `hasToken`: on a 401 the interceptor has already cleared the tokens.
   if (query.isError && getStatusCode(query.error) === 401) return { status: 'expired' };
   if (!hasToken) return { status: 'anonymous' };
+  // The server now refuses suspended accounts outright; that beats the user cached at sign-in.
+  if (query.isError && isApiError(query.error) && query.error.code === 'ACCOUNT_SUSPENDED') {
+    return { status: 'error', error: query.error, retry: () => void query.refetch() };
+  }
   if (query.data) return { status: 'authenticated', user: query.data };
   if (query.isError) return { status: 'error', error: query.error, retry: () => void query.refetch() };
   return { status: 'loading' };

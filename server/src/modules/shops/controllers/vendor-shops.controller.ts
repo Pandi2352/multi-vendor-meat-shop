@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Patch, Post } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { SwaggerTag } from '#common/constants';
-import { Role } from '#common/enums';
+import { Permission, Role } from '#common/enums';
 import {
   ApiCreatedEnvelope,
   ApiOkEnvelope,
@@ -9,6 +9,7 @@ import {
   Auth,
   CurrentShop,
   CurrentUser,
+  Permissions,
   RequireApprovedVendor,
 } from '#common/decorators';
 import { ShopsService } from '../services/shops.service.js';
@@ -43,7 +44,7 @@ export class VendorShopsController {
   }
 
   @Patch('me')
-  @Auth(Role.VENDOR_OWNER)
+  @Permissions(Permission.SHOP_MANAGE)
   @ApiOperation({ summary: 'Update shop profile, hours, delivery fee and status' })
   @ApiOkEnvelope(ShopResponseDto)
   @ApiStandardResponses()

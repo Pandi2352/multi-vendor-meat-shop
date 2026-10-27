@@ -1,4 +1,6 @@
 import { Param, ParseUUIDPipe, createParamDecorator, type ExecutionContext } from '@nestjs/common';
+import { isUUID } from 'class-validator';
+import { STAFF_ROLES, type Role } from '#common/enums';
 import { AppException, ErrorCode } from '#common/exceptions';
 import type { AppRequest, AuthUser } from '#common/interfaces';
 
@@ -11,25 +13,29 @@ export const CurrentUser = createParamDecorator(
   },
 );
 
-/** `@CurrentShop()` → the authenticated vendor user's shopId (or explicit shopId from header/query for admin). */
+/**
+ * `@CurrentShop()` → the shop a request acts on. Vendor owners and staff always get the shop on
+ * their account; anything they send is ignored. Only the admin team may name a shop, via the
+ * `x-shop-id` header or `?shopId=`.
+ */
 export const CurrentShop = createParamDecorator((_data: unknown, ctx: ExecutionContext) => {
   const req = ctx.switchToHttp().getRequest<AppRequest>();
-  const { user } = req;
-  if (!user) throw new AppException(ErrorCode.UNAUTHORIZED);
+  const requested = (req.headers['x-shop-id'] as string | undefined) || (req.query?.shopId as string | undefined);
+  return resolveShopId(req.user, requested);
+});
 
-  // 1. Authenticated user has an assigned shopId:
+/** The rule behind `@CurrentShop()`, kept separate so it can be unit-tested. */
+export const resolveShopId = (user: AuthUser | undefined, requestedShopId?: string): string => {
+  if (!user) throw new AppException(ErrorCode.UNAUTHORIZED);
   if (user.shopId) return user.shopId;
 
-  // 2. Caller provided explicit shopId via header 'x-shop-id' or query 'shopId':
-  const explicitShopId =
-    (req.headers['x-shop-id'] as string | undefined) ||
-    (req.query?.shopId as string | undefined);
-  if (explicitShopId) return explicitShopId;
+  if (!(STAFF_ROLES as readonly Role[]).includes(user.role)) {
+    throw new AppException(ErrorCode.FORBIDDEN, { message: 'Your account isn’t linked to a shop.' });
+  }
+  if (requestedShopId && isUUID(requestedShopId)) return requestedShopId;
 
-  throw new AppException(ErrorCode.FORBIDDEN, {
-    message: 'Authenticated user is not linked to a shop. Please select a stall.',
-  });
-});
+  throw new AppException(ErrorCode.FORBIDDEN, { message: 'Choose a shop: send its id in the x-shop-id header.' });
+};
 
 /** Route param that must be a UUID v7: `@UuidParam('productId') productId: string`. */
 export const UuidParam = (name = 'id') =>

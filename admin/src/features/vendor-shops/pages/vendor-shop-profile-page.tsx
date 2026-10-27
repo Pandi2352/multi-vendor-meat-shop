@@ -2,7 +2,9 @@ import { useState } from 'react';
 import { Store, Clock, MapPin, Phone, Truck, Pencil, Users, Beef } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui';
+import { canAccessPath } from '@/config/route-access';
 import { ROUTES } from '@/config/routes';
+import { useCurrentUser, useHasPermission } from '@/features/auth';
 import { formatINR } from '@/utils/format';
 import { useVendorShop, useUpdateVendorShop, type UpdateShopPayload } from '../api';
 import { EditShopModal } from '../components/edit-shop-modal';
@@ -10,6 +12,9 @@ import { ShopSwitcher } from '../components/shop-switcher';
 
 export function VendorShopProfilePage() {
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const role = useCurrentUser()?.role;
+  const canEdit = useHasPermission('shop.manage');
+  const canOpenTeam = !!role && canAccessPath(role, ROUTES.VENDOR_STAFF);
   const { data: shop, isLoading } = useVendorShop();
   const updateMutation = useUpdateVendorShop();
 
@@ -28,8 +33,12 @@ export function VendorShopProfilePage() {
       <div className="p-8 text-center rounded-md border border-border bg-surface space-y-3">
         <Store className="h-10 w-10 text-muted mx-auto" />
         <p className="text-sm font-semibold text-text">No Stall Found</p>
-        <p className="text-xs text-muted">Please switch to an active stall above to view profile details.</p>
-        <div className="pt-2"><ShopSwitcher /></div>
+        <p className="text-xs text-muted">
+          Please switch to an active stall above to view profile details.
+        </p>
+        <div className="pt-2">
+          <ShopSwitcher />
+        </div>
       </div>
     );
   }
@@ -49,10 +58,17 @@ export function VendorShopProfilePage() {
         </div>
         <div className="flex items-center gap-2">
           <ShopSwitcher />
-          <Button variant="outline" size="sm" onClick={() => setIsEditOpen(true)} className="gap-1.5">
-            <Pencil className="h-3.5 w-3.5 text-primary" />
-            <span>Edit Stall</span>
-          </Button>
+          {canEdit && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsEditOpen(true)}
+              className="gap-1.5"
+            >
+              <Pencil className="h-3.5 w-3.5 text-primary" />
+              <span>Edit Stall</span>
+            </Button>
+          )}
         </div>
       </div>
 
@@ -62,15 +78,19 @@ export function VendorShopProfilePage() {
         <div className="p-5 rounded-md border border-border bg-surface space-y-4">
           <div className="flex items-start justify-between">
             <div>
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-primary">Butcher Stall</span>
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-primary">
+                Butcher Stall
+              </span>
               <h2 className="text-lg font-bold text-text mt-0.5">{shop.name}</h2>
               {shop.description && <p className="text-muted text-xs mt-1">{shop.description}</p>}
             </div>
-            <span className={`px-2.5 py-0.5 rounded-md text-xs font-semibold ${
-              shop.status === 'OPEN'
-                ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                : 'bg-amber-50 text-amber-700 border border-amber-200'
-            }`}>
+            <span
+              className={`px-2.5 py-0.5 rounded-md text-xs font-semibold ${
+                shop.status === 'OPEN'
+                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                  : 'bg-amber-50 text-amber-700 border border-amber-200'
+              }`}
+            >
               {shop.status === 'OPEN' ? 'Open for Orders' : shop.status}
             </span>
           </div>
@@ -79,8 +99,14 @@ export function VendorShopProfilePage() {
             <div className="flex items-start gap-2">
               <MapPin className="h-4 w-4 text-primary shrink-0 mt-0.5" />
               <div>
-                <p className="text-text font-medium">{shop.address.line1}{shop.address.line2 ? `, ${shop.address.line2}` : ''}</p>
-                <p>{shop.address.locality}, {shop.address.city}, {shop.address.district} - {shop.address.pincode}</p>
+                <p className="text-text font-medium">
+                  {shop.address.line1}
+                  {shop.address.line2 ? `, ${shop.address.line2}` : ''}
+                </p>
+                <p>
+                  {shop.address.locality}, {shop.address.city}, {shop.address.district} -{' '}
+                  {shop.address.pincode}
+                </p>
               </div>
             </div>
             <div className="flex items-center gap-2 pt-1 border-t border-border">
@@ -99,7 +125,9 @@ export function VendorShopProfilePage() {
                 <Clock className="h-4 w-4 text-emerald-600" />
                 <span className="font-medium text-text">Daily Operating Hours</span>
               </div>
-              <span className="font-bold text-text">{shop.openingTime} - {shop.closingTime}</span>
+              <span className="font-bold text-text">
+                {shop.openingTime} - {shop.closingTime}
+              </span>
             </div>
 
             <div className="p-3 rounded-md bg-surface-muted border border-border flex items-center justify-between">
@@ -130,27 +158,33 @@ export function VendorShopProfilePage() {
             </div>
             <div>
               <h4 className="font-semibold text-text">Daily Meat Cuts Catalogue</h4>
-              <p className="text-muted text-[11px]">Manage per-kg rates, cuts, and butchery prep options</p>
+              <p className="text-muted text-[11px]">
+                Manage per-kg rates, cuts, and butchery prep options
+              </p>
             </div>
           </div>
           <span className="text-primary font-medium">Manage Cuts →</span>
         </Link>
 
-        <Link
-          to={ROUTES.VENDOR_STAFF}
-          className="p-4 rounded-md border border-border bg-surface hover:border-primary/50 transition-colors flex items-center justify-between"
-        >
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-md bg-purple-100 text-purple-700 dark:bg-purple-950/60 dark:text-purple-300">
-              <Users className="h-5 w-5" />
+        {canOpenTeam && (
+          <Link
+            to={ROUTES.VENDOR_STAFF}
+            className="p-4 rounded-md border border-border bg-surface hover:border-primary/50 transition-colors flex items-center justify-between"
+          >
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-md bg-purple-100 text-purple-700 dark:bg-purple-950/60 dark:text-purple-300">
+                <Users className="h-5 w-5" />
+              </div>
+              <div>
+                <h4 className="font-semibold text-text">Stall Staff & Cutter Team</h4>
+                <p className="text-muted text-[11px]">
+                  Authorize cutters, billing staff, and packaging handlers
+                </p>
+              </div>
             </div>
-            <div>
-              <h4 className="font-semibold text-text">Stall Staff & Cutter Team</h4>
-              <p className="text-muted text-[11px]">Authorize cutters, billing staff, and packaging handlers</p>
-            </div>
-          </div>
-          <span className="text-primary font-medium">Manage Team →</span>
-        </Link>
+            <span className="text-primary font-medium">Manage Team →</span>
+          </Link>
+        )}
       </div>
 
       <EditShopModal
