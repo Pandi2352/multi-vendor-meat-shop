@@ -171,6 +171,24 @@ export abstract class BaseRepository<T extends BaseEntity> {
     return this.model.countDocuments(filter, this.queryOptions(options)).exec();
   }
 
+  /** Documents per value of one field, e.g. orders per status. Values with no documents are absent. */
+  async countByField(field: keyof T & string, filter: QueryFilter<T> = {}): Promise<Record<string, number>> {
+    const rows = await this.aggregate<{ _id: unknown; count: number }>([
+      { $match: filter },
+      { $group: { _id: `$${field}`, count: { $sum: 1 } } },
+    ]);
+    return Object.fromEntries(rows.map((row) => [String(row._id), row.count]));
+  }
+
+  /** Sum of a numeric field (dot paths allowed, e.g. `totals.totalPaise`). 0 when nothing matches. */
+  async sumField(path: string, filter: QueryFilter<T> = {}): Promise<number> {
+    const [row] = await this.aggregate<{ total: number }>([
+      { $match: filter },
+      { $group: { _id: null, total: { $sum: `$${path}` } } },
+    ]);
+    return row?.total ?? 0;
+  }
+
   aggregate<R>(pipeline: PipelineStage[], options: RepositoryOptions<T> = {}): Promise<R[]> {
     const aggregation = this.model
       .aggregate<R>(pipeline)

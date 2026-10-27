@@ -17,6 +17,7 @@ import { VendorsModule } from '#modules/vendors';
 import { DeliveryModule } from '#modules/delivery';
 import { FinanceModule } from '#modules/finance';
 import { DisputesModule } from '#modules/disputes';
+import { DashboardsModule } from '#modules/dashboards';
 import { APP_PROVIDERS } from './app.providers.js';
 
 @Module({
@@ -39,6 +40,7 @@ import { APP_PROVIDERS } from './app.providers.js';
     DeliveryModule,
     FinanceModule,
     DisputesModule,
+    DashboardsModule,
   ],
   providers: APP_PROVIDERS,
 })

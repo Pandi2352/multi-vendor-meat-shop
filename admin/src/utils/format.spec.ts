@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { calculateWeightVariance, formatDateIST, formatINR, formatWeight } from './format';
+import { calculateWeightVariance, formatDateIST, formatDayIST, formatINR, formatNumber, formatWeight } from './format';
 
 describe('format utilities', () => {
   it('formats paise into INR currency strings', () => {
@@ -22,5 +22,14 @@ describe('format utilities', () => {
 
   it('handles empty date string gracefully', () => {
     expect(formatDateIST('')).toBe('');
+  });
+
+  it('groups counts the Indian way', () => {
+    expect(formatNumber(125000)).toBe('1,25,000');
+    expect(formatNumber(7)).toBe('7');
+  });
+
+  it('labels an IST calendar day', () => {
+    expect(formatDayIST('2026-10-27')).toBe('Tue, 27 Oct');
   });
 });

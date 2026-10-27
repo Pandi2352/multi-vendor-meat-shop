@@ -15,6 +15,7 @@ export enum SwaggerTag {
   VENDOR_ORDERS = 'Vendor - Orders',
   VENDOR_SETTLEMENTS = 'Vendor - Settlements',
   DELIVERY = 'Delivery',
+  ADMIN_DASHBOARD = 'Admin - Dashboard',
   ADMIN_VENDORS = 'Admin - Vendors',
   ADMIN_CATEGORIES = 'Admin - Categories',
   ADMIN_ORDERS = 'Admin - Orders',

@@ -21,6 +21,7 @@ export const ROUTE_ACCESS: readonly RouteAccessRule[] = [
   { path: ROUTES.DASHBOARD, roles: ADMIN_ROLES, end: true },
 
   // Shop operations — always the signed-in vendor's own shop
+  { path: ROUTES.VENDOR_DASHBOARD, roles: SHOP_TEAM, end: true },
   { path: ROUTES.VENDOR_ORDERS, roles: SHOP_TEAM },
   { path: ROUTES.VENDOR_INVENTORY, roles: SHOP_TEAM },
   { path: ROUTES.VENDOR_PRODUCTS, roles: SHOP_TEAM },

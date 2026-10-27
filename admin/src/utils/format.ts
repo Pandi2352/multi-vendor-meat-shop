@@ -69,3 +69,12 @@ export const formatTimeIST = (isoString: string): string => {
     hour12: true,
   }).format(date);
 };
+
+/** Whole numbers with Indian digit grouping: 125000 → "1,25,000". */
+export const formatNumber = (value: number): string => new Intl.NumberFormat('en-IN').format(value);
+
+/** "27 Oct" style day label for an IST `YYYY-MM-DD` date. */
+export const formatDayIST = (isoDate: string): string =>
+  new Intl.DateTimeFormat('en-IN', { timeZone: 'Asia/Kolkata', weekday: 'short', day: 'numeric', month: 'short' }).format(
+    new Date(`${isoDate}T12:00:00+05:30`),
+  );

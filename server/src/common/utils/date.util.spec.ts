@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
   addMinutes,
   formatIST,
@@ -8,6 +8,8 @@ import {
   minutesToTime,
   startOfDayIST,
   timeToMinutes,
+  todayIST,
+  todayRangeIST,
 } from './date.util.js';
 
 // 2026-10-23 10:00 IST = 04:30 UTC
@@ -16,6 +18,17 @@ const TEN_AM_IST = new Date('2026-10-23T04:30:00Z');
 describe('date.util', () => {
   it('formats in IST', () => {
     expect(formatIST(TEN_AM_IST, 'YYYY-MM-DD HH:mm')).toBe('2026-10-23 10:00');
+  });
+
+  afterEach(() => vi.useRealTimers());
+
+  it('uses the IST calendar day for "today" (01:00 IST is still the previous day in UTC)', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-10-22T19:30:00Z')); // 23 Oct, 01:00 IST
+    expect(todayIST()).toBe('2026-10-23');
+    const range = todayRangeIST();
+    expect(range.$gte.toISOString()).toBe('2026-10-22T18:30:00.000Z');
+    expect(range.$lte.toISOString()).toBe('2026-10-23T18:29:59.999Z');
   });
 
   it('gets the start of the IST day', () => {

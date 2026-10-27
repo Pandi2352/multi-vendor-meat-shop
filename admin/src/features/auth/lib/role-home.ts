@@ -4,13 +4,18 @@ import { isAdminRole, isDeliveryRole, isVendorRole, type UserRole } from '@/cons
 /** Where each role lands after signing in (and when opening `/`). */
 export const getRoleHome = (role: UserRole): string => {
   if (isAdminRole(role)) return ROUTES.DASHBOARD;
-  // Vendors land on the live prep queue until the vendor dashboard (V3) exists.
-  if (isVendorRole(role)) return ROUTES.VENDOR_ORDERS;
+  if (isVendorRole(role)) return ROUTES.VENDOR_DASHBOARD;
   if (isDeliveryRole(role)) return ROUTES.DELIVERY_MY_TASKS;
   return ROUTES.ACCESS_DENIED;
 };
 
-const AUTH_PATHS: readonly string[] = [ROUTES.LOGIN, ROUTES.LOGIN_VERIFY, ROUTES.ACCEPT_INVITE];
+const AUTH_PATHS: readonly string[] = [
+  ROUTES.LOGIN,
+  ROUTES.LOGIN_VERIFY,
+  ROUTES.ACCEPT_INVITE,
+  ROUTES.FORGOT_PASSWORD,
+  ROUTES.RESET_PASSWORD,
+];
 
 /**
  * `next` from the URL, only if it is an in-app path (blocks `//evil.com`, `https://…` and loops

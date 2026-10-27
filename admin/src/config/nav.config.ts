@@ -80,6 +80,14 @@ export const NAV_SECTIONS: NavSection[] = [
     items: [
       {
         type: 'link',
+        label: 'Shop dashboard',
+        to: ROUTES.VENDOR_DASHBOARD,
+        icon: LayoutDashboard,
+        end: true,
+        description: 'Today’s orders, stock alerts and payouts',
+      },
+      {
+        type: 'link',
         label: 'Orders',
         to: ROUTES.VENDOR_ORDERS,
         icon: ClipboardList,

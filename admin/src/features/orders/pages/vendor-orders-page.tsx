@@ -1,17 +1,18 @@
-import { useState } from 'react';
 import { Bell, Flame, CheckCircle2, History } from 'lucide-react';
 import { Spinner, ErrorState, Tabs } from '@/components/ui';
+import { useSearchParamState } from '@/hooks';
 import { useVendorOrders, useUpdateOrderStatus } from '../api/use-vendor-orders';
 import { VendorOrderCard } from '../components/vendor-order-card';
+import { VENDOR_ORDER_TABS, type VendorOrderTab } from '../constants/order-tabs';
 
 interface VendorOrdersPageProps {
   onSelectOrder?: (id: string) => void;
 }
 
-type TabKey = 'ACTIVE' | 'NEW' | 'PREP' | 'READY' | 'COMPLETED';
+type TabKey = VendorOrderTab;
 
 export function VendorOrdersPage({ onSelectOrder }: VendorOrdersPageProps) {
-  const [activeTab, setActiveTab] = useState<TabKey>('ACTIVE');
+  const [activeTab, setActiveTab] = useSearchParamState<TabKey>('tab', VENDOR_ORDER_TABS, 'ACTIVE');
   const { data, isLoading, error, refetch } = useVendorOrders(undefined, { refetchInterval: 10_000 });
   const updateStatus = useUpdateOrderStatus();
 

@@ -4,4 +4,5 @@ export * from './use-escape-key';
 export * from './use-hotkey';
 export * from './use-media-query';
 export * from './use-persisted-state';
+export * from './use-search-param-state';
 export * from './use-zod-form';

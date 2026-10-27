@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { AppException, ErrorCode, NotFoundAppException } from '#common/exceptions';
-import { endOfDayIST, formatIST, nowIST } from '#common/utils';
+import { endOfDayIST, nowIST, todayIST } from '#common/utils';
 import { InventoryMovementType } from '#common/enums';
 import { ProductsService } from '#modules/products';
 import { InventoryBatchRepository } from '../repositories/inventory-batch.repository.js';
@@ -22,10 +22,6 @@ export class InventoryService {
     private readonly products: ProductsService,
   ) {}
 
-  private getTodayIST(): string {
-    return formatIST(nowIST(), 'YYYY-MM-DD');
-  }
-
   async setDailyOpeningStock(
     shopId: string,
     actorId: string,
@@ -33,7 +29,7 @@ export class InventoryService {
   ): Promise<InventoryBatchResponseDto> {
     await this.products.getForVendor(shopId, dto.productId);
 
-    const batchDate = dto.batchDate || this.getTodayIST();
+    const batchDate = dto.batchDate || todayIST();
     const expiresAt = endOfDayIST(nowIST());
 
     const existing = await this.batchRepo.findByShopProductDate(shopId, dto.productId, batchDate);
@@ -79,7 +75,7 @@ export class InventoryService {
     dto: AdjustStockDto,
   ): Promise<InventoryBatchResponseDto> {
     await this.products.getForVendor(shopId, dto.productId);
-    const today = this.getTodayIST();
+    const today = todayIST();
 
     const isReduction = dto.type === InventoryMovementType.WASTAGE;
     const deltaGrams = isReduction ? -Math.abs(dto.grams) : Math.abs(dto.grams);
@@ -120,7 +116,7 @@ export class InventoryService {
     referenceId: string | null,
     actorId: string,
   ): Promise<InventoryBatchResponseDto> {
-    const today = this.getTodayIST();
+    const today = todayIST();
     const updated = await this.batchRepo.atomicReserve(shopId, productId, today, grams);
 
     if (!updated) {
@@ -152,7 +148,7 @@ export class InventoryService {
     referenceId: string | null,
     actorId: string,
   ): Promise<InventoryBatchResponseDto> {
-    const today = this.getTodayIST();
+    const today = todayIST();
     const updated = await this.batchRepo.atomicRelease(shopId, productId, today, grams);
 
     if (updated) {
@@ -182,7 +178,7 @@ export class InventoryService {
     referenceId: string,
     actorId: string,
   ): Promise<InventoryBatchResponseDto> {
-    const today = this.getTodayIST();
+    const today = todayIST();
     const updated = await this.batchRepo.atomicCommit(shopId, productId, today, grams);
 
     if (!updated) {
@@ -207,7 +203,7 @@ export class InventoryService {
   }
 
   async getTodayStock(shopId: string, productId: string): Promise<InventoryBatchResponseDto> {
-    const today = this.getTodayIST();
+    const today = todayIST();
     const batch = await this.batchRepo.findByShopProductDate(shopId, productId, today);
 
     if (!batch) {
@@ -230,7 +226,7 @@ export class InventoryService {
   }
 
   async listShopStock(shopId: string): Promise<InventoryBatchResponseDto[]> {
-    const today = this.getTodayIST();
+    const today = todayIST();
     const batches = await this.batchRepo.findBatchesForDate(shopId, today);
     return batches.map((b) => toInventoryBatchResponseDto(b));
   }

@@ -32,6 +32,12 @@ export const startOfDayIST = (date: DateInput = new Date()): Date =>
 export const endOfDayIST = (date: DateInput = new Date()): Date =>
   toIST(date).endOf('day').toDate();
 
+/** Today's date in IST as `YYYY-MM-DD` (inventory batch dates, dashboard day). */
+export const todayIST = (): string => toIST().format('YYYY-MM-DD');
+
+/** Mongo range for "today in IST", e.g. `{ createdAt: todayRangeIST() }`. */
+export const todayRangeIST = (): { $gte: Date; $lte: Date } => ({ $gte: startOfDayIST(), $lte: endOfDayIST() });
+
 export const formatIST = (date: DateInput, format = 'DD MMM YYYY, hh:mm A'): string =>
   toIST(date).format(format);
 

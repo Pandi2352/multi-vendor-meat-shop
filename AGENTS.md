@@ -57,6 +57,7 @@ Key docs:
 
 ### 5. Frontend rules
 - No `import.meta.env` outside `src/config/env.ts`.
+- Admin app: a link or button to another page is shown only when `canAccessPath(role, path)` allows it (`config/route-access.ts`). Never show a button that leads to a 403.
 - All HTTP through `lib/api-client`. All server state through TanStack Query hooks in `features/<name>/api/`. Query keys from the feature's `keys.ts` factory.
 - Forms: React Hook Form + Zod, built from `components/form` field components. Schemas reuse `utils/validation` primitives (phone, pincode, price, weight).
 - Display formatting only via `utils/format` (`formatINR`, `formatWeight`, `formatDateIST`). Never inline `toFixed` / `toLocaleString` in a component.

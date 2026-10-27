@@ -17,6 +17,13 @@ describe('route access', () => {
     expect(can('VENDOR_OWNER', '/')).toBe(false);
   });
 
+  it('gives the shop dashboard to the shop team only', () => {
+    expect(can('VENDOR_OWNER', ROUTES.VENDOR_DASHBOARD)).toBe(true);
+    expect(can('VENDOR_STAFF', ROUTES.VENDOR_DASHBOARD)).toBe(true);
+    expect(can('SUPER_ADMIN', ROUTES.VENDOR_DASHBOARD)).toBe(false);
+    expect(can('OPERATIONS', ROUTES.VENDOR_DASHBOARD)).toBe(false);
+  });
+
   it('gives owners the whole shop, staff the day-to-day pages', () => {
     for (const path of [ROUTES.VENDOR_ORDERS, ROUTES.VENDOR_INVENTORY, ROUTES.VENDOR_PRODUCTS, ROUTES.VENDOR_SHOPS]) {
       expect(can('VENDOR_OWNER', path)).toBe(true);

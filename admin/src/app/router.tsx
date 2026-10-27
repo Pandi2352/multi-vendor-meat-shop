@@ -13,6 +13,7 @@ import {
 } from '@/features/auth';
 import { flattenNav } from '@/config/nav.utils';
 import { ROUTES } from '@/config/routes';
+import { AdminDashboardPage, VendorDashboardPage } from '@/features/dashboard';
 import { DeliveryTasksPage } from '@/features/delivery';
 import { AdminDisputesPage } from '@/features/disputes';
 import { AdminFinancePage, VendorSettlementsPage } from '@/features/finance';
@@ -23,7 +24,7 @@ import { VendorProductsPage } from '@/features/products';
 import { VendorStaffPage } from '@/features/vendor-staff';
 import { VendorShopProfilePage } from '@/features/vendor-shops';
 import { ComingSoonPage } from '@/pages/coming-soon-page';
-import { DashboardRoute, VendorOrderDetailRoute, VendorOrdersRoute } from './route-elements';
+import { VendorOrderDetailRoute, VendorOrdersRoute } from './route-elements';
 
 function RouterErrorElement() {
   return <RouteErrorPage error={useRouteError()} />;
@@ -81,7 +82,8 @@ export const router = createBrowserRouter([
     ),
     errorElement: <RouterErrorElement />,
     children: [
-      { index: true, element: <DashboardRoute /> },
+      { index: true, element: <AdminDashboardPage /> },
+      { path: ROUTES.VENDOR_DASHBOARD, element: <VendorDashboardPage /> },
       { path: ROUTES.VENDOR_ORDERS, element: <VendorOrdersRoute /> },
       { path: ROUTES.VENDOR_ORDER_DETAIL, element: <VendorOrderDetailRoute /> },
       { path: ROUTES.VENDOR_SHOPS, element: <VendorShopProfilePage /> },

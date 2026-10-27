@@ -8,6 +8,7 @@ export const ROUTES = {
   SUSPENDED: '/suspended',
   DASHBOARD: '/',
   // Vendor portal
+  VENDOR_DASHBOARD: '/vendor',
   VENDOR_SHOPS: '/vendor/shops',
   VENDOR_PRODUCTS: '/vendor/products',
   VENDOR_STAFF: '/vendor/staff',

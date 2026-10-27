@@ -59,7 +59,7 @@ Server facts: NestJS 12 is **ESM-only** → relative imports end in `.js`, cross
 - [x] `create-schema.ts` — `createSchema(Class, { softDelete })`, use instead of `SchemaFactory.createForClass`
 - [x] `plugins/soft-delete.plugin.ts` — `deletedAt`/`deletedBy`, hidden from queries + aggregations unless `withDeleted` 🧪 (e2e)
 - [ ] `plugins/audit-fields.plugin.ts` — `createdBy`, `updatedBy` (add with auth context)
-- [x] `base.repository.ts` — `findById`, `findByIdOrThrow`, `findOne`, `findMany`, `paginate`, `create`, `createMany`, `updateById`, `updateByIdOrThrow`, `updateOne`, `softDelete`, `restore`, `exists`, `count`, `aggregate`; optional `session` + `withDeleted` everywhere 🧪 (e2e)
+- [x] `base.repository.ts` — `findById`, `findByIdOrThrow`, `findOne`, `findMany`, `paginate`, `create`, `createMany`, `updateById`, `updateByIdOrThrow`, `updateOne`, `softDelete`, `restore`, `exists`, `count`, `countByField` (docs per value, e.g. orders per status), `sumField` (dot paths, e.g. `totals.totalPaise`), `aggregate`; optional `session` + `withDeleted` everywhere 🧪 (e2e)
 - [x] `transaction.helper.ts` — `runInTransaction(connection, fn)`; clear TRANSACTION_NOT_SUPPORTED error on standalone MongoDB
 - [x] `query/query-builders.ts` — `buildFilter` (whitelist, arrays → `$in`), `buildSort` (whitelist), `buildSearchFilter`, `escapeRegex` 🧪
 - [ ] `query/projection.util.ts` — reusable `select` presets (public vs owner vs admin)
@@ -144,7 +144,7 @@ Server facts: NestJS 12 is **ESM-only** → relative imports end in `.js`, cross
 ### A13. Utilities (`src/common/utils/`) — pure functions, all 🧪
 - [x] **money**: `toPaise`, `fromPaise`, `isPaise`, `sumPaise`, `applyBasisPoints`, `percentToBasisPoints`, `splitProportionally` (no lost paise), `formatINR`
 - [x] **quantity**: `kgToGrams`, `gramsToKg`, `isGrams`, `priceForGrams`, `formatWeight`, `isWithinVariance`, `isValidStep`
-- [x] **date (IST)**: `toIST`, `nowIST`, `startOfDayIST`, `endOfDayIST`, `formatIST`, `addMinutes`, `isExpired`, `timeToMinutes`, `minutesToTime`, `isWithinHours` (handles past-midnight), `generateSlots`
+- [x] **date (IST)**: `toIST`, `nowIST`, `startOfDayIST`, `endOfDayIST`, `formatIST`, `todayIST` (`YYYY-MM-DD`), `todayRangeIST` (Mongo `$gte/$lte` for the IST day), `addMinutes`, `isExpired`, `timeToMinutes`, `minutesToTime`, `isWithinHours` (handles past-midnight), `generateSlots`
 - [x] **string**: `slugify`, `normalizePhone`, `isIndianMobile`, `maskPhone`, `maskEmail`, `titleCase`, `truncate`, `randomCode`
 - [x] **crypto**: `sha256`, `hmacSha256`, `safeCompare`, `generateOtp`, `randomToken`
 - [x] **password**: `hashPassword`, `verifyPassword` (`node:crypto` `scryptSync`, timing-safe compare) 🧪
@@ -298,7 +298,7 @@ modules/<feature>/
 - [x] `Pagination` (+ page size select, smart ellipsis, quick jump, responsive summary)
 - [ ] `InfiniteList` (intersection observer)
 - [ ] `FilterBar` — config-driven filters synced to URL
-- [ ] `StatCard` / `KpiTile`, `KpiRow`
+- [x] admin `StatCard` (ui: label, value, hint, icon tone, optional `to` link, `attention` tint) + `Panel` (ui: titled section with header action, `flush` for lists)
 - [ ] `Chart` wrapper (Recharts) — `LineChart`, `BarChart`, `DonutChart` with theme colors
 - [ ] `DescriptionList` (key/value detail view)
 - [ ] `ExportButton` (CSV)
@@ -329,6 +329,8 @@ modules/<feature>/
 - [x] server `@IsAccountPassword()` validator + `LIMITS.PASSWORD_MIN_LENGTH/MAX_LENGTH` (8–128) — every new portal password (invite, reset). `AuthService.issueSession(user, ctx)` is public for flows that end signed in
 - [x] admin `PasswordInput` (ui: lock icon + show/hide toggle), `zNewPassword` + `PASSWORD_MIN_LENGTH` (utils/validation, mirrors the server), `useCountdown` (hooks: resend timers)
 - [x] admin auth: `NewPasswordFields` + `newPasswordSchema` / `newPasswordShape` (accept-invite and reset), `ForgotPasswordPage`, `ResetPasswordPage`, `ResetLinkUnavailable`, `getResetLinkProblem`
+- [x] server dashboards module: `GET /vendor/dashboard` (owner + staff; `payouts` owner only) and `GET /admin/dashboard` (all admin roles; `money` for ADMIN/FINANCE only). Read-only, built on existing repositories; `buildStockSummary` + `toOrderPreviewDto` mappers. Order status groups `IN_PROGRESS_ORDER_STATUSES`, `UNFULFILLED_ORDER_STATUSES`, `NON_SALE_ORDER_STATUSES` (orders constants)
+- [x] admin `features/dashboard` — `VendorDashboardPage` (`/vendor`, vendor home) and `AdminDashboardPage` (`/`); `DashboardHeader`, `SummaryList`; admin cards and shortcuts link only where `canAccessPath` allows. Orders tabs: `VENDOR_ORDER_TABS`, `vendorOrdersTabPath(tab)`. Format: `formatNumber`, `formatDayIST`
 - [x] admin `InvitationResult` (users) + `VendorInvitedPanel` (vendors) — show emailed / not-emailed with the one-time copy link; `InvitationUnavailable` for used/expired/revoked/invalid links
 - [x] admin `config/route-access.ts` — `ROUTE_ACCESS` (who may open each page, mirrors server `@Auth`), `canAccessPath`, `roleAllowed` (super admin ⊇ ADMIN). Single source for `RouteAccessGuard` (403 inside the layout), `filterNavForRole` (sidebar/search/breadcrumb via `useVisibleNav`) and quick actions. New page → add a rule here, nothing else
 - [x] admin `constants/roles.ts` — role groups (admin / vendor / delivery / portal) + `ROLE_LABELS`, typed from the generated API
@@ -353,6 +355,8 @@ modules/<feature>/
 - [ ] `useMediaQuery`, `useBreakpoint`
 - [ ] `useLocalStorage`
 - [ ] `useUrlState` / `useQueryParams` — filters, page, sort synced to URL 🧪
+- [x] admin `useSearchParamState(key, allowed, fallback)` — one allowed value in the URL (orders page tab)
+- [x] admin `useCountdown` — resend timers
 - [ ] `usePagination`
 - [ ] `useConfirm` (promise-based confirm dialog)
 - [ ] `useCopyToClipboard`

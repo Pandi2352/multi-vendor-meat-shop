@@ -39,3 +39,18 @@ export const CANCELLABLE_STATUSES: readonly OrderStatus[] = [
   OrderStatus.PENDING_PAYMENT,
   OrderStatus.PLACED,
 ];
+
+/** Orders the shop still has to act on (accept, cut, hand over, deliver). */
+export const IN_PROGRESS_ORDER_STATUSES: readonly OrderStatus[] = [
+  OrderStatus.PLACED,
+  OrderStatus.ACCEPTED,
+  OrderStatus.PREPARING,
+  OrderStatus.READY,
+  OrderStatus.OUT_FOR_DELIVERY,
+];
+
+/** Orders that ended without being fulfilled. */
+export const UNFULFILLED_ORDER_STATUSES: readonly OrderStatus[] = [OrderStatus.CANCELLED, OrderStatus.REJECTED];
+
+/** Not counted as sales: never paid, or ended without being fulfilled. */
+export const NON_SALE_ORDER_STATUSES: readonly OrderStatus[] = [OrderStatus.PENDING_PAYMENT, ...UNFULFILLED_ORDER_STATUSES];
