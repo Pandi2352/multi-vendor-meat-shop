@@ -16,12 +16,17 @@ import { DeliveryTaskResponseDto } from '../dto/delivery-task-response.dto.js';
 import { QueryDeliveryTasksDto } from '../dto/query-delivery-tasks.dto.js';
 import { VerifyDeliveryOtpDto } from '../dto/verify-delivery-otp.dto.js';
 import { ResendDeliveryOtpResponseDto } from '../dto/resend-delivery-otp-response.dto.js';
+import { DeliveryEarningsResponseDto } from '../dto/delivery-earnings-response.dto.js';
+import { DeliveryEarningsService } from '../services/delivery-earnings.service.js';
 
 @ApiTags(SwaggerTag.DELIVERY)
 @Auth(Role.DELIVERY_PARTNER, Role.CUSTOMER, Role.ADMIN)
 @Controller('delivery/tasks')
 export class DeliveryTasksController {
-  constructor(private readonly delivery: DeliveryTasksService) {}
+  constructor(
+    private readonly delivery: DeliveryTasksService,
+    private readonly earnings: DeliveryEarningsService,
+  ) {}
 
   @Get('order/:orderId')
   @Auth(Role.CUSTOMER, Role.ADMIN)
@@ -57,6 +62,17 @@ export class DeliveryTasksController {
     @Query() query: QueryDeliveryTasksDto,
   ): Promise<PaginatedResult<DeliveryTaskResponseDto>> {
     return this.delivery.getTasks({ ...query, partnerId });
+  }
+
+  @Get('earnings')
+  @Auth(Role.DELIVERY_PARTNER)
+  @ApiOperation({ summary: 'Get completed trip earnings and cash in hand for authenticated delivery partner' })
+  @ApiOkEnvelope(DeliveryEarningsResponseDto)
+  @ApiStandardResponses()
+  getEarnings(
+    @CurrentUser('id') partnerId: string,
+  ): Promise<DeliveryEarningsResponseDto> {
+    return this.earnings.getPartnerEarnings(partnerId);
   }
 
   @Get(':id')

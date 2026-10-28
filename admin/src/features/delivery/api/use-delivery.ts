@@ -16,6 +16,22 @@ export const useDeliveryTasks = (params?: DeliveryTaskListParams, options?: { re
   });
 };
 
+export const useMyDeliveryTasks = (params?: DeliveryTaskListParams, options?: { refetchInterval?: number }) => {
+  return useQuery({
+    queryKey: deliveryKeys.myTasks(params),
+    queryFn: () => deliveryApi.getMyTasks(params),
+    refetchInterval: options?.refetchInterval ?? 5_000,
+  });
+};
+
+export const useDeliveryEarnings = (options?: { refetchInterval?: number }) => {
+  return useQuery({
+    queryKey: deliveryKeys.earnings(),
+    queryFn: () => deliveryApi.getEarnings(),
+    refetchInterval: options?.refetchInterval ?? 15_000,
+  });
+};
+
 export const useDeliveryTask = (id: string) => {
   return useQuery({
     queryKey: deliveryKeys.detail(id),

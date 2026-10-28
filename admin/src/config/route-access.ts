@@ -31,8 +31,8 @@ export const ROUTE_ACCESS: readonly RouteAccessRule[] = [
 
   // Delivery
   { path: ROUTES.DELIVERY_TASKS, roles: ['ADMIN', 'OPERATIONS'] },
-  { path: ROUTES.DELIVERY_MY_TASKS, roles: ['DELIVERY_PARTNER'] },
-  { path: ROUTES.DELIVERY_EARNINGS, roles: ['DELIVERY_PARTNER'] },
+  { path: ROUTES.DELIVERY_MY_TASKS, roles: ['DELIVERY_PARTNER', 'ADMIN'] },
+  { path: ROUTES.DELIVERY_EARNINGS, roles: ['DELIVERY_PARTNER', 'ADMIN'] },
 
   // Administration
   { path: ROUTES.ADMIN_VENDORS, roles: ['ADMIN', 'OPERATIONS'] },

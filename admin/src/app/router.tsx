@@ -14,7 +14,7 @@ import {
 import { flattenNav } from '@/config/nav.utils';
 import { ROUTES } from '@/config/routes';
 import { AdminDashboardPage, VendorDashboardPage } from '@/features/dashboard';
-import { DeliveryTasksPage } from '@/features/delivery';
+import { DeliveryTasksPage, MyDeliveriesPage, DeliveryEarningsPage } from '@/features/delivery';
 import { AdminDisputesPage } from '@/features/disputes';
 import { AdminFinancePage, VendorSettlementsPage } from '@/features/finance';
 import { VendorInventoryPage } from '@/features/inventory';
@@ -92,6 +92,8 @@ export const router = createBrowserRouter([
       { path: ROUTES.VENDOR_INVENTORY, element: <VendorInventoryPage /> },
       { path: ROUTES.VENDOR_SETTLEMENTS, element: <VendorSettlementsPage /> },
       { path: ROUTES.DELIVERY_TASKS, element: <DeliveryTasksPage /> },
+      { path: ROUTES.DELIVERY_MY_TASKS, element: <MyDeliveriesPage /> },
+      { path: ROUTES.DELIVERY_EARNINGS, element: <DeliveryEarningsPage /> },
       { path: ROUTES.ADMIN_VENDORS, element: <AdminVendorsPage /> },
       { path: ROUTES.ADMIN_USERS, element: <AdminUsersPage /> },
       { path: ROUTES.ADMIN_FINANCE, element: <AdminFinancePage /> },

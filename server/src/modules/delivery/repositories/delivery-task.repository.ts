@@ -45,4 +45,8 @@ export class DeliveryTaskRepository extends BaseRepository<DeliveryTask> {
       defaultSort: '-createdAt',
     });
   }
+
+  async findPartnerDeliveredTasks(partnerId: string): Promise<DeliveryTask[]> {
+    return this.find({ partnerId, status: DeliveryStatus.DELIVERED }, { sort: { deliveredAt: -1, createdAt: -1 } });
+  }
 }

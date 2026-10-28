@@ -290,6 +290,7 @@ export async function runVirudhunagarSeed(): Promise<void> {
     console.log(`  + Created demo customer address: Virudhunagar Town (${DEMO_USERS.customer.address.pincode})`);
   }
 
+  const defaultAdminPassword = hashPassword('Admin@12345');
   const deliveryEmail = DEMO_USERS.deliveryPartner.email.toLowerCase();
   let deliveryUser = await UserModel.findOne({ email: deliveryEmail });
   if (!deliveryUser) {
@@ -298,16 +299,19 @@ export async function runVirudhunagarSeed(): Promise<void> {
       email: deliveryEmail,
       name: DEMO_USERS.deliveryPartner.name,
       phone: DEMO_USERS.deliveryPartner.phone,
+      passwordHash: defaultAdminPassword,
       role: Role.DELIVERY_PARTNER,
       status: UserStatus.ACTIVE,
       shopId: null,
     });
     console.log(`  + Created delivery partner: ${deliveryUser.name} <${deliveryEmail}>`);
+  } else if (!deliveryUser.passwordHash) {
+    deliveryUser.passwordHash = defaultAdminPassword;
+    await deliveryUser.save();
   }
 
   // Super Admin
   const superAdminEmail = (process.env.SUPER_ADMIN_EMAIL || 'admin@virudhunagar-meats.in').toLowerCase();
-  const defaultAdminPassword = hashPassword('Admin@12345');
   let superAdmin = await UserModel.findOne({ email: superAdminEmail });
   if (!superAdmin) {
     superAdmin = await UserModel.create({

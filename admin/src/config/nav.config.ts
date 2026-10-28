@@ -138,9 +138,8 @@ export const NAV_SECTIONS: NavSection[] = [
         to: ROUTES.DELIVERY_MY_TASKS,
         icon: Bike,
         description: 'Pickups and drop-offs assigned to you',
-        soon: true,
       },
-      { type: 'link', label: 'Earnings', to: ROUTES.DELIVERY_EARNINGS, icon: Wallet, soon: true },
+      { type: 'link', label: 'Earnings', to: ROUTES.DELIVERY_EARNINGS, icon: Wallet },
     ],
   },
   {

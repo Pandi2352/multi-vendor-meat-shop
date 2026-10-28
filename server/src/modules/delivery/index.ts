@@ -4,6 +4,7 @@ export * from './dto/delivery-task-response.dto.js';
 export * from './dto/assign-delivery-task.dto.js';
 export * from './dto/verify-delivery-otp.dto.js';
 export * from './dto/resend-delivery-otp-response.dto.js';
+export * from './dto/delivery-earnings-response.dto.js';
 export * from './dto/query-delivery-tasks.dto.js';
 export * from './mappers/delivery-task.mapper.js';
 export * from './services/delivery-tasks.service.js';

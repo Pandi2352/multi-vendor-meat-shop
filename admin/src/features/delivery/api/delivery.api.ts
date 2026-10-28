@@ -14,12 +14,28 @@ export interface DeliveryTaskListParams {
   date?: string;
 }
 
+export interface DeliveryEarningsResponse {
+  completedTripsCount: number;
+  totalEarningsPaise: number;
+  cashInHandPaise: number;
+  todayTripsCount: number;
+  todayEarningsPaise: number;
+  todayCashInHandPaise: number;
+  recentTrips: DeliveryTaskResponse[];
+}
+
 export const deliveryApi = {
   listTasks: (params?: DeliveryTaskListParams): Promise<PaginatedResponse<DeliveryTaskResponse>> =>
     http.getPaginated<DeliveryTaskResponse>('/admin/delivery/tasks', params as Record<string, unknown>),
 
+  getMyTasks: (params?: DeliveryTaskListParams): Promise<PaginatedResponse<DeliveryTaskResponse>> =>
+    http.getPaginated<DeliveryTaskResponse>('/delivery/tasks', params as Record<string, unknown>),
+
   getTask: (id: string): Promise<DeliveryTaskResponse> =>
     http.get<DeliveryTaskResponse>(`/admin/delivery/tasks/${encodeURIComponent(id)}`),
+
+  getEarnings: (): Promise<DeliveryEarningsResponse> =>
+    http.get<DeliveryEarningsResponse>('/delivery/tasks/earnings'),
 
   dispatchOrder: (orderId: string): Promise<DeliveryTaskResponse> =>
     http.post<DeliveryTaskResponse>(`/admin/delivery/orders/${encodeURIComponent(orderId)}/dispatch`),

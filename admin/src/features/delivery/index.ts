@@ -5,4 +5,7 @@ export * from './components/delivery-status-badge';
 export * from './components/assign-partner-modal';
 export * from './components/verify-delivery-otp-modal';
 export * from './components/delivery-task-card';
+export * from './components/rider-task-card';
 export * from './pages/delivery-tasks-page';
+export * from './pages/my-deliveries-page';
+export * from './pages/delivery-earnings-page';

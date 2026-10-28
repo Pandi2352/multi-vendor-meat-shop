@@ -384,6 +384,7 @@ modules/<feature>/
 - [x] Vendor Stall Staff Management (`/vendor/staff`): Stall cutters, billing staff, dispatch handlers, invite links, active/suspended toggle, shop isolation
 - [x] Vendor Shop Profile Operations (`/vendor/shops`): Operating schedule, delivery radius, base delivery fee, butchery schedule, stall switcher for Admin multi-tenant management
 - [x] Customer Order Tracking & Handover OTP (`public/`): Live pickup status, courier partner contact card with direct call button (`tel:`), 4-digit delivery handover OTP, and resilient Gmail SMTP OTP delivery with resend capabilities (`POST /api/v1/delivery/tasks/order/:orderId/resend-otp`)
+- [x] Delivery Partner App (`/delivery/my-tasks` & `/delivery/earnings`): Mobile-optimized courier card with Google Maps stall navigation, one-tap counter pickup (`PATCH /api/v1/delivery/tasks/:id/pickup`), 4-digit customer OTP drop-off & COD collection verification (`POST /api/v1/delivery/tasks/:id/deliver`), and live earnings & cash-in-hand accounting (`GET /api/v1/delivery/tasks/earnings`) 🧪
 - [ ] Shared `useAppMutation` — success toast, error toast, invalidate keys, optimistic update option
 - [ ] Shared `usePaginatedQuery` — page/limit/sort from URL state
 

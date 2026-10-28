@@ -4,4 +4,6 @@ export const deliveryKeys = {
   list: (params?: { page?: number; limit?: number; status?: string; partnerId?: string; shopId?: string; date?: string }) =>
     [...deliveryKeys.lists(), params] as const,
   detail: (id: string) => [...deliveryKeys.all, 'detail', id] as const,
+  myTasks: (params?: unknown) => [...deliveryKeys.all, 'my-tasks', params] as const,
+  earnings: () => [...deliveryKeys.all, 'earnings'] as const,
 };

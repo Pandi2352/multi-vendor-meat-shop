@@ -8,6 +8,7 @@ import { DeliveryTask, DeliveryTaskSchema } from './schemas/delivery-task.schema
 import { DeliveryTaskRepository } from './repositories/delivery-task.repository.js';
 import { DeliveryTasksService } from './services/delivery-tasks.service.js';
 import { DeliveryNotificationService } from './services/delivery-notification.service.js';
+import { DeliveryEarningsService } from './services/delivery-earnings.service.js';
 import { DeliveryTasksController } from './controllers/delivery-tasks.controller.js';
 import { AdminDeliveryController } from './controllers/admin-delivery.controller.js';
 
@@ -22,7 +23,17 @@ import { AdminDeliveryController } from './controllers/admin-delivery.controller
     UsersModule,
   ],
   controllers: [DeliveryTasksController, AdminDeliveryController],
-  providers: [DeliveryTaskRepository, DeliveryTasksService, DeliveryNotificationService],
-  exports: [DeliveryTasksService, DeliveryTaskRepository, DeliveryNotificationService],
+  providers: [
+    DeliveryTaskRepository,
+    DeliveryTasksService,
+    DeliveryNotificationService,
+    DeliveryEarningsService,
+  ],
+  exports: [
+    DeliveryTasksService,
+    DeliveryTaskRepository,
+    DeliveryNotificationService,
+    DeliveryEarningsService,
+  ],
 })
 export class DeliveryModule {}
