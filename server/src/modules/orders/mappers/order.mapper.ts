@@ -76,6 +76,7 @@ export const toOrderResponseDto = (
     : undefined,
   cancelReason: order.cancelReason,
   rejectReason: order.rejectReason,
+  couponCode: order.couponCode,
   timeline: events ? events.map(toOrderEventResponseDto) : undefined,
   createdAt: order.createdAt.toISOString(),
   updatedAt: order.updatedAt.toISOString(),

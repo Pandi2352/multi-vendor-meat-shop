@@ -5,6 +5,7 @@ import { ShopStatus } from '#common/enums';
 import { ProductsService } from '#modules/products';
 import { ShopsService } from '#modules/shops';
 import { InventoryService } from '#modules/inventory';
+import { CouponsService } from '#modules/coupons';
 import { CartRepository } from '../repositories/cart.repository.js';
 import type { Cart, CartItem } from '../schemas/cart.schema.js';
 import { AddCartItemDto } from '../dto/add-cart-item.dto.js';
@@ -22,6 +23,7 @@ export class CartService {
     private readonly products: ProductsService,
     private readonly shops: ShopsService,
     private readonly inventory: InventoryService,
+    private readonly coupons: CouponsService,
   ) {}
 
   private async getOrCreateCart(customerId: string): Promise<Cart> {
@@ -49,15 +51,9 @@ export class CartService {
       });
     }
 
-    if (dto.grams < product.minGrams || dto.grams > product.maxGrams) {
+    if (dto.grams < product.minGrams || dto.grams > product.maxGrams || dto.grams % product.stepGrams !== 0) {
       throw new AppException(ErrorCode.BAD_REQUEST, {
-        message: `Order weight must be between ${product.minGrams} g and ${product.maxGrams} g`,
-      });
-    }
-
-    if (dto.grams % product.stepGrams !== 0) {
-      throw new AppException(ErrorCode.BAD_REQUEST, {
-        message: `Order weight must be in increments of ${product.stepGrams} g`,
+        message: `Order weight must be between ${product.minGrams}g and ${product.maxGrams}g in steps of ${product.stepGrams}g`,
       });
     }
 
@@ -66,15 +62,14 @@ export class CartService {
 
     // Single-shop cart enforcement
     if (cart.shopId && cart.shopId !== dto.shopId && cart.items.length > 0) {
-      if (dto.clearPreviousShop) {
-        cart.items = [];
-        cart.shopId = dto.shopId;
-      } else {
+      if (!dto.clearPreviousShop) {
         throw new AppException(ErrorCode.CART_SHOP_MISMATCH, {
           message: 'Your cart contains meat from another shop. Clear your cart to switch shops.',
           details: { currentShopId: cart.shopId, newShopId: dto.shopId },
         });
       }
+      cart.items = [];
+      cart.shopId = dto.shopId;
     }
 
     const quantity = dto.quantity ?? 1;
@@ -93,11 +88,7 @@ export class CartService {
 
     // Check if item with same product, weight, and cuts exists
     const existingIndex = cart.items.findIndex(
-      (item) =>
-        item.productId === dto.productId &&
-        item.grams === dto.grams &&
-        item.cutType === dto.cutType &&
-        item.preparation === dto.preparation,
+      (item) => item.productId === dto.productId && item.grams === dto.grams && item.cutType === dto.cutType && item.preparation === dto.preparation,
     );
 
     const newItem: CartItem = {
@@ -196,13 +187,19 @@ export class CartService {
       }
     }
 
-    const isFreeDelivery =
-      shop.freeDeliveryAbovePaise !== undefined &&
-      subtotalPaise >= shop.freeDeliveryAbovePaise;
+    const isFreeDelivery = shop.freeDeliveryAbovePaise !== undefined && subtotalPaise >= shop.freeDeliveryAbovePaise;
     const deliveryFeePaise = isFreeDelivery ? 0 : shop.deliveryFeePaise;
     const packagingFeePaise = PACKAGING_FEE_PAISE;
-    const discountPaise = 0;
-    const totalPaise = subtotalPaise + deliveryFeePaise + packagingFeePaise - discountPaise;
+    let discountPaise = 0;
+    let appliedCouponCode: string | undefined;
+
+    if (query.couponCode) {
+      const res = await this.coupons.validateAndCalculateDiscount(query.couponCode, subtotalPaise, customerId, shop.id);
+      discountPaise = res.discountPaise;
+      appliedCouponCode = res.coupon.code;
+    }
+
+    const totalPaise = Math.max(0, subtotalPaise + deliveryFeePaise + packagingFeePaise - discountPaise);
 
     return {
       shopId: shop.id,
@@ -214,6 +211,7 @@ export class CartService {
       deliveryFeePaise,
       packagingFeePaise,
       discountPaise,
+      couponCode: appliedCouponCode,
       totalPaise,
       minOrderPaise: shop.minOrderPaise,
       minOrderMet,
@@ -226,8 +224,7 @@ export class CartService {
     let shopName = knownShopName;
     if (!shopName && cart.shopId) {
       try {
-        const shop = await this.shops.getShopById(cart.shopId);
-        shopName = shop.name;
+        shopName = (await this.shops.getShopById(cart.shopId)).name;
       } catch {
         // Shop may no longer exist
       }

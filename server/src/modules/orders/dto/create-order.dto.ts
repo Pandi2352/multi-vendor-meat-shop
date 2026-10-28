@@ -92,4 +92,10 @@ export class CreateOrderDto {
   @ValidateNested()
   @Type(() => OrderSlotDto)
   slot?: OrderSlotDto;
+
+  @ApiPropertyOptional({ example: 'FIRSTMEAT50', description: 'Promotional discount coupon code' })
+  @IsOptional()
+  @Trim()
+  @IsString()
+  couponCode?: string;
 }

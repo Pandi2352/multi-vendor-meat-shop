@@ -20,8 +20,10 @@ import { CategorySchema } from '../../modules/categories/schemas/category.schema
 import { ProductSchema } from '../../modules/products/schemas/product.schema.js';
 import { InventoryBatchSchema } from '../../modules/inventory/schemas/inventory-batch.schema.js';
 import { InventoryMovementSchema } from '../../modules/inventory/schemas/inventory-movement.schema.js';
+import { CouponSchema } from '../../modules/coupons/schemas/coupon.schema.js';
 import {
   DEMO_ADMINS,
+  DEMO_COUPONS,
   DEMO_USERS,
   VIRUDHUNAGAR_CATEGORIES,
   VIRUDHUNAGAR_SHOPS,
@@ -361,6 +363,56 @@ export async function runVirudhunagarSeed(): Promise<void> {
         },
       );
       console.log(`  ✓ Updated admin user & password: ${adminDef.name} <${adminEmail}>`);
+    }
+  }
+
+  // 5. Seed Demo Coupons
+  console.log('\n🎟️ Seeding Demo Coupons...');
+  const CouponModel =
+    mongoose.models[CollectionName.COUPONS] ||
+    mongoose.model(CollectionName.COUPONS, CouponSchema);
+
+  for (const couponDef of DEMO_COUPONS) {
+    const existing = await CouponModel.findOne({ code: couponDef.code });
+    const now = new Date();
+    const validUntil = dayjs(now).add(1, 'year').toDate();
+    if (!existing) {
+      await CouponModel.create({
+        _id: generateId(),
+        code: couponDef.code,
+        description: couponDef.description,
+        discountType: couponDef.discountType,
+        discountValue: couponDef.discountValue,
+        minOrderPaise: couponDef.minOrderPaise,
+        maxDiscountPaise: couponDef.maxDiscountPaise,
+        usageLimit: couponDef.usageLimit,
+        usedCount: 0,
+        perCustomerLimit: couponDef.perCustomerLimit,
+        usedCustomerIds: [],
+        validFrom: dayjs(now).subtract(1, 'month').toDate(),
+        validUntil,
+        isActive: true,
+        applicableShopIds: [],
+      });
+      console.log(`  + Created coupon: ${couponDef.code} (${couponDef.description})`);
+    } else {
+      await CouponModel.updateOne(
+        { _id: existing._id },
+        {
+          $set: {
+            description: couponDef.description,
+            discountType: couponDef.discountType,
+            discountValue: couponDef.discountValue,
+            minOrderPaise: couponDef.minOrderPaise,
+            maxDiscountPaise: couponDef.maxDiscountPaise,
+            usageLimit: couponDef.usageLimit,
+            perCustomerLimit: couponDef.perCustomerLimit,
+            validUntil,
+            isActive: true,
+          },
+        },
+      );
+      console.log(`  ✓ Updated coupon: ${couponDef.code}`);
     }
   }
 

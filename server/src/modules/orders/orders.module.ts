@@ -4,6 +4,7 @@ import { ShopsModule } from '#modules/shops';
 import { ProductsModule } from '#modules/products';
 import { InventoryModule } from '#modules/inventory';
 import { CartModule } from '#modules/cart';
+import { CouponsModule } from '#modules/coupons';
 import { Order, OrderSchema } from './schemas/order.schema.js';
 import { OrderEvent, OrderEventSchema } from './schemas/order-event.schema.js';
 import { Counter, CounterSchema } from './schemas/counter.schema.js';
@@ -28,6 +29,7 @@ import { AdminOrdersController } from './controllers/admin-orders.controller.js'
     ProductsModule,
     InventoryModule,
     CartModule,
+    CouponsModule,
   ],
   controllers: [OrdersController, VendorOrdersController, AdminOrdersController],
   providers: [

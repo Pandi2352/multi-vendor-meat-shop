@@ -4,7 +4,9 @@ import type { components } from '@/types/api.generated';
 export type OrderResponse = components['schemas']['OrderResponseDto'];
 export type OrderItem = components['schemas']['OrderItemResponseDto'];
 export type OrderEvent = components['schemas']['OrderEventResponseDto'];
-export type CreateOrderBody = components['schemas']['CreateOrderDto'];
+export type CreateOrderBody = components['schemas']['CreateOrderDto'] & {
+  couponCode?: string;
+};
 export type CancelOrderBody = components['schemas']['CancelOrderDto'];
 
 export type DeliveryTaskResponse = components['schemas']['DeliveryTaskResponseDto'];

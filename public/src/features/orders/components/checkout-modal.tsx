@@ -2,11 +2,14 @@ import { useState } from 'react';
 import { X, Truck, ShieldCheck } from 'lucide-react';
 import { Button, Alert, toast } from '@/components/ui';
 import { getErrorMessage } from '@/lib/api-error';
-import { formatINR, formatWeight } from '@/utils';
+import { formatINR } from '@/utils';
 import type { CheckoutQuoteResponse } from '@/features/cart/api/cart.api';
+import { useCheckoutQuote } from '@/features/cart/api/use-cart';
+import { CouponInput } from '@/features/coupons';
+import { AddressSelector, type SelectedAddressData } from '@/features/addresses';
 import { useCreateOrder } from '../api/use-orders';
 import type { OrderResponse } from '../api/orders.api';
-import { AddressSelector, type SelectedAddressData } from '@/features/addresses';
+import { CheckoutBillBreakdown } from './checkout-bill-breakdown';
 
 interface CheckoutModalProps {
   isOpen: boolean;
@@ -15,7 +18,7 @@ interface CheckoutModalProps {
   onOrderPlaced: (order: OrderResponse) => void;
 }
 
-export function CheckoutModal({ isOpen, onClose, quote, onOrderPlaced }: CheckoutModalProps) {
+export function CheckoutModal({ isOpen, onClose, quote: initialQuote, onOrderPlaced }: CheckoutModalProps) {
   const createOrder = useCreateOrder();
   const [addressData, setAddressData] = useState<SelectedAddressData>({
     text: '15 Madurai Road, Virudhunagar Town',
@@ -25,7 +28,17 @@ export function CheckoutModal({ isOpen, onClose, quote, onOrderPlaced }: Checkou
     location: { lat: 9.568, lng: 77.9624 },
   });
   const [customerNotes, setCustomerNotes] = useState('');
+  const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discountPaise: number } | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  const { data: dynamicQuote } = useCheckoutQuote(
+    addressData.location?.lat,
+    addressData.location?.lng,
+    appliedCoupon?.code,
+    Boolean(isOpen && appliedCoupon),
+  );
+
+  const effectiveQuote = dynamicQuote ?? initialQuote;
 
   if (!isOpen) return null;
 
@@ -50,6 +63,7 @@ export function CheckoutModal({ isOpen, onClose, quote, onOrderPlaced }: Checkou
           label: addressData.label || 'Home',
         },
         customerNotes: customerNotes.trim() || undefined,
+        couponCode: appliedCoupon?.code,
         paymentMethod: 'COD',
       });
       toast.success('Order placed successfully! Butcher stall has been notified.');
@@ -74,7 +88,7 @@ export function CheckoutModal({ isOpen, onClose, quote, onOrderPlaced }: Checkou
 
         <div className="mb-4">
           <h3 className="text-lg font-bold text-text">Checkout & Confirm Order</h3>
-          <p className="text-xs text-muted">Shop: {quote.shopName}</p>
+          <p className="text-xs text-muted">Shop: {effectiveQuote.shopName}</p>
         </div>
 
         {error && (
@@ -100,25 +114,24 @@ export function CheckoutModal({ isOpen, onClose, quote, onOrderPlaced }: Checkou
             />
           </div>
 
-          {/* Bill breakdown */}
-          <div className="rounded-md border border-border bg-surface-muted p-3 space-y-1.5 text-xs">
-            <div className="flex justify-between text-muted">
-              <span>Fresh Meat ({formatWeight(quote.totalWeightGrams)})</span>
-              <span>{formatINR(quote.subtotalPaise)}</span>
-            </div>
-            <div className="flex justify-between text-muted">
-              <span>Chilled Thermal Pouch</span>
-              <span>{formatINR(quote.packagingFeePaise)}</span>
-            </div>
-            <div className="flex justify-between text-muted">
-              <span>Delivery Partner Fee</span>
-              <span>{quote.deliveryFeePaise === 0 ? 'FREE' : formatINR(quote.deliveryFeePaise)}</span>
-            </div>
-            <div className="border-t border-border pt-1.5 flex justify-between font-bold text-sm text-text">
-              <span>Total Payable (Cash on Delivery)</span>
-              <span className="text-primary">{formatINR(quote.totalPaise)}</span>
-            </div>
+          <div>
+            <label className="block text-xs font-semibold text-text mb-1.5">Coupons & Offers</label>
+            <CouponInput
+              subtotalPaise={effectiveQuote.subtotalPaise}
+              shopId={effectiveQuote.shopId}
+              appliedCoupon={appliedCoupon}
+              onApply={(c) => {
+                setAppliedCoupon(c);
+                toast.success(`Coupon ${c.code} applied! Saved ${formatINR(c.discountPaise)}`);
+              }}
+              onRemove={() => {
+                setAppliedCoupon(null);
+                toast.info('Coupon removed');
+              }}
+            />
           </div>
+
+          <CheckoutBillBreakdown quote={effectiveQuote} couponCode={appliedCoupon?.code} />
 
           <div className="rounded-md border border-border bg-surface p-2.5 flex items-center gap-2 text-xs text-muted">
             <ShieldCheck className="h-4 w-4 text-success shrink-0" />
@@ -136,7 +149,7 @@ export function CheckoutModal({ isOpen, onClose, quote, onOrderPlaced }: Checkou
               loading={createOrder.isPending}
               leftIcon={<Truck className="h-4 w-4" />}
             >
-              Confirm Order ({formatINR(quote.totalPaise)})
+              Confirm Order ({formatINR(effectiveQuote.totalPaise)})
             </Button>
           </div>
         </form>

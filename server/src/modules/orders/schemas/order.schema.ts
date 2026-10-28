@@ -160,6 +160,9 @@ export class Order extends BaseEntity {
 
   @Prop({ trim: true })
   rejectReason?: string;
+
+  @Prop({ trim: true, uppercase: true })
+  couponCode?: string;
 }
 
 export type OrderDocument = HydratedDocument<Order>;

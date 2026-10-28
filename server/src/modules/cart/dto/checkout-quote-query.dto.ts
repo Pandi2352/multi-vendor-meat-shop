@@ -14,4 +14,8 @@ export class CheckoutQuoteQueryDto {
   @ToNumber()
   @IsLongitude()
   lng?: number;
+
+  @ApiPropertyOptional({ example: 'FIRSTMEAT50', description: 'Promotional discount coupon code' })
+  @IsOptional()
+  couponCode?: string;
 }

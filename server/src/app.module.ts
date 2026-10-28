@@ -19,6 +19,7 @@ import { FinanceModule } from '#modules/finance';
 import { DisputesModule } from '#modules/disputes';
 import { DashboardsModule } from '#modules/dashboards';
 import { ReviewsModule } from '#modules/reviews';
+import { CouponsModule } from '#modules/coupons';
 import { APP_PROVIDERS } from './app.providers.js';
 
 @Module({
@@ -43,6 +44,7 @@ import { APP_PROVIDERS } from './app.providers.js';
     DisputesModule,
     DashboardsModule,
     ReviewsModule,
+    CouponsModule,
   ],
   providers: APP_PROVIDERS,
 })

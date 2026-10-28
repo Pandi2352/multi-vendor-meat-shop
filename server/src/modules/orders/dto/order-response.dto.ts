@@ -137,6 +137,9 @@ export class OrderResponseDto {
   @ApiPropertyOptional({ example: 'Out of stock for day' })
   rejectReason?: string;
 
+  @ApiPropertyOptional({ example: 'FIRSTMEAT50' })
+  couponCode?: string;
+
   @ApiPropertyOptional({ type: [OrderEventResponseDto] })
   timeline?: OrderEventResponseDto[];
 

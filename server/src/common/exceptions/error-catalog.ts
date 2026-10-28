@@ -97,6 +97,11 @@ export const ERROR_CATALOG: Readonly<Record<E, ErrorDefinition>> = {
   },
   [E.SLOT_FULL]: { status: HttpStatus.CONFLICT, message: 'Selected delivery slot is full' },
   [E.COUPON_INVALID]: { status: HttpStatus.UNPROCESSABLE_ENTITY, message: 'Coupon is not valid' },
+  [E.COUPON_EXPIRED]: { status: HttpStatus.UNPROCESSABLE_ENTITY, message: 'Coupon code has expired' },
+  [E.COUPON_LIMIT_REACHED]: {
+    status: HttpStatus.UNPROCESSABLE_ENTITY,
+    message: 'Coupon usage limit has been reached',
+  },
 
   [E.ORDER_NOT_FOUND]: { status: HttpStatus.NOT_FOUND, message: 'Order not found' },
   [E.ORDER_NOT_CANCELLABLE]: {

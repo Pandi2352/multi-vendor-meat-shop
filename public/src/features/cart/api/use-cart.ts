@@ -9,10 +9,15 @@ export const useCart = () => {
   });
 };
 
-export const useCheckoutQuote = (lat?: number, lng?: number, enabled = true) => {
+export const useCheckoutQuote = (
+  lat?: number,
+  lng?: number,
+  couponCode?: string,
+  enabled = true,
+) => {
   return useQuery({
-    queryKey: cartKeys.quote(lat, lng),
-    queryFn: () => cartApi.getCheckoutQuote({ lat, lng }),
+    queryKey: cartKeys.quote(lat, lng, couponCode),
+    queryFn: () => cartApi.getCheckoutQuote({ lat, lng, couponCode }),
     enabled,
   });
 };

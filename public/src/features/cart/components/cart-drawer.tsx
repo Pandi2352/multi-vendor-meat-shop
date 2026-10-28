@@ -22,6 +22,7 @@ export function CartDrawer({ isOpen, onClose, onProceedToCheckout }: CartDrawerP
   const { data: quote } = useCheckoutQuote(
     selectedTown?.lat ?? 9.568,
     selectedTown?.lng ?? 77.9624,
+    undefined,
     Boolean(hasItems),
   );
 
@@ -104,6 +105,12 @@ export function CartDrawer({ isOpen, onClose, onProceedToCheckout }: CartDrawerP
                 <span>Delivery</span>
                 <span>{quote.deliveryFeePaise === 0 ? 'FREE' : formatINR(quote.deliveryFeePaise)}</span>
               </div>
+              {quote.discountPaise > 0 && (
+                <div className="flex justify-between text-success font-medium">
+                  <span>Discount</span>
+                  <span>-{formatINR(quote.discountPaise)}</span>
+                </div>
+              )}
               <div className="border-t border-border pt-1 flex justify-between font-bold text-sm text-text">
                 <span>Estimated Total</span>
                 <span className="text-primary">{formatINR(quote.totalPaise)}</span>

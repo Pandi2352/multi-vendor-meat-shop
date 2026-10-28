@@ -31,3 +31,8 @@ export enum LedgerDirection {
   DEBIT = 'DEBIT',
 }
 
+export enum CouponDiscountType {
+  PERCENTAGE = 'PERCENTAGE',
+  FLAT_PAISE = 'FLAT_PAISE',
+}
+

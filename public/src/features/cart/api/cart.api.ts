@@ -17,6 +17,10 @@ export const cartApi = {
 
   clearCart: (): Promise<{ cleared: boolean }> => http.delete<{ cleared: boolean }>('/api/v1/cart'),
 
-  getCheckoutQuote: (params?: { lat?: number; lng?: number }): Promise<CheckoutQuoteResponse> =>
+  getCheckoutQuote: (params?: {
+    lat?: number;
+    lng?: number;
+    couponCode?: string;
+  }): Promise<CheckoutQuoteResponse> =>
     http.get<CheckoutQuoteResponse>('/api/v1/checkout/quote', { params }),
 };

@@ -5,6 +5,7 @@ import type { OrderRepository } from '../repositories/order.repository.js';
 import type { OrderEventRepository } from '../repositories/order-event.repository.js';
 import type { OrderNumberService } from './order-number.service.js';
 import type { CartService } from '#modules/cart';
+import type { CouponsService } from '#modules/coupons';
 import type { InventoryService } from '#modules/inventory';
 import type { ShopsService } from '#modules/shops';
 import { AppException, ErrorCode } from '#common/exceptions';
@@ -18,6 +19,7 @@ describe('OrdersModule Services', () => {
   let mockEventRepo: Record<string, ReturnType<typeof vi.fn>>;
   let mockOrderNumberService: Record<string, ReturnType<typeof vi.fn>>;
   let mockCartService: Record<string, ReturnType<typeof vi.fn>>;
+  let mockCoupons: Record<string, ReturnType<typeof vi.fn>>;
   let mockInventory: Record<string, ReturnType<typeof vi.fn>>;
   let mockShops: Record<string, ReturnType<typeof vi.fn>>;
 
@@ -45,6 +47,11 @@ describe('OrdersModule Services', () => {
       clearCart: vi.fn(),
     };
 
+    mockCoupons = {
+      recordCouponUsage: vi.fn(),
+      validateAndCalculateDiscount: vi.fn(),
+    };
+
     mockInventory = {
       commitStock: vi.fn(),
       adjustStock: vi.fn(),
@@ -59,6 +66,7 @@ describe('OrdersModule Services', () => {
       mockEventRepo as unknown as OrderEventRepository,
       mockOrderNumberService as unknown as OrderNumberService,
       mockCartService as unknown as CartService,
+      mockCoupons as unknown as CouponsService,
       mockInventory as unknown as InventoryService,
       mockShops as unknown as ShopsService,
     );

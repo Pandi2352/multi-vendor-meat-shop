@@ -29,6 +29,9 @@ export class CheckoutQuoteResponseDto {
   @ApiProperty({ description: 'Discount applied in paise', example: 0 })
   discountPaise!: number;
 
+  @ApiPropertyOptional({ description: 'Applied coupon code if any', example: 'FIRSTMEAT50' })
+  couponCode?: string;
+
   @ApiProperty({ description: 'Grand total payable in paise', example: 53500 })
   totalPaise!: number;
 

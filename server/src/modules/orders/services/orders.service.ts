@@ -4,6 +4,7 @@ import { InventoryMovementType, OrderStatus, PaymentMethod, PaymentStatus, Role 
 import { generateId } from '#common/utils';
 import { PaginatedResult } from '#common/dto';
 import { CartService } from '#modules/cart';
+import { CouponsService } from '#modules/coupons';
 import { InventoryService } from '#modules/inventory';
 import { ShopsService } from '#modules/shops';
 import { OrderRepository } from '../repositories/order.repository.js';
@@ -24,6 +25,7 @@ export class OrdersService {
     private readonly eventRepo: OrderEventRepository,
     private readonly orderNumberService: OrderNumberService,
     private readonly cartService: CartService,
+    private readonly coupons: CouponsService,
     private readonly inventory: InventoryService,
     private readonly shops: ShopsService,
   ) {}
@@ -32,6 +34,7 @@ export class OrdersService {
     const quote = await this.cartService.getCheckoutQuote(customerId, {
       lat: dto.deliveryAddress.location.lat,
       lng: dto.deliveryAddress.location.lng,
+      couponCode: dto.couponCode,
     });
 
     const orderId = generateId();
@@ -95,7 +98,12 @@ export class OrdersService {
         status: initialPaymentStatus,
       },
       slot: dto.slot,
+      couponCode: quote.couponCode,
     });
+
+    if (quote.couponCode) {
+      await this.coupons.recordCouponUsage(quote.couponCode, customerId);
+    }
 
     const event = await this.eventRepo.create({
       orderId: order._id,

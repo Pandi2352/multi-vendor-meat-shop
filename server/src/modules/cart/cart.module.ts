@@ -3,6 +3,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ProductsModule } from '#modules/products';
 import { ShopsModule } from '#modules/shops';
 import { InventoryModule } from '#modules/inventory';
+import { CouponsModule } from '#modules/coupons';
 import { Cart, CartSchema } from './schemas/cart.schema.js';
 import { CartRepository } from './repositories/cart.repository.js';
 import { CartService } from './services/cart.service.js';
@@ -15,6 +16,7 @@ import { CheckoutController } from './controllers/checkout.controller.js';
     ProductsModule,
     ShopsModule,
     InventoryModule,
+    CouponsModule,
   ],
   controllers: [CartController, CheckoutController],
   providers: [CartRepository, CartService],

@@ -342,8 +342,9 @@ modules/<feature>/
 - [x] admin `FullPageLoader`, `AccessDeniedPage`, `SuspendedPage`
 - [x] admin `Tooltip` — dark chip + arrow, `side` top/right/bottom/left, optional `shortcut` keys, portaled, hides on scroll. Use it instead of `title=` attributes
 - [x] admin theme base layer: pointer cursor on every interactive element (not-allowed when disabled), custom rounded scrollbars, `scrollbar-subtle` utility (thumb shows on hover), `animate-pop-in`
-- [x] admin content area is full width (no centered max-width wrapper) — pages must not add their own `max-w-* mx-auto` page container
 - [x] admin hooks: `useClickOutside`, `useEscapeKey`, `useHotkey`, `useMediaQuery`/`useIsDesktop`, `usePersistedState`, `useCurrentUser` (placeholder until auth); `lib/storage.ts`
+- [x] server Coupons module: `Coupon` schema (UUID v7, unique uppercase code, discountType PERCENTAGE / FLAT_PAISE, minOrderPaise, maxDiscountPaise, usageLimit, perCustomerLimit, validUntil), `CouponRepository`, `CouponsService.validateAndCalculateDiscount`, `CouponsService.recordCouponUsage`, `CouponsController` (GET /api/v1/coupons/available, POST /api/v1/coupons/apply). Integrated with `CartService.getCheckoutQuote` and `OrdersService.createOrder`. 🧪
+- [x] public Coupons feature (`features/coupons`): `CouponInput` (promo code entry with uppercase styling, apply button, live discount pill with savings, remove button, available offers collapsible list), `CheckoutBillBreakdown` with promo savings row, integrated into `CheckoutModal` and `CartDrawer`. 🧪
 
 ### B9. Forms (`src/components/form/` + `src/utils/validation/`) ⭐
 - [ ] `Form` wrapper (RHF `FormProvider` + submit handling + server error mapping)

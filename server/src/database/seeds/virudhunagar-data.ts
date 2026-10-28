@@ -1,4 +1,13 @@
-import { CutType, PreparationOption, ProductStatus, Role, SellMode, Unit, UserStatus } from '#common/enums';
+import {
+  CouponDiscountType,
+  CutType,
+  PreparationOption,
+  ProductStatus,
+  Role,
+  SellMode,
+  Unit,
+  UserStatus,
+} from '#common/enums';
 
 export interface SeedProductDef {
   name: string;
@@ -642,6 +651,39 @@ export const DEMO_ADMINS = [
     phone: '+919842111005',
     role: Role.ADMIN,
     status: UserStatus.ACTIVE,
+  },
+];
+
+export const DEMO_COUPONS = [
+  {
+    code: 'FIRSTMEAT50',
+    description: 'Flat ₹50 OFF on your fresh meat order above ₹200',
+    discountType: CouponDiscountType.FLAT_PAISE,
+    discountValue: 5000,
+    minOrderPaise: 20000,
+    maxDiscountPaise: 5000,
+    usageLimit: 500,
+    perCustomerLimit: 1,
+  },
+  {
+    code: 'VIRUDHUNAGAR20',
+    description: '20% OFF up to ₹100 on orders above ₹300',
+    discountType: CouponDiscountType.PERCENTAGE,
+    discountValue: 20,
+    minOrderPaise: 30000,
+    maxDiscountPaise: 10000,
+    usageLimit: 1000,
+    perCustomerLimit: 2,
+  },
+  {
+    code: 'FREESHIP',
+    description: 'Special ₹30 OFF delivery discount on orders above ₹150',
+    discountType: CouponDiscountType.FLAT_PAISE,
+    discountValue: 3000,
+    minOrderPaise: 15000,
+    maxDiscountPaise: 3000,
+    usageLimit: 2000,
+    perCustomerLimit: 5,
   },
 ];
 

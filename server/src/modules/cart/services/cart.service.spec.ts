@@ -4,6 +4,7 @@ import type { CartRepository } from '../repositories/cart.repository.js';
 import type { ProductsService } from '#modules/products';
 import type { ShopsService } from '#modules/shops';
 import type { InventoryService } from '#modules/inventory';
+import type { CouponsService } from '#modules/coupons';
 import { AppException, ErrorCode } from '#common/exceptions';
 import { ShopStatus } from '#common/enums';
 
@@ -13,6 +14,7 @@ describe('CartService', () => {
   let mockProducts: Record<string, ReturnType<typeof vi.fn>>;
   let mockShops: Record<string, ReturnType<typeof vi.fn>>;
   let mockInventory: Record<string, ReturnType<typeof vi.fn>>;
+  let mockCoupons: Record<string, ReturnType<typeof vi.fn>>;
 
   beforeEach(() => {
     mockCartRepo = {
@@ -34,11 +36,17 @@ describe('CartService', () => {
       getTodayStock: vi.fn(),
     };
 
+    mockCoupons = {
+      validateAndCalculateDiscount: vi.fn(),
+      recordCouponUsage: vi.fn(),
+    };
+
     service = new CartService(
       mockCartRepo as unknown as CartRepository,
       mockProducts as unknown as ProductsService,
       mockShops as unknown as ShopsService,
       mockInventory as unknown as InventoryService,
+      mockCoupons as unknown as CouponsService,
     );
   });
 
