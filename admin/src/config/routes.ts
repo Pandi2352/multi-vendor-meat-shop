@@ -24,6 +24,8 @@ export const ROUTES = {
   DELIVERY_EARNINGS: '/delivery/earnings',
   // Admin ops
   ADMIN_VENDORS: '/admin/vendors',
+  ADMIN_VENDORS_NEW: '/admin/vendors/new',
+  ADMIN_VENDORS_EDIT: '/admin/vendors/:id/edit',
   ADMIN_USERS: '/admin/users',
   ADMIN_DISPUTES: '/admin/disputes',
   ADMIN_FINANCE: '/admin/finance',

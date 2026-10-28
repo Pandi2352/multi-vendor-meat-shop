@@ -1,28 +1,27 @@
 import { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Plus, Store, CheckCircle, Clock, Ban } from 'lucide-react';
 import { Button, LoaderState, Pagination, type TabItem, type SelectOption } from '@/components/ui';
+import { ROUTES, buildPath } from '@/config/routes';
 import { useAdminVendors, type VendorProfile, type VendorStatus } from '../api';
 import { VendorCard } from '../components/vendor-card';
 import { VendorTable } from '../components/vendor-table';
 import { VendorKpiStrip } from '../components/vendor-kpi-strip';
 import { VendorToolbar, type VendorTab, type ViewMode } from '../components/vendor-toolbar';
 import { VendorVerifyDialog } from '../components/vendor-verify-dialog';
-import { AddVendorModal } from '../components/add-vendor-modal';
-import { EditVendorModal } from '../components/edit-vendor-modal';
 import { StallDossierModal } from '../components/stall-dossier-modal';
 
 /** Executive management page for certified butcher stalls. */
 export function AdminVendorsPage() {
+  const navigate = useNavigate();
   const [tab, setTab] = useState<VendorTab>('ALL');
   const [selectedTown, setSelectedTown] = useState<string>('ALL');
   const [search, setSearch] = useState('');
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
-  const [isAddOpen, setIsAddOpen] = useState(false);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(9);
 
   const [dossierTarget, setDossierTarget] = useState<VendorProfile | null>(null);
-  const [editTarget, setEditTarget] = useState<VendorProfile | null>(null);
   const [verifyTarget, setVerifyTarget] = useState<{
     vendor: VendorProfile;
     action: VendorStatus;
@@ -116,7 +115,7 @@ export function AdminVendorsPage() {
           variant="primary"
           size="sm"
           leftIcon={<Plus className="h-3.5 w-3.5" />}
-          onClick={() => setIsAddOpen(true)}
+          onClick={() => navigate(ROUTES.ADMIN_VENDORS_NEW)}
         >
           Add Butcher Stall
         </Button>
@@ -173,7 +172,7 @@ export function AdminVendorsPage() {
               vendor={vendor}
               onOpenDossier={(v) => setDossierTarget(v)}
               onAction={(v, action) => setVerifyTarget({ vendor: v, action })}
-              onEdit={(v) => setEditTarget(v)}
+              onEdit={(v) => navigate(buildPath(ROUTES.ADMIN_VENDORS_EDIT, { id: v.id }))}
             />
           ))}
         </div>
@@ -182,7 +181,7 @@ export function AdminVendorsPage() {
           vendors={paginatedVendors}
           onOpenDossier={(v) => setDossierTarget(v)}
           onAction={(v, action) => setVerifyTarget({ vendor: v, action })}
-          onEdit={(v) => setEditTarget(v)}
+          onEdit={(v) => navigate(buildPath(ROUTES.ADMIN_VENDORS_EDIT, { id: v.id }))}
         />
       )}
 
@@ -205,14 +204,12 @@ export function AdminVendorsPage() {
         </div>
       )}
 
-      {/* Modals & Dialogs */}
-      <AddVendorModal isOpen={isAddOpen} onClose={() => setIsAddOpen(false)} />
-      <EditVendorModal vendor={editTarget} onClose={() => setEditTarget(null)} />
+      {/* Dossier & Verification Dialogs */}
       <StallDossierModal
         vendor={dossierTarget}
         onClose={() => setDossierTarget(null)}
         onAction={(v, action) => setVerifyTarget({ vendor: v, action })}
-        onEdit={(v) => setEditTarget(v)}
+        onEdit={(v) => navigate(buildPath(ROUTES.ADMIN_VENDORS_EDIT, { id: v.id }))}
       />
       <VendorVerifyDialog
         vendor={verifyTarget?.vendor || null}

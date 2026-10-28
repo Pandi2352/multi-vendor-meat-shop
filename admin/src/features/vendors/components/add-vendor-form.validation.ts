@@ -9,6 +9,7 @@ export interface VendorFormData {
   pincode: string;
   line1: string;
   fssaiNumber: string;
+  municipalPermitNumber?: string;
   openingTime: string;
   closingTime: string;
 }

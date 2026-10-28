@@ -18,7 +18,7 @@ import { DeliveryTasksPage, MyDeliveriesPage, DeliveryEarningsPage } from '@/fea
 import { AdminDisputesPage } from '@/features/disputes';
 import { AdminFinancePage, VendorSettlementsPage } from '@/features/finance';
 import { VendorInventoryPage } from '@/features/inventory';
-import { AdminVendorsPage } from '@/features/vendors';
+import { AdminVendorsPage, AddVendorPage, EditVendorPage } from '@/features/vendors';
 import { AdminUsersPage } from '@/features/users';
 import { VendorProductsPage } from '@/features/products';
 import { VendorStaffPage } from '@/features/vendor-staff';
@@ -95,6 +95,8 @@ export const router = createBrowserRouter([
       { path: ROUTES.DELIVERY_MY_TASKS, element: <MyDeliveriesPage /> },
       { path: ROUTES.DELIVERY_EARNINGS, element: <DeliveryEarningsPage /> },
       { path: ROUTES.ADMIN_VENDORS, element: <AdminVendorsPage /> },
+      { path: ROUTES.ADMIN_VENDORS_NEW, element: <AddVendorPage /> },
+      { path: ROUTES.ADMIN_VENDORS_EDIT, element: <EditVendorPage /> },
       { path: ROUTES.ADMIN_USERS, element: <AdminUsersPage /> },
       { path: ROUTES.ADMIN_FINANCE, element: <AdminFinancePage /> },
       { path: ROUTES.ADMIN_DISPUTES, element: <AdminDisputesPage /> },
