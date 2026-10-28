@@ -22,7 +22,12 @@ export function VendorCard({ vendor, onOpenDossier, onOpenPermissions, onAction 
       <div className="space-y-2">
         <div className="flex items-start justify-between gap-2">
           <div>
-            <h3 className="font-semibold text-text text-sm leading-tight">{vendor.businessName}</h3>
+            <h3 className="font-semibold text-text text-sm leading-tight flex items-center gap-1.5 flex-wrap">
+              <span>{vendor.businessName}</span>
+              {vendor.shop?.nameTa && (
+                <span className="text-muted font-normal text-xs font-sans">({vendor.shop.nameTa})</span>
+              )}
+            </h3>
             <p className="text-muted text-[11px] mt-0.5">Owner: <span className="text-text font-medium">{vendor.ownerName}</span></p>
           </div>
           <VendorStatusBadge status={vendor.status} />

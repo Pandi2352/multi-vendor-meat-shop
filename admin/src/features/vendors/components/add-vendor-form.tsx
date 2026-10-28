@@ -9,10 +9,11 @@ interface AddVendorFormProps {
   onCancel: () => void;
 }
 
-/** Fields and submit for creating an approved stall. The owner is invited by email on success. */
+/** Fields and submit for creating an approved stall with bilingual name support. */
 export function AddVendorForm({ onCreated, onCancel }: AddVendorFormProps) {
   const [ownerName, setOwnerName] = useState('');
   const [shopName, setShopName] = useState('');
+  const [shopNameTa, setShopNameTa] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [town, setTown] = useState(VIRUDHUNAGAR_TOWNS[0].nameEn);
@@ -38,6 +39,7 @@ export function AddVendorForm({ onCreated, onCancel }: AddVendorFormProps) {
       {
         ownerName: ownerName.trim(),
         shopName: shopName.trim(),
+        shopNameTa: shopNameTa.trim() || undefined,
         phone: phone.trim(),
         email: email.trim(),
         fssaiNumber: fssaiNumber.trim(),
@@ -59,40 +61,53 @@ export function AddVendorForm({ onCreated, onCancel }: AddVendorFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="p-4 space-y-3 overflow-y-auto text-xs">
+    <form onSubmit={handleSubmit} className="p-6 space-y-4 overflow-y-auto text-xs sm:text-sm">
       {createMutation.isError && (
-        <div className="p-2.5 rounded-md bg-destructive/10 border border-destructive/20 text-destructive flex items-center gap-2">
+        <div className="p-3 rounded-md bg-destructive/10 border border-destructive/20 text-destructive flex items-center gap-2">
           <AlertCircle className="h-4 w-4 shrink-0" />
           <span>Failed to add stall. Check phone or FSSAI number.</span>
         </div>
       )}
 
-      <div className="grid grid-cols-2 gap-3">
+      {/* Shop Names: English + Tamil */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label className="block font-medium text-text mb-1">Owner Name *</label>
-          <input
-            required
-            value={ownerName}
-            onChange={(e) => setOwnerName(e.target.value)}
-            placeholder="e.g. M. Ramasamy"
-            className="w-full px-2.5 py-1.5 rounded-md border border-border bg-surface text-text focus:outline-none focus:border-primary"
-          />
-        </div>
-        <div>
-          <label className="block font-medium text-text mb-1">Shop Name *</label>
+          <label className="block font-medium text-text mb-1.5">Shop Name (English) *</label>
           <input
             required
             value={shopName}
             onChange={(e) => setShopName(e.target.value)}
             placeholder="e.g. Sivakasi Broiler Centre"
-            className="w-full px-2.5 py-1.5 rounded-md border border-border bg-surface text-text focus:outline-none focus:border-primary"
+            className="w-full px-3 py-2 rounded-md border border-border bg-surface text-text focus:outline-none focus:border-primary text-sm"
+          />
+        </div>
+        <div>
+          <label className="block font-medium text-text mb-1.5">
+            Shop Name in Tamil / கடையின் பெயர் (தமிழ்)
+          </label>
+          <input
+            value={shopNameTa}
+            onChange={(e) => setShopNameTa(e.target.value)}
+            placeholder="எ.கா. சிவகாசி பிராய்லர் சென்டர்"
+            className="w-full px-3 py-2 rounded-md border border-border bg-surface text-text focus:outline-none focus:border-primary text-sm font-sans"
           />
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
+      {/* Owner & Contact */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div>
-          <label className="block font-medium text-text mb-1">Mobile (10 Digits) *</label>
+          <label className="block font-medium text-text mb-1.5">Owner Name *</label>
+          <input
+            required
+            value={ownerName}
+            onChange={(e) => setOwnerName(e.target.value)}
+            placeholder="e.g. M. Ramasamy"
+            className="w-full px-3 py-2 rounded-md border border-border bg-surface text-text focus:outline-none focus:border-primary text-sm"
+          />
+        </div>
+        <div>
+          <label className="block font-medium text-text mb-1.5">Mobile (10 Digits) *</label>
           <input
             required
             type="tel"
@@ -101,25 +116,26 @@ export function AddVendorForm({ onCreated, onCancel }: AddVendorFormProps) {
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
             placeholder="9842012345"
-            className="w-full px-2.5 py-1.5 rounded-md border border-border bg-surface text-text focus:outline-none focus:border-primary"
+            className="w-full px-3 py-2 rounded-md border border-border bg-surface text-text focus:outline-none focus:border-primary text-sm"
           />
         </div>
         <div>
-          <label className="block font-medium text-text mb-1">Owner email *</label>
+          <label className="block font-medium text-text mb-1.5">Owner Email *</label>
           <input
             required
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="stall@example.com"
-            className="w-full px-2.5 py-1.5 rounded-md border border-border bg-surface text-text focus:outline-none focus:border-primary"
+            className="w-full px-3 py-2 rounded-md border border-border bg-surface text-text focus:outline-none focus:border-primary text-sm"
           />
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-3">
+      {/* Location: Town, Locality, Pincode */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div>
-          <label className="block font-medium text-text mb-1">Town *</label>
+          <label className="block font-medium text-text mb-1.5">Town *</label>
           <CustomSelect
             value={town}
             onChange={(val) => handleTownChange(val as string)}
@@ -131,76 +147,79 @@ export function AddVendorForm({ onCreated, onCancel }: AddVendorFormProps) {
             searchable
             clearable={false}
             placeholder="Choose town..."
-            size="sm"
           />
         </div>
         <div>
-          <label className="block font-medium text-text mb-1">Locality *</label>
+          <label className="block font-medium text-text mb-1.5">Locality *</label>
           <input
             required
             value={locality}
             onChange={(e) => setLocality(e.target.value)}
             placeholder="Car Street"
-            className="w-full px-2.5 py-1.5 rounded-md border border-border bg-surface text-text focus:outline-none focus:border-primary"
+            className="w-full px-3 py-2 rounded-md border border-border bg-surface text-text focus:outline-none focus:border-primary text-sm"
           />
         </div>
         <div>
-          <label className="block font-medium text-text mb-1">Pincode *</label>
+          <label className="block font-medium text-text mb-1.5">Pincode *</label>
           <input
             required
             value={pincode}
             onChange={(e) => setPincode(e.target.value)}
-            className="w-full px-2.5 py-1.5 rounded-md border border-border bg-surface text-text focus:outline-none focus:border-primary"
+            className="w-full px-3 py-2 rounded-md border border-border bg-surface text-text focus:outline-none focus:border-primary text-sm"
           />
         </div>
       </div>
 
-      <div>
-        <label className="block font-medium text-text mb-1">Address *</label>
-        <input
-          required
-          value={line1}
-          onChange={(e) => setLine1(e.target.value)}
-          placeholder="Door No, Street Name"
-          className="w-full px-2.5 py-1.5 rounded-md border border-border bg-surface text-text focus:outline-none focus:border-primary"
-        />
-      </div>
-
-      <div>
-        <label className="block font-medium text-text mb-1">FSSAI Number (14 Digits) *</label>
-        <input
-          required
-          maxLength={14}
-          pattern="[0-9]{14}"
-          value={fssaiNumber}
-          onChange={(e) => setFssaiNumber(e.target.value)}
-          placeholder="12426008000456"
-          className="w-full px-2.5 py-1.5 rounded-md border border-border bg-surface text-text focus:outline-none focus:border-primary"
-        />
-      </div>
-
-      <div className="grid grid-cols-2 gap-3">
+      {/* Address & FSSAI */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="sm:col-span-2">
+          <label className="block font-medium text-text mb-1.5">Address *</label>
+          <input
+            required
+            value={line1}
+            onChange={(e) => setLine1(e.target.value)}
+            placeholder="Door No, Street Name"
+            className="w-full px-3 py-2 rounded-md border border-border bg-surface text-text focus:outline-none focus:border-primary text-sm"
+          />
+        </div>
         <div>
-          <label className="block font-medium text-text mb-1">Opens At</label>
+          <label className="block font-medium text-text mb-1.5">FSSAI Number (14 Digits) *</label>
+          <input
+            required
+            maxLength={14}
+            pattern="[0-9]{14}"
+            value={fssaiNumber}
+            onChange={(e) => setFssaiNumber(e.target.value)}
+            placeholder="12426008000456"
+            className="w-full px-3 py-2 rounded-md border border-border bg-surface text-text focus:outline-none focus:border-primary text-sm"
+          />
+        </div>
+      </div>
+
+      {/* Operating Hours */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label className="block font-medium text-text mb-1.5">Opens At</label>
           <input
             type="time"
             value={openingTime}
             onChange={(e) => setOpeningTime(e.target.value)}
-            className="w-full px-2.5 py-1.5 rounded-md border border-border bg-surface text-text focus:outline-none focus:border-primary"
+            className="w-full px-3 py-2 rounded-md border border-border bg-surface text-text focus:outline-none focus:border-primary text-sm"
           />
         </div>
         <div>
-          <label className="block font-medium text-text mb-1">Closes At</label>
+          <label className="block font-medium text-text mb-1.5">Closes At</label>
           <input
             type="time"
             value={closingTime}
             onChange={(e) => setClosingTime(e.target.value)}
-            className="w-full px-2.5 py-1.5 rounded-md border border-border bg-surface text-text focus:outline-none focus:border-primary"
+            className="w-full px-3 py-2 rounded-md border border-border bg-surface text-text focus:outline-none focus:border-primary text-sm"
           />
         </div>
       </div>
 
-      <div className="pt-2 flex items-center justify-end gap-2 border-t border-border">
+      {/* Actions */}
+      <div className="pt-4 flex items-center justify-end gap-3 border-t border-border">
         <Button type="button" variant="outline" size="sm" onClick={onCancel}>
           Cancel
         </Button>

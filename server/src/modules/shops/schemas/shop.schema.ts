@@ -19,6 +19,9 @@ export class Shop extends BaseEntity implements SoftDeletable {
   @Prop({ type: String, required: true, trim: true })
   name!: string;
 
+  @Prop({ type: String, trim: true })
+  nameTa?: string;
+
   @Prop({ type: String, required: true, unique: true, lowercase: true, trim: true, index: true })
   slug!: string;
 

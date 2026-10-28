@@ -20,8 +20,8 @@ export function AddVendorModal({ isOpen, onClose }: AddVendorModalProps) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/35 backdrop-blur-[1px] animate-in fade-in duration-150">
-      <div className="bg-surface border border-border rounded-md w-full max-w-lg max-h-[90vh] flex flex-col overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-[2px] animate-in fade-in duration-150">
+      <div className="bg-surface border border-border rounded-md w-full max-w-2xl min-h-[580px] max-h-[92vh] flex flex-col overflow-hidden">
         <div className="flex items-center justify-between p-4 border-b border-border">
           <div className="flex items-center gap-2">
             <Store className="h-5 w-5 text-primary" />

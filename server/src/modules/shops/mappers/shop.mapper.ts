@@ -6,6 +6,7 @@ export const toShopResponseDto = (shop: Shop): ShopResponseDto => ({
   id: shop._id,
   vendorId: shop.vendorId,
   name: shop.name,
+  nameTa: shop.nameTa,
   slug: shop.slug,
   description: shop.description,
   phone: shop.phone,

@@ -70,6 +70,7 @@ export async function executeAdminCreateVendor(
       shopRepo,
       vendorId: profile._id,
       name: dto.shopName,
+      nameTa: dto.shopNameTa,
       phone: dto.phone,
       address: dto.address,
       openingTime: dto.openingTime,

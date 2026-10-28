@@ -30,6 +30,7 @@ export function AdminVendorsPage() {
     const q = search.toLowerCase();
     return (
       v.businessName.toLowerCase().includes(q) ||
+      (v.shop?.nameTa && v.shop.nameTa.toLowerCase().includes(q)) ||
       v.ownerName.toLowerCase().includes(q) ||
       v.fssaiNumber.toLowerCase().includes(q) ||
       (v.shop?.city && v.shop.city.toLowerCase().includes(q))

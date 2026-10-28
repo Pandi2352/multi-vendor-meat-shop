@@ -9,6 +9,7 @@ interface BuildShopParams {
   shopRepo: ShopRepository;
   vendorId: string;
   name: string;
+  nameTa?: string;
   phone: string;
   address: {
     line1: string;
@@ -69,6 +70,7 @@ export async function createVendorShop(params: BuildShopParams) {
     shopRepo,
     vendorId,
     name,
+    nameTa,
     phone,
     address,
     openingTime = '06:00',
@@ -87,6 +89,7 @@ export async function createVendorShop(params: BuildShopParams) {
   return shopRepo.create({
     vendorId,
     name,
+    nameTa,
     slug,
     phone,
     address: {

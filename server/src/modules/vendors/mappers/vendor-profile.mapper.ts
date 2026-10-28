@@ -29,6 +29,7 @@ export const toVendorProfileResponseDto = (
     ? {
         id: shop._id,
         name: shop.name,
+        nameTa: shop.nameTa,
         phone: shop.phone,
         status: shop.status,
         line1: shop.address.line1,

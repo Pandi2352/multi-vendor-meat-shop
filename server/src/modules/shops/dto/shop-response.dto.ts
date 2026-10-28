@@ -12,6 +12,9 @@ export class ShopResponseDto {
   @ApiProperty({ example: 'Murugan Fresh Mutton & Chicken' })
   name!: string;
 
+  @ApiPropertyOptional({ example: 'முருகன் ஃபிரஷ் மட்டன் & சிக்கன்' })
+  nameTa?: string;
+
   @ApiProperty({ example: 'murugan-fresh-mutton-chicken' })
   slug!: string;
 

@@ -4,6 +4,7 @@ import type { UserInvitation } from '@/features/users';
 export interface VendorShopSummary {
   id: string;
   name: string;
+  nameTa?: string;
   phone: string;
   status: string;
   line1: string;
@@ -54,6 +55,7 @@ export interface AdminCreateVendorPayload {
   /** Required: the owner signs in with it and the invitation is emailed there. */
   email: string;
   shopName: string;
+  shopNameTa?: string;
   fssaiNumber: string;
   fssaiDocumentUrl?: string;
   municipalPermitNumber?: string;

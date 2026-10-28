@@ -9,6 +9,9 @@ export class VendorShopSummaryDto {
   @ApiProperty({ example: 'Virudhunagar Chettinad Mutton Stall' })
   name!: string;
 
+  @ApiPropertyOptional({ example: 'விருதுநகர் செட்டிநாடு மட்டன் ஸ்டால்' })
+  nameTa?: string;
+
   @ApiProperty({ example: '9842012345' })
   phone!: string;
 

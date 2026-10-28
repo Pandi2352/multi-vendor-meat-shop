@@ -82,6 +82,11 @@ export class AdminCreateVendorDto {
   @IsNotEmpty()
   shopName!: string;
 
+  @ApiPropertyOptional({ example: 'சாத்தூர் ஹைவே சிக்கன் & மட்டன்' })
+  @IsString()
+  @IsOptional()
+  shopNameTa?: string;
+
   @ApiProperty({ example: '12426008000456' })
   @Matches(/^\d{14}$/, { message: 'FSSAI number must be 14 digits' })
   fssaiNumber!: string;
