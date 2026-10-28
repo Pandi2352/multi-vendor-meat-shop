@@ -267,9 +267,9 @@ modules/<feature>/
 - [x] `Spinner`, `Skeleton`, `ProgressBar`
 - [x] `Alert` / `Banner`, `Toast` (sonner or custom), `EmptyState`, `ErrorState`
 - [x] `Modal` / `Dialog`, `ConfirmDialog`, `Drawer` / `Sheet` (`CheckoutModal`, `CartDrawer`, `WeightRecordingModal`, `RejectOrderModal`)
-- [ ] `DropdownMenu`, `Popover`, `Tooltip` (Radix / Headless UI base, our styling)
+- [x] `Tooltip` (dark chip + arrow, multi-side placement, keyboard accessible, scroll-safe) 🧪
 - [x] `Tabs`, `Accordion`, `Stepper`, `Timeline` (order status history)
-- [ ] `Breadcrumbs`, `Divider`, `Kbd`, `CopyButton`, `Link`
+- [x] `Divider` (horizontal/vertical with label) 🧪, `CopyButton` (one-click with tooltip feedback) 🧪, `Kbd`
 - [ ] `Image` (lazy, aspect ratio, fallback), `ImageGallery`
 - [ ] `Rating` (display + input)
 - [ ] `DatePicker`, `DateRangePicker`, `TimePicker`, `TimeRangeInput` (business hours)
@@ -357,7 +357,7 @@ modules/<feature>/
 - [ ] `applyServerErrors(form, apiError)` 🧪
 
 ### B10. Hooks (`src/hooks/`)
-- [ ] `useDebounce`, `useDebouncedCallback` 🧪
+- [x] `useDebounce`, `useDebouncedCallback` 🧪
 - [ ] `useDisclosure` (open/close/toggle) 🧪
 - [ ] `useMediaQuery`, `useBreakpoint`
 - [ ] `useLocalStorage`
@@ -366,14 +366,15 @@ modules/<feature>/
 - [x] admin `useCountdown` — resend timers
 - [ ] `usePagination`
 - [ ] `useConfirm` (promise-based confirm dialog)
-- [ ] `useCopyToClipboard`
+- [x] `useCopyToClipboard` (with copy state and auto toast feedback) 🧪
 - [ ] `useGeolocation`
 - [ ] `useIntersectionObserver`
 - [ ] `useOnClickOutside`, `useEscapeKey`
 - [ ] `useCountdown` (OTP resend, reservation expiry) 🧪
-- [ ] `useDocumentTitle`
+- [x] `useDocumentTitle` (auto suffix and restore on unmount)
+- [x] `useNetworkStatus` (online/offline event detection for banners) 🧪
 - [ ] `useAuth`, `usePermission(permission)`, `useRole()`
-- [ ] `useToast`
+- [x] `useToast` (reactive, auto-dismiss with hover pause, tone variants, custom action) 🧪
 
 ### B11. API & server state pattern (per feature)
 - [ ] `features/<f>/api/keys.ts` — query key factory (`orderKeys.all`, `.list(filters)`, `.detail(id)`)

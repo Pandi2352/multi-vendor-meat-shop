@@ -4,6 +4,8 @@ import { formatINR } from '@/utils';
 import type { OrderResponse, DeliveryTaskResponse } from '../api/orders.api';
 import { useResendDeliveryOtp } from '../api/use-orders';
 
+import { toast } from '@/components/ui';
+
 interface LiveOrderTrackerProps {
   order: OrderResponse;
   deliveryTask?: DeliveryTaskResponse;
@@ -24,10 +26,14 @@ export function LiveOrderTracker({ order, deliveryTask }: LiveOrderTrackerProps)
     if (!order.id) return;
     try {
       const res = await resendOtp.mutateAsync(order.id);
-      setEmailStatus(`OTP sent to Gmail (${res.maskedEmail})`);
+      const msg = `OTP sent to Gmail (${res.maskedEmail})`;
+      setEmailStatus(msg);
+      toast.success(msg);
       setTimeout(() => setEmailStatus(null), 8000);
     } catch {
-      setEmailStatus('Failed to send email. Please try again.');
+      const msg = 'Failed to send OTP to Gmail. Please try again.';
+      setEmailStatus(msg);
+      toast.error(msg);
     }
   };
 

@@ -17,6 +17,7 @@
   --color-muted: #57534e;
   --color-primary: #b91c1c;
   --color-primary-foreground: #ffffff;
+  --color-primary-soft: #fef2f2;
   --color-success: #15803d;
   --color-success-soft: #dcfce7;
   --color-warning: #b45309;
@@ -26,7 +27,20 @@
   --color-info: #1d4ed8;
   --color-info-soft: #dbeafe;
 
+  --color-tooltip: #1c1917;
+  --color-tooltip-foreground: #fafaf9;
+  --color-tooltip-muted: #a8a29e;
+
   --font-sans: "Inter", "Noto Sans Tamil", ui-sans-serif, system-ui, sans-serif;
+
+  --animate-pop-in: pop-in 140ms cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  @keyframes pop-in {
+    from {
+      opacity: 0;
+      scale: 0.96;
+    }
+  }
 }
 
 @layer base {

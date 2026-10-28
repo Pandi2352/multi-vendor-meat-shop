@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { X, Truck, ShieldCheck } from 'lucide-react';
-import { Button } from '@/components/ui';
+import { Button, Alert, toast } from '@/components/ui';
+import { getErrorMessage } from '@/lib/api-error';
 import { formatINR, formatWeight } from '@/utils';
 import type { CheckoutQuoteResponse } from '@/features/cart/api/cart.api';
 import { useCreateOrder } from '../api/use-orders';
@@ -33,7 +34,9 @@ export function CheckoutModal({ isOpen, onClose, quote, onOrderPlaced }: Checkou
     setError(null);
 
     if (addressData.text.trim().length < 5) {
-      setError('Please provide a complete delivery address');
+      const msg = 'Please provide a complete delivery address';
+      setError(msg);
+      toast.warning(msg);
       return;
     }
 
@@ -49,10 +52,12 @@ export function CheckoutModal({ isOpen, onClose, quote, onOrderPlaced }: Checkou
         customerNotes: customerNotes.trim() || undefined,
         paymentMethod: 'COD',
       });
+      toast.success('Order placed successfully! Butcher stall has been notified.');
       onOrderPlaced(order);
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Failed to place order';
+      const msg = getErrorMessage(err, 'Failed to place order. Please try again.');
       setError(msg);
+      toast.error(msg);
     }
   };
 
@@ -73,8 +78,8 @@ export function CheckoutModal({ isOpen, onClose, quote, onOrderPlaced }: Checkou
         </div>
 
         {error && (
-          <div className="mb-4 rounded-md border border-danger/30 bg-danger-soft p-3 text-xs text-danger">
-            {error}
+          <div className="mb-4">
+            <Alert tone="danger">{error}</Alert>
           </div>
         )}
 

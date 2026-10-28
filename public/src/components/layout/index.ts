@@ -5,4 +5,6 @@ export * from './server-error-page';
 export * from './route-error-page';
 export * from './storefront-header';
 export * from './storefront-footer';
+export * from './offline-banner';
+export * from './scroll-to-top';
 

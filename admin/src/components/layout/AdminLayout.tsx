@@ -6,6 +6,8 @@ import { VendorStatusBanner } from '@/features/vendor-status';
 import { useIsDesktop, usePersistedState } from '@/hooks';
 import { Navbar } from './navbar';
 import { Sidebar } from './sidebar';
+import { OfflineBanner } from './offline-banner';
+import { ScrollToTop } from './scroll-to-top';
 
 /** Shell for every signed-in admin page: sidebar + navbar + routed content. */
 export function AdminLayout() {
@@ -21,8 +23,10 @@ export function AdminLayout() {
 
   return (
     <div className="flex min-h-dvh bg-background">
+      <ScrollToTop />
       <Sidebar collapsed={collapsed} isDesktop={isDesktop} mobileOpen={mobileOpen} onMobileClose={closeMobile} />
       <div className="flex min-w-0 flex-1 flex-col">
+        <OfflineBanner />
         <Navbar collapsed={collapsed} isDesktop={isDesktop} onToggleSidebar={toggleSidebar} />
         {/* Full-width content: pages fill the space beside the sidebar cleanly with no empty void. */}
         <main id="main-content" className="w-full min-w-0 flex-1 p-4 sm:p-5 lg:p-6">

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ErrorState } from '../ui/error-state';
 
 export interface NotFoundPageProps {
@@ -6,9 +7,19 @@ export interface NotFoundPageProps {
 }
 
 export const NotFoundPage: React.FC<NotFoundPageProps> = ({ onGoHome }) => {
+  let navigate: ReturnType<typeof useNavigate> | null = null;
+  try {
+    // Call inside try/catch in case rendered outside Router context
+    navigate = useNavigate();
+  } catch {
+    navigate = null;
+  }
+
   const handleHome = () => {
     if (onGoHome) {
       onGoHome();
+    } else if (navigate) {
+      navigate('/');
     } else {
       window.location.href = '/';
     }

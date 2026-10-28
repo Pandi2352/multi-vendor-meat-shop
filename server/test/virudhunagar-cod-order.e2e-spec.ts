@@ -21,6 +21,11 @@ describe('Virudhunagar End-to-End COD Order & Tracking (e2e)', () => {
   let productId: string;
   let initialStockGrams: number;
   let createdOrderId: string;
+  let courierToken: string;
+  let courierId: string;
+  let adminToken: string;
+  let deliveryTaskId: string;
+  let plainOtp: string;
 
   const http = () => request(app.getHttpServer());
 
@@ -45,6 +50,25 @@ describe('Virudhunagar End-to-End COD Order & Tracking (e2e)', () => {
     customerToken = tokenService.signAccessToken({
       id: customerId,
       role: Role.CUSTOMER,
+      permissions: [],
+    });
+
+    // Get demo delivery partner Selvam
+    const courier = await userRepo.findByEmail('delivery.selvam@virudhunagar-meats.in');
+    expect(courier).toBeTruthy();
+    courierId = courier!._id;
+    courierToken = tokenService.signAccessToken({
+      id: courierId,
+      role: Role.DELIVERY_PARTNER,
+      permissions: [],
+    });
+
+    // Get admin user
+    const admin = await userRepo.findByEmail('admin@virudhunagar-meats.in');
+    expect(admin).toBeTruthy();
+    adminToken = tokenService.signAccessToken({
+      id: admin!._id,
+      role: admin!.role,
       permissions: [],
     });
 
@@ -231,8 +255,97 @@ describe('Virudhunagar End-to-End COD Order & Tracking (e2e)', () => {
 
     expect(res.body.success).toBe(true);
     const task = res.body.data;
+    deliveryTaskId = task.id;
+    plainOtp = task.otpPlain;
     expect(task.orderId).toBe(createdOrderId);
     expect(task.otpPlain).toMatch(/^\d{4}$/);
     expect(task.codAmountPaise).toBeGreaterThan(0);
+  });
+
+  it('8. customer requests delivery OTP resend to Gmail', async () => {
+    const res = await http()
+      .post(`${API}/delivery/tasks/order/${createdOrderId}/resend-otp`)
+      .set('Authorization', `Bearer ${customerToken}`)
+      .expect(201);
+
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.success).toBe(true);
+    expect(res.body.data.maskedEmail).toBeTruthy();
+  });
+
+  it('9. assigns delivery partner Selvam to the order', async () => {
+    const res = await http()
+      .post(`${API}/admin/delivery/tasks/${deliveryTaskId}/assign`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({
+        partnerId: courierId,
+        partnerName: 'Selvam Delivery Partner',
+        partnerPhone: '+919842188888',
+      })
+      .expect(201);
+
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.partnerId).toBe(courierId);
+    expect(res.body.data.status).toBe('ASSIGNED');
+  });
+
+  it('10. courier marks order picked up from stall counter', async () => {
+    const listRes = await http()
+      .get(`${API}/delivery/tasks`)
+      .set('Authorization', `Bearer ${courierToken}`)
+      .expect(200);
+
+    expect(listRes.body.success).toBe(true);
+    expect(listRes.body.data.some((t: { id: string }) => t.id === deliveryTaskId)).toBe(true);
+
+    const pickupRes = await http()
+      .patch(`${API}/delivery/tasks/${deliveryTaskId}/pickup`)
+      .set('Authorization', `Bearer ${courierToken}`)
+      .expect(200);
+
+    expect(pickupRes.body.data.status).toBe('PICKED_UP');
+
+    const orderRes = await http()
+      .get(`${API}/orders/${createdOrderId}`)
+      .set('Authorization', `Bearer ${customerToken}`)
+      .expect(200);
+
+    expect(orderRes.body.data.status).toBe('OUT_FOR_DELIVERY');
+  });
+
+  it('11. courier verifies 4-digit OTP at customer doorstep and completes delivery', async () => {
+    const deliverRes = await http()
+      .post(`${API}/delivery/tasks/${deliveryTaskId}/deliver`)
+      .set('Authorization', `Bearer ${courierToken}`)
+      .send({
+        otp: plainOtp,
+        collectedCod: true,
+      })
+      .expect(201);
+
+    expect(deliverRes.body.data.status).toBe('DELIVERED');
+    expect(deliverRes.body.data.codCollected).toBe(true);
+
+    const orderRes = await http()
+      .get(`${API}/orders/${createdOrderId}`)
+      .set('Authorization', `Bearer ${customerToken}`)
+      .expect(200);
+
+    expect(orderRes.body.data.status).toBe('DELIVERED');
+    expect(orderRes.body.data.payment.status).toBe('COD_COLLECTED');
+  });
+
+  it('12. courier earnings dashboard reflects completed trip commission (+₹40) and COD cash in hand', async () => {
+    const earningsRes = await http()
+      .get(`${API}/delivery/tasks/earnings`)
+      .set('Authorization', `Bearer ${courierToken}`)
+      .expect(200);
+
+    expect(earningsRes.body.success).toBe(true);
+    const earnings = earningsRes.body.data;
+    expect(earnings.completedTripsCount).toBeGreaterThanOrEqual(1);
+    expect(earnings.totalEarningsPaise).toBeGreaterThanOrEqual(4000);
+    expect(earnings.cashInHandPaise).toBeGreaterThan(0);
+    expect(earnings.recentTrips.some((t: { id: string }) => t.id === deliveryTaskId)).toBe(true);
   });
 });

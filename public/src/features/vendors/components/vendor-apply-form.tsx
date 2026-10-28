@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { AlertCircle } from 'lucide-react';
-import { Button } from '@/components/ui';
+import { Button, Alert } from '@/components/ui';
+import { getErrorMessage } from '@/lib/api-error';
 import { VIRUDHUNAGAR_TOWNS } from '@/constants/tn-districts';
 import { useApplyVendor, type VendorApplicationResponse } from '../api/vendor-apply.api';
 
@@ -67,10 +67,9 @@ export function VendorApplyForm({ onSuccess, onCancel }: VendorApplyFormProps) {
   return (
     <form onSubmit={handleSubmit} className="p-4 space-y-3 overflow-y-auto text-xs">
       {applyMutation.isError && (
-        <div className="p-2.5 rounded-md bg-destructive/10 border border-destructive/20 text-destructive flex items-center gap-2">
-          <AlertCircle className="h-4 w-4 shrink-0" />
-          <span>Failed to submit. Please check mobile and FSSAI number.</span>
-        </div>
+        <Alert tone="danger">
+          {getErrorMessage(applyMutation.error, 'Failed to submit application. Please check mobile and FSSAI number.')}
+        </Alert>
       )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">

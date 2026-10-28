@@ -47,6 +47,9 @@ export class DeliveryTaskRepository extends BaseRepository<DeliveryTask> {
   }
 
   async findPartnerDeliveredTasks(partnerId: string): Promise<DeliveryTask[]> {
-    return this.find({ partnerId, status: DeliveryStatus.DELIVERED }, { sort: { deliveredAt: -1, createdAt: -1 } });
+    return this.findMany(
+      { partnerId, status: DeliveryStatus.DELIVERED },
+      { sort: { deliveredAt: -1, createdAt: -1 } as never },
+    );
   }
 }

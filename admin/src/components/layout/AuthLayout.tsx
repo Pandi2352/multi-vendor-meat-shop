@@ -2,6 +2,9 @@ import { Beef, ClipboardList, ReceiptIndianRupee, ShieldCheck, Warehouse, type L
 import { Outlet } from 'react-router-dom';
 import { APP_CONFIG } from '@/config/app.config';
 
+import { OfflineBanner } from './offline-banner';
+import { ScrollToTop } from './scroll-to-top';
+
 const HIGHLIGHTS: { icon: LucideIcon; title: string; body: string }[] = [
   { icon: ClipboardList, title: 'Live preparation queue', body: 'Accept, cut and hand over orders on time.' },
   { icon: Warehouse, title: 'Fresh stock in grams', body: 'Opening stock, wastage and every movement logged.' },
@@ -29,7 +32,10 @@ function Brand({ inverse = false }: { inverse?: boolean }) {
 /** Split screen for sign-in pages: brand panel (desktop) + centered form column. */
 export function AuthLayout() {
   return (
-    <div className="grid min-h-dvh bg-surface lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">
+    <div className="relative min-h-dvh">
+      <OfflineBanner />
+      <ScrollToTop />
+      <div className="grid min-h-dvh bg-surface lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">
       <aside className="hidden flex-col justify-between bg-inverse p-10 lg:flex xl:p-14">
         <Brand inverse />
         <div className="max-w-md space-y-10">
@@ -72,6 +78,7 @@ export function AuthLayout() {
           © {new Date().getFullYear()} {APP_CONFIG.brandName} · v{APP_CONFIG.version}
         </p>
       </main>
+    </div>
     </div>
   );
 }

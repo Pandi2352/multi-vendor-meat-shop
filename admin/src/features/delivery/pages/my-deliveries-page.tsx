@@ -1,6 +1,8 @@
 import { useState, useMemo } from 'react';
 import { Bike, CheckCircle2, Clock, AlertCircle } from 'lucide-react';
 import { formatINR } from '@/utils/format';
+import { toast } from '@/components/ui';
+import { getErrorMessage } from '@/lib/api-error';
 import { useMyDeliveryTasks, useCompleteDelivery } from '../api/use-delivery';
 import type { DeliveryTaskResponse } from '../api/delivery.api';
 import { RiderTaskCard } from '../components/rider-task-card';
@@ -26,11 +28,16 @@ export function MyDeliveriesPage() {
 
   const handleVerify = async ({ otp, collectedCod }: { otp: string; collectedCod: boolean }) => {
     if (!selectedTask) return;
-    await completeDelivery.mutateAsync({
-      id: selectedTask.id,
-      body: { otp, collectedCod },
-    });
-    setSelectedTask(null);
+    try {
+      await completeDelivery.mutateAsync({
+        id: selectedTask.id,
+        body: { otp, collectedCod },
+      });
+      toast.success(`Order ${selectedTask.orderNumber} successfully delivered!`);
+      setSelectedTask(null);
+    } catch (err) {
+      toast.error(getErrorMessage(err, 'Failed to complete delivery. Please check customer OTP.'));
+    }
   };
 
   return (

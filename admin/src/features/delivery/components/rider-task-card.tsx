@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Store, MapPin, Navigation, CheckCircle2, PackageCheck } from 'lucide-react';
-import { Button } from '@/components/ui';
+import { Button, Alert, toast } from '@/components/ui';
+import { getErrorMessage } from '@/lib/api-error';
 import { formatINR } from '@/utils/format';
 import type { DeliveryTaskResponse } from '../api/delivery.api';
 import { DeliveryStatusBadge } from './delivery-status-badge';
@@ -26,8 +27,11 @@ export function RiderTaskCard({ task, onDeliver }: RiderTaskCardProps) {
     try {
       setErrorMsg(null);
       await pickup.mutateAsync(task.id);
-    } catch {
-      setErrorMsg('Failed to confirm pickup. Please try again.');
+      toast.success(`Picked up order ${task.orderNumber} from stall!`);
+    } catch (err) {
+      const msg = getErrorMessage(err, 'Failed to confirm pickup. Please try again.');
+      setErrorMsg(msg);
+      toast.error(msg);
     }
   };
 
@@ -86,7 +90,7 @@ export function RiderTaskCard({ task, onDeliver }: RiderTaskCardProps) {
         </div>
       )}
 
-      {errorMsg && <p className="text-xs text-danger">{errorMsg}</p>}
+      {errorMsg && <Alert tone="danger">{errorMsg}</Alert>}
 
       {/* Action Buttons */}
       <div className="pt-1">

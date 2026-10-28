@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { ErrorBoundary, StorefrontHeader, StorefrontFooter } from '@/components/layout';
+import { ErrorBoundary, StorefrontHeader, StorefrontFooter, NotFoundPage, OfflineBanner, ScrollToTop } from '@/components/layout';
+import { Toaster } from '@/components/ui';
 import { queryClient } from '@/lib/query-client';
 import { CartDrawer } from '@/features/cart/components/cart-drawer';
 import { CheckoutModal } from '@/features/orders/components/checkout-modal';
@@ -27,6 +28,8 @@ function StorefrontApp() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
+      <OfflineBanner />
+      <ScrollToTop />
       <StorefrontHeader
         onOpenCart={() => setIsCartOpen(true)}
         onOpenPartnerModal={() => setIsPartnerModalOpen(true)}
@@ -37,7 +40,10 @@ function StorefrontApp() {
         <Route path="/shops/:shopId" element={<ShopCataloguePage />} />
         <Route path="/orders" element={<OrdersPage />} />
         <Route path="/orders/:orderId" element={<OrderDetailPage />} />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
+
+      <Toaster />
 
       <CartDrawer
         isOpen={isCartOpen}
