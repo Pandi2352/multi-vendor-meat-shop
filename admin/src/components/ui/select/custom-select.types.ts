@@ -22,6 +22,7 @@ export interface CustomSelectProps {
   size?: 'sm' | 'md' | 'lg';
   align?: 'auto' | 'left' | 'right';
   placement?: 'auto' | 'bottom' | 'top';
+  portal?: boolean;
   className?: string;
   triggerClassName?: string;
   menuClassName?: string;

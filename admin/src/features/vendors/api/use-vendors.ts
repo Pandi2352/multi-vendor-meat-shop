@@ -32,6 +32,17 @@ export const useCreateVendor = () => {
   });
 };
 
+export const useUpdateVendor = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: import('./vendors.api').AdminUpdateVendorPayload }) =>
+      vendorsApi.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: vendorKeys.all });
+    },
+  });
+};
+
 export const useVerifyVendor = () => {
   const queryClient = useQueryClient();
   return useMutation({

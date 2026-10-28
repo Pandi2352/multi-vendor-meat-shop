@@ -18,10 +18,12 @@ import type { VerifyVendorDto } from '../dto/verify-vendor.dto.js';
 import type { AdminCreateVendorDto } from '../dto/admin-create-vendor.dto.js';
 import type { ApplyVendorDto } from '../dto/apply-vendor.dto.js';
 import type { UpdateVendorPermissionsDto } from '../dto/update-vendor-permissions.dto.js';
+import type { AdminUpdateVendorDto } from '../dto/admin-update-vendor.dto.js';
 import type { VendorProfileResponseDto } from '../dto/vendor-profile-response.dto.js';
 import type { VendorApplicationResponseDto } from '../dto/vendor-application-response.dto.js';
 import { toVendorProfileResponseDto } from '../mappers/vendor-profile.mapper.js';
 import { executeAdminCreateVendor, executeApplyVendor } from './vendor-onboarding.helper.js';
+import { executeAdminUpdateVendor } from './vendor-update.helper.js';
 
 @Injectable()
 export class VendorProfileService {
@@ -185,6 +187,18 @@ export class VendorProfileService {
     const response = toVendorProfileResponseDto(profile, shop);
     response.invitation = await this.inviteOwnerIfNeeded(user, shop, adminId);
     return response;
+  }
+
+  async adminUpdateVendor(
+    vendorId: string,
+    dto: AdminUpdateVendorDto,
+  ): Promise<VendorProfileResponseDto> {
+    const { profile, shop } = await executeAdminUpdateVendor(
+      { userRepo: this.userRepo, vendorRepo: this.vendorRepo, shopRepo: this.shopRepo },
+      vendorId,
+      dto,
+    );
+    return toVendorProfileResponseDto(profile, shop);
   }
 
   async applyVendor(dto: ApplyVendorDto): Promise<VendorApplicationResponseDto> {

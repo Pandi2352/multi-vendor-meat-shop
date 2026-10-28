@@ -5,6 +5,7 @@ import { useAdminVendors, type VendorProfile, type VendorStatus } from '../api';
 import { VendorCard } from '../components/vendor-card';
 import { VendorVerifyDialog } from '../components/vendor-verify-dialog';
 import { AddVendorModal } from '../components/add-vendor-modal';
+import { EditVendorModal } from '../components/edit-vendor-modal';
 import { StallDossierModal } from '../components/stall-dossier-modal';
 import { StallPermissionsModal } from '../components/stall-permissions-modal';
 
@@ -16,6 +17,7 @@ export function AdminVendorsPage() {
   const [isAddOpen, setIsAddOpen] = useState(false);
 
   const [dossierTarget, setDossierTarget] = useState<VendorProfile | null>(null);
+  const [editTarget, setEditTarget] = useState<VendorProfile | null>(null);
   const [permissionsTarget, setPermissionsTarget] = useState<VendorProfile | null>(null);
   const [verifyTarget, setVerifyTarget] = useState<{
     vendor: VendorProfile;
@@ -115,6 +117,7 @@ export function AdminVendorsPage() {
               onOpenDossier={(v) => setDossierTarget(v)}
               onOpenPermissions={(v) => setPermissionsTarget(v)}
               onAction={(v, action) => setVerifyTarget({ vendor: v, action })}
+              onEdit={(v) => setEditTarget(v)}
             />
           ))}
         </div>
@@ -123,11 +126,17 @@ export function AdminVendorsPage() {
       {/* Modals & Dialogs */}
       <AddVendorModal isOpen={isAddOpen} onClose={() => setIsAddOpen(false)} />
 
+      <EditVendorModal
+        vendor={editTarget}
+        onClose={() => setEditTarget(null)}
+      />
+
       <StallDossierModal
         vendor={dossierTarget}
         onClose={() => setDossierTarget(null)}
         onOpenPermissions={(v) => setPermissionsTarget(v)}
         onAction={(v, action) => setVerifyTarget({ vendor: v, action })}
+        onEdit={(v) => setEditTarget(v)}
       />
 
       <StallPermissionsModal

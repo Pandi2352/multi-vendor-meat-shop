@@ -1,4 +1,4 @@
-import { FileText, ShieldCheck, CheckCircle2, AlertCircle, Ban, X } from 'lucide-react';
+import { FileText, ShieldCheck, CheckCircle2, AlertCircle, Ban, X, Pencil } from 'lucide-react';
 import type { VendorProfile, VendorStatus } from '../api';
 import { VendorStatusBadge } from './vendor-status-badge';
 import { VIRUDHUNAGAR_MEAT_CATEGORIES } from '../constants';
@@ -8,9 +8,16 @@ interface VendorCardProps {
   onOpenDossier: (vendor: VendorProfile) => void;
   onOpenPermissions: (vendor: VendorProfile) => void;
   onAction: (vendor: VendorProfile, action: VendorStatus) => void;
+  onEdit?: (vendor: VendorProfile) => void;
 }
 
-export function VendorCard({ vendor, onOpenDossier, onOpenPermissions, onAction }: VendorCardProps) {
+export function VendorCard({
+  vendor,
+  onOpenDossier,
+  onOpenPermissions,
+  onAction,
+  onEdit,
+}: VendorCardProps) {
   const isPending = vendor.status === 'SUBMITTED' || vendor.status === 'UNDER_REVIEW';
   const isApproved = vendor.status === 'APPROVED';
   const isSuspended = vendor.status === 'SUSPENDED';
@@ -94,15 +101,30 @@ export function VendorCard({ vendor, onOpenDossier, onOpenPermissions, onAction 
       </div>
 
       <div className="pt-2 border-t border-border flex items-center justify-between gap-1.5 flex-wrap">
-        {/* Dossier Button - Sky Blue */}
-        <button
-          type="button"
-          onClick={() => onOpenDossier(vendor)}
-          className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-md transition-colors bg-sky-50 text-sky-700 border border-sky-200 hover:bg-sky-100 hover:border-sky-300 dark:bg-sky-950/40 dark:text-sky-300 dark:border-sky-800"
-        >
-          <FileText className="h-3 w-3 text-sky-600 dark:text-sky-400" />
-          <span>Dossier</span>
-        </button>
+        <div className="flex items-center gap-1.5">
+          {/* Dossier Button - Sky Blue */}
+          <button
+            type="button"
+            onClick={() => onOpenDossier(vendor)}
+            className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-md transition-colors bg-sky-50 text-sky-700 border border-sky-200 hover:bg-sky-100 hover:border-sky-300 dark:bg-sky-950/40 dark:text-sky-300 dark:border-sky-800"
+          >
+            <FileText className="h-3 w-3 text-sky-600 dark:text-sky-400" />
+            <span>Dossier</span>
+          </button>
+
+          {/* Edit Button */}
+          {onEdit && (
+            <button
+              type="button"
+              onClick={() => onEdit(vendor)}
+              className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-md transition-colors bg-surface-muted text-text border border-border hover:bg-surface hover:border-primary/50"
+              title="Edit stall details"
+            >
+              <Pencil className="h-3 w-3 text-muted" />
+              <span>Edit</span>
+            </button>
+          )}
+        </div>
 
         <div className="flex items-center gap-1.5 ml-auto">
           {/* Quick Approve - Emerald Green */}

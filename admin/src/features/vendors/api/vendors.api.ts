@@ -73,6 +73,23 @@ export interface AdminCreateVendorPayload {
   serviceRadiusKm?: number;
 }
 
+export interface AdminUpdateVendorPayload {
+  ownerName?: string;
+  phone?: string;
+  shopName?: string;
+  shopNameTa?: string;
+  fssaiNumber?: string;
+  fssaiDocumentUrl?: string;
+  municipalPermitNumber?: string;
+  line1?: string;
+  locality?: string;
+  city?: string;
+  pincode?: string;
+  openingTime?: string;
+  closingTime?: string;
+  serviceRadiusKm?: number;
+}
+
 export interface VerifyVendorPayload {
   status: VendorStatus;
   rejectionReason?: string;
@@ -94,6 +111,9 @@ export const vendorsApi = {
 
   create: (data: AdminCreateVendorPayload): Promise<VendorProfile> =>
     http.post<VendorProfile>('/admin/vendors', data),
+
+  update: (id: string, data: AdminUpdateVendorPayload): Promise<VendorProfile> =>
+    http.patch<VendorProfile>(`/admin/vendors/${encodeURIComponent(id)}`, data),
 
   verify: (id: string, data: VerifyVendorPayload): Promise<VendorProfile> =>
     http.patch<VendorProfile>(`/admin/vendors/${encodeURIComponent(id)}/verify`, data),

@@ -1,56 +1,84 @@
 import { useState } from 'react';
 import { AlertCircle } from 'lucide-react';
-import { Button, CustomSelect } from '@/components/ui';
+import { Button, FormField, Input } from '@/components/ui';
 import { VIRUDHUNAGAR_TOWNS } from '@/constants/virudhunagar-towns';
 import { useCreateVendor, type VendorProfile } from '../api';
+import {
+  validateVendorForm,
+  type VendorFormData,
+  type VendorFormErrors,
+} from './add-vendor-form.validation';
+import { AddVendorLocationFields } from './add-vendor-location-fields';
 
 interface AddVendorFormProps {
   onCreated: (vendor: VendorProfile) => void;
   onCancel: () => void;
 }
 
-/** Fields and submit for creating an approved stall with bilingual name support. */
+/** Form with per-field validation errors for adding an approved butcher stall. */
 export function AddVendorForm({ onCreated, onCancel }: AddVendorFormProps) {
-  const [ownerName, setOwnerName] = useState('');
-  const [shopName, setShopName] = useState('');
-  const [shopNameTa, setShopNameTa] = useState('');
-  const [phone, setPhone] = useState('');
-  const [email, setEmail] = useState('');
-  const [town, setTown] = useState(VIRUDHUNAGAR_TOWNS[0].nameEn);
-  const [locality, setLocality] = useState('');
-  const [line1, setLine1] = useState('');
-  const [pincode, setPincode] = useState(VIRUDHUNAGAR_TOWNS[0].pincode);
-  const [fssaiNumber, setFssaiNumber] = useState('');
-  const [openingTime, setOpeningTime] = useState('06:00');
-  const [closingTime, setClosingTime] = useState('21:00');
+  const [formData, setFormData] = useState<VendorFormData>({
+    ownerName: '',
+    shopName: '',
+    shopNameTa: '',
+    phone: '',
+    email: '',
+    town: VIRUDHUNAGAR_TOWNS[0].nameEn,
+    locality: '',
+    line1: '',
+    pincode: VIRUDHUNAGAR_TOWNS[0].pincode,
+    fssaiNumber: '',
+    openingTime: '06:00',
+    closingTime: '21:00',
+  });
+  const [errors, setErrors] = useState<VendorFormErrors>({});
 
   const createMutation = useCreateVendor();
 
+  const updateField = (key: keyof VendorFormData, value: string) => {
+    setFormData((prev) => ({ ...prev, [key]: value }));
+    if (errors[key] || (key.includes('Time') && errors.timing)) {
+      setErrors((prev) => ({ ...prev, [key]: undefined, timing: undefined }));
+    }
+  };
+
   const handleTownChange = (selectedTownName: string) => {
-    setTown(selectedTownName);
     const townData = VIRUDHUNAGAR_TOWNS.find((t) => t.nameEn === selectedTownName);
-    if (townData) setPincode(townData.pincode);
+    setFormData((prev) => ({
+      ...prev,
+      town: selectedTownName,
+      pincode: townData ? townData.pincode : prev.pincode,
+    }));
+    if (errors.town || errors.pincode) {
+      setErrors((prev) => ({ ...prev, town: undefined, pincode: undefined }));
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const townData = VIRUDHUNAGAR_TOWNS.find((t) => t.nameEn === town);
+    const validationErrors = validateVendorForm(formData);
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+
+    const townData = VIRUDHUNAGAR_TOWNS.find((t) => t.nameEn === formData.town);
     createMutation.mutate(
       {
-        ownerName: ownerName.trim(),
-        shopName: shopName.trim(),
-        shopNameTa: shopNameTa.trim() || undefined,
-        phone: phone.trim(),
-        email: email.trim(),
-        fssaiNumber: fssaiNumber.trim(),
-        openingTime,
-        closingTime,
+        ownerName: formData.ownerName.trim(),
+        shopName: formData.shopName.trim(),
+        shopNameTa: formData.shopNameTa.trim() || undefined,
+        phone: formData.phone.trim(),
+        email: formData.email.trim(),
+        fssaiNumber: formData.fssaiNumber.trim(),
+        openingTime: formData.openingTime,
+        closingTime: formData.closingTime,
         address: {
-          line1: line1.trim(),
-          locality: locality.trim() || town,
-          city: town,
+          line1: formData.line1.trim(),
+          locality: formData.locality.trim() || formData.town,
+          city: formData.town,
           district: 'Virudhunagar',
-          pincode: pincode.trim(),
+          pincode: formData.pincode.trim(),
           location: townData ? { lat: townData.lat, lng: townData.lng } : undefined,
         },
       },
@@ -61,7 +89,11 @@ export function AddVendorForm({ onCreated, onCancel }: AddVendorFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="p-6 space-y-4 overflow-y-auto text-xs sm:text-sm">
+    <form
+      onSubmit={handleSubmit}
+      noValidate
+      className="px-6 py-5 md:px-8 space-y-4 overflow-y-auto text-xs sm:text-sm"
+    >
       {createMutation.isError && (
         <div className="p-3 rounded-md bg-destructive/10 border border-destructive/20 text-destructive flex items-center gap-2">
           <AlertCircle className="h-4 w-4 shrink-0" />
@@ -71,151 +103,90 @@ export function AddVendorForm({ onCreated, onCancel }: AddVendorFormProps) {
 
       {/* Shop Names: English + Tamil */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-          <label className="block font-medium text-text mb-1.5">Shop Name (English) *</label>
-          <input
-            required
-            value={shopName}
-            onChange={(e) => setShopName(e.target.value)}
+        <FormField htmlFor="shop-name-en" label="Shop Name (English) *" error={errors.shopName}>
+          <Input
+            id="shop-name-en"
+            value={formData.shopName}
+            onChange={(e) => updateField('shopName', e.target.value)}
+            invalid={!!errors.shopName}
             placeholder="e.g. Sivakasi Broiler Centre"
-            className="w-full px-3 py-2 rounded-md border border-border bg-surface text-text focus:outline-none focus:border-primary text-sm"
           />
-        </div>
-        <div>
-          <label className="block font-medium text-text mb-1.5">
-            Shop Name in Tamil / கடையின் பெயர் (தமிழ்)
-          </label>
-          <input
-            value={shopNameTa}
-            onChange={(e) => setShopNameTa(e.target.value)}
+        </FormField>
+        <FormField
+          htmlFor="shop-name-ta"
+          label="Shop Name in Tamil / கடையின் பெயர் (தமிழ்)"
+          error={errors.shopNameTa}
+        >
+          <Input
+            id="shop-name-ta"
+            value={formData.shopNameTa}
+            onChange={(e) => updateField('shopNameTa', e.target.value)}
             placeholder="எ.கா. சிவகாசி பிராய்லர் சென்டர்"
-            className="w-full px-3 py-2 rounded-md border border-border bg-surface text-text focus:outline-none focus:border-primary text-sm font-sans"
           />
-        </div>
+        </FormField>
       </div>
 
       {/* Owner & Contact */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div>
-          <label className="block font-medium text-text mb-1.5">Owner Name *</label>
-          <input
-            required
-            value={ownerName}
-            onChange={(e) => setOwnerName(e.target.value)}
+        <FormField htmlFor="owner-name" label="Owner Name *" error={errors.ownerName}>
+          <Input
+            id="owner-name"
+            value={formData.ownerName}
+            onChange={(e) => updateField('ownerName', e.target.value)}
+            invalid={!!errors.ownerName}
             placeholder="e.g. M. Ramasamy"
-            className="w-full px-3 py-2 rounded-md border border-border bg-surface text-text focus:outline-none focus:border-primary text-sm"
           />
-        </div>
-        <div>
-          <label className="block font-medium text-text mb-1.5">Mobile (10 Digits) *</label>
-          <input
-            required
+        </FormField>
+        <FormField htmlFor="owner-phone" label="Mobile (10 Digits) *" error={errors.phone}>
+          <Input
+            id="owner-phone"
             type="tel"
             maxLength={10}
-            pattern="[6-9][0-9]{9}"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
+            value={formData.phone}
+            onChange={(e) => updateField('phone', e.target.value.replace(/\D/g, ''))}
+            invalid={!!errors.phone}
             placeholder="9842012345"
-            className="w-full px-3 py-2 rounded-md border border-border bg-surface text-text focus:outline-none focus:border-primary text-sm"
           />
-        </div>
-        <div>
-          <label className="block font-medium text-text mb-1.5">Owner Email *</label>
-          <input
-            required
+        </FormField>
+        <FormField htmlFor="owner-email" label="Owner Email *" error={errors.email}>
+          <Input
+            id="owner-email"
             type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            value={formData.email}
+            onChange={(e) => updateField('email', e.target.value)}
+            invalid={!!errors.email}
             placeholder="stall@example.com"
-            className="w-full px-3 py-2 rounded-md border border-border bg-surface text-text focus:outline-none focus:border-primary text-sm"
           />
-        </div>
+        </FormField>
       </div>
 
-      {/* Location: Town, Locality, Pincode */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div>
-          <label className="block font-medium text-text mb-1.5">Town *</label>
-          <CustomSelect
-            value={town}
-            onChange={(val) => handleTownChange(val as string)}
-            options={VIRUDHUNAGAR_TOWNS.map((t) => ({
-              label: `${t.nameEn} (${t.nameTa})`,
-              value: t.nameEn,
-              description: `PIN ${t.pincode}`,
-            }))}
-            searchable
-            clearable={false}
-            placeholder="Choose town..."
-          />
-        </div>
-        <div>
-          <label className="block font-medium text-text mb-1.5">Locality *</label>
-          <input
-            required
-            value={locality}
-            onChange={(e) => setLocality(e.target.value)}
-            placeholder="Car Street"
-            className="w-full px-3 py-2 rounded-md border border-border bg-surface text-text focus:outline-none focus:border-primary text-sm"
-          />
-        </div>
-        <div>
-          <label className="block font-medium text-text mb-1.5">Pincode *</label>
-          <input
-            required
-            value={pincode}
-            onChange={(e) => setPincode(e.target.value)}
-            className="w-full px-3 py-2 rounded-md border border-border bg-surface text-text focus:outline-none focus:border-primary text-sm"
-          />
-        </div>
-      </div>
-
-      {/* Address & FSSAI */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="sm:col-span-2">
-          <label className="block font-medium text-text mb-1.5">Address *</label>
-          <input
-            required
-            value={line1}
-            onChange={(e) => setLine1(e.target.value)}
-            placeholder="Door No, Street Name"
-            className="w-full px-3 py-2 rounded-md border border-border bg-surface text-text focus:outline-none focus:border-primary text-sm"
-          />
-        </div>
-        <div>
-          <label className="block font-medium text-text mb-1.5">FSSAI Number (14 Digits) *</label>
-          <input
-            required
-            maxLength={14}
-            pattern="[0-9]{14}"
-            value={fssaiNumber}
-            onChange={(e) => setFssaiNumber(e.target.value)}
-            placeholder="12426008000456"
-            className="w-full px-3 py-2 rounded-md border border-border bg-surface text-text focus:outline-none focus:border-primary text-sm"
-          />
-        </div>
-      </div>
+      {/* Location & Address fields */}
+      <AddVendorLocationFields
+        formData={formData}
+        errors={errors}
+        onTownChange={handleTownChange}
+        onUpdate={updateField}
+      />
 
       {/* Operating Hours */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-          <label className="block font-medium text-text mb-1.5">Opens At</label>
-          <input
+        <FormField htmlFor="opening-time" label="Opens At">
+          <Input
+            id="opening-time"
             type="time"
-            value={openingTime}
-            onChange={(e) => setOpeningTime(e.target.value)}
-            className="w-full px-3 py-2 rounded-md border border-border bg-surface text-text focus:outline-none focus:border-primary text-sm"
+            value={formData.openingTime}
+            onChange={(e) => updateField('openingTime', e.target.value)}
           />
-        </div>
-        <div>
-          <label className="block font-medium text-text mb-1.5">Closes At</label>
-          <input
+        </FormField>
+        <FormField htmlFor="closing-time" label="Closes At" error={errors.timing}>
+          <Input
+            id="closing-time"
             type="time"
-            value={closingTime}
-            onChange={(e) => setClosingTime(e.target.value)}
-            className="w-full px-3 py-2 rounded-md border border-border bg-surface text-text focus:outline-none focus:border-primary text-sm"
+            value={formData.closingTime}
+            onChange={(e) => updateField('closingTime', e.target.value)}
+            invalid={!!errors.timing}
           />
-        </div>
+        </FormField>
       </div>
 
       {/* Actions */}

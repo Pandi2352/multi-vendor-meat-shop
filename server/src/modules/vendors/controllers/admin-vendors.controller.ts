@@ -15,6 +15,7 @@ import { ListQueryDto } from '#common/dto';
 import { VendorProfileService } from '../services/vendor-profile.service.js';
 import { VerifyVendorDto } from '../dto/verify-vendor.dto.js';
 import { AdminCreateVendorDto } from '../dto/admin-create-vendor.dto.js';
+import { AdminUpdateVendorDto } from '../dto/admin-update-vendor.dto.js';
 import { UpdateVendorPermissionsDto } from '../dto/update-vendor-permissions.dto.js';
 import { VendorProfileResponseDto } from '../dto/vendor-profile-response.dto.js';
 
@@ -60,6 +61,15 @@ export class AdminVendorsController {
     @Body() dto: VerifyVendorDto,
   ) {
     return this.vendorProfile.verifyVendor(adminId, vendorId, dto);
+  }
+
+  @Patch(':id')
+  @Auth(Role.ADMIN)
+  @ApiOperation({ summary: 'Update stall details, owner info and premises as an administrator' })
+  @ApiOkEnvelope(VendorProfileResponseDto)
+  @ApiStandardResponses()
+  update(@UuidParam('id') vendorId: string, @Body() dto: AdminUpdateVendorDto) {
+    return this.vendorProfile.adminUpdateVendor(vendorId, dto);
   }
 
   @Patch(':id/permissions')

@@ -1,9 +1,11 @@
 import { useState, useRef, useMemo, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { ChevronDown, X, Loader2 } from 'lucide-react';
 import { useClickOutside, useEscapeKey } from '@/hooks';
 import { cn } from '@/lib/cn';
 import type { CustomSelectProps } from './custom-select.types';
 import { CustomSelectMenu } from './custom-select-menu';
+import { useSelectPosition } from './use-select-position';
 
 export * from './custom-select.types';
 
@@ -20,6 +22,7 @@ export function CustomSelect({
   size = 'md',
   align = 'auto',
   placement = 'auto',
+  portal = true,
   className,
   triggerClassName,
   menuClassName,
@@ -28,57 +31,24 @@ export function CustomSelect({
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState('');
   const [highlightedIndex, setHighlightedIndex] = useState(0);
-  const [openAbove, setOpenAbove] = useState(false);
-  const [alignRight, setAlignRight] = useState(false);
-  const [maxListHeight, setMaxListHeight] = useState<number>(224);
 
   const containerRef = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const optionListRef = useRef<HTMLDivElement>(null);
 
-  const updatePosition = useCallback(() => {
-    if (!triggerRef.current) return;
-    const rect = triggerRef.current.getBoundingClientRect();
-    const vh = window.innerHeight;
-    const vw = window.innerWidth;
+  const { openAbove, alignRight, maxListHeight, menuStyle, updatePosition } = useSelectPosition({
+    triggerRef,
+    isOpen,
+    portal,
+    placement,
+    align,
+  });
 
-    // Vertical placement
-    const spaceBelow = vh - rect.bottom;
-    const spaceAbove = rect.top;
-    const isAbove =
-      placement === 'top' || (placement === 'auto' && spaceBelow < 280 && spaceAbove > spaceBelow);
-    setOpenAbove(isAbove);
-
-    // Available height for options list
-    const availH = isAbove ? spaceAbove - 24 : spaceBelow - 24;
-    setMaxListHeight(Math.min(224, Math.max(120, availH - 64)));
-
-    // Horizontal alignment
-    const estimatedWidth = Math.max(rect.width, 220);
-    const spaceRight = vw - rect.left;
-    const isRight =
-      align === 'right' ||
-      (align === 'auto' && (spaceRight < estimatedWidth || rect.right > vw - 60));
-    setAlignRight(isRight);
-  }, [placement, align]);
-
-  // Recalculate position on open, scroll and resize
-  useEffect(() => {
-    if (!isOpen) return;
-    updatePosition();
-    window.addEventListener('resize', updatePosition);
-    window.addEventListener('scroll', updatePosition, true);
-    return () => {
-      window.removeEventListener('resize', updatePosition);
-      window.removeEventListener('scroll', updatePosition, true);
-    };
-  }, [isOpen, updatePosition]);
-
-  useClickOutside([containerRef], () => setIsOpen(false), isOpen);
+  useClickOutside([containerRef, menuRef], () => setIsOpen(false), isOpen);
   useEscapeKey(() => setIsOpen(false), isOpen);
 
-  // Focus search input when opening
   useEffect(() => {
     if (isOpen && searchable) {
       const timer = setTimeout(() => searchInputRef.current?.focus(), 50);
@@ -139,7 +109,41 @@ export function CustomSelect({
     onChange(multiple ? [] : '');
   }, [multiple, onChange]);
 
+  const handleTriggerClick = () => {
+    if (disabled) return;
+    if (!isOpen) {
+      updatePosition();
+      setIsOpen(true);
+    } else {
+      setIsOpen(false);
+    }
+  };
+
   const sizeClasses = { sm: 'h-8 px-2.5 text-xs', md: 'h-9 px-3 text-xs', lg: 'h-10 px-3.5 text-sm' };
+
+  const menuNode = (
+    <CustomSelectMenu
+      search={search}
+      setSearch={setSearch}
+      searchInputRef={searchInputRef}
+      optionListRef={optionListRef}
+      menuRef={menuRef}
+      searchable={searchable}
+      multiple={multiple}
+      filteredOptions={filteredOptions}
+      selectedValues={selectedValues}
+      highlightedIndex={highlightedIndex}
+      openAbove={openAbove}
+      alignRight={alignRight}
+      maxListHeight={maxListHeight}
+      portal={portal}
+      style={menuStyle}
+      menuClassName={menuClassName}
+      handleSelect={handleSelect}
+      handleSelectAll={handleSelectAll}
+      handleDeselectAll={handleDeselectAll}
+    />
+  );
 
   return (
     <div ref={containerRef} className={cn('relative w-full', className)}>
@@ -150,7 +154,7 @@ export function CustomSelect({
         disabled={disabled}
         aria-haspopup="listbox"
         aria-expanded={isOpen}
-        onClick={() => !disabled && setIsOpen(!isOpen)}
+        onClick={handleTriggerClick}
         className={cn(
           'flex w-full items-center justify-between gap-2 rounded-md border border-border bg-surface text-left transition-colors',
           'focus-visible:outline-none focus-visible:border-primary',
@@ -214,26 +218,7 @@ export function CustomSelect({
         </div>
       </button>
 
-      {isOpen && (
-        <CustomSelectMenu
-          search={search}
-          setSearch={setSearch}
-          searchInputRef={searchInputRef}
-          optionListRef={optionListRef}
-          searchable={searchable}
-          multiple={multiple}
-          filteredOptions={filteredOptions}
-          selectedValues={selectedValues}
-          highlightedIndex={highlightedIndex}
-          openAbove={openAbove}
-          alignRight={alignRight}
-          maxListHeight={maxListHeight}
-          menuClassName={menuClassName}
-          handleSelect={handleSelect}
-          handleSelectAll={handleSelectAll}
-          handleDeselectAll={handleDeselectAll}
-        />
-      )}
+      {isOpen && (portal ? createPortal(menuNode, document.body) : menuNode)}
     </div>
   );
 }
