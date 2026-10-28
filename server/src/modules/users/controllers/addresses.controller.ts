@@ -11,6 +11,7 @@ import {
 } from '#common/decorators';
 import { AddressesService } from '../services/addresses.service.js';
 import { CreateAddressDto } from '../dto/create-address.dto.js';
+import { UpdateAddressDto } from '../dto/update-address.dto.js';
 import { AddressResponseDto } from '../dto/address-response.dto.js';
 
 @ApiTags(SwaggerTag.USERS)
@@ -34,6 +35,18 @@ export class AddressesController {
   @ApiStandardResponses()
   create(@CurrentUser('id') userId: string, @Body() dto: CreateAddressDto) {
     return this.addresses.createAddress(userId, dto);
+  }
+
+  @Patch(':id')
+  @ApiOperation({ summary: 'Update an existing saved address' })
+  @ApiOkEnvelope(AddressResponseDto)
+  @ApiStandardResponses()
+  update(
+    @CurrentUser('id') userId: string,
+    @UuidParam('id') id: string,
+    @Body() dto: UpdateAddressDto,
+  ) {
+    return this.addresses.updateAddress(userId, id, dto);
   }
 
   @Delete(':id')

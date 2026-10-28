@@ -84,4 +84,55 @@ describe('AddressesService', () => {
       expect(addressRepo.deleteById).toHaveBeenCalledWith('addr-1');
     });
   });
+
+  describe('updateAddress', () => {
+    it('updates own address and clears defaults if set as default', async () => {
+      addressRepo.findById!.mockResolvedValue({ _id: 'addr-1', userId: 'user-1' } as never);
+      addressRepo.updateByIdOrThrow!.mockImplementation(async (_id, patch) => ({
+        _id: 'addr-1',
+        userId: 'user-1',
+        label: 'WORK',
+        text: 'Updated office suite',
+        pincode: '600001',
+        district: 'Chennai',
+        isDefault: true,
+        createdAt: new Date(),
+        ...patch,
+      }));
+
+      const res = await service.updateAddress('user-1', 'addr-1', {
+        label: 'WORK',
+        text: 'Updated office suite',
+        isDefault: true,
+      });
+
+      expect(res.label).toBe('WORK');
+      expect(addressRepo.clearDefaults).toHaveBeenCalledWith('user-1');
+      expect(addressRepo.updateByIdOrThrow).toHaveBeenCalledWith(
+        'addr-1',
+        expect.objectContaining({ label: 'WORK', text: 'Updated office suite', isDefault: true }),
+      );
+    });
+  });
+
+  describe('setDefaultAddress', () => {
+    it('sets specified address as default', async () => {
+      addressRepo.findById!.mockResolvedValue({ _id: 'addr-1', userId: 'user-1' } as never);
+      addressRepo.updateByIdOrThrow!.mockResolvedValue({
+        _id: 'addr-1',
+        userId: 'user-1',
+        label: 'HOME',
+        text: '12 Gandhi Road',
+        pincode: '600017',
+        district: 'Chennai',
+        isDefault: true,
+        createdAt: new Date(),
+      } as never);
+
+      const res = await service.setDefaultAddress('user-1', 'addr-1');
+      expect(res.isDefault).toBe(true);
+      expect(addressRepo.clearDefaults).toHaveBeenCalledWith('user-1');
+      expect(addressRepo.updateByIdOrThrow).toHaveBeenCalledWith('addr-1', { isDefault: true });
+    });
+  });
 });

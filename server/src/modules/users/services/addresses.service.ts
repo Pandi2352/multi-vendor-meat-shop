@@ -2,7 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { AppException, ErrorCode, NotFoundAppException } from '#common/exceptions';
 import { AddressRepository } from '../repositories/address.repository.js';
 import type { CreateAddressDto } from '../dto/create-address.dto.js';
+import type { UpdateAddressDto } from '../dto/update-address.dto.js';
 import type { AddressResponseDto } from '../dto/address-response.dto.js';
+import type { Address } from '../schemas/address.schema.js';
 import { toAddressResponseDto } from '../mappers/address.mapper.js';
 
 @Injectable()
@@ -33,6 +35,40 @@ export class AddressesService {
     });
 
     return toAddressResponseDto(created);
+  }
+
+  async updateAddress(
+    userId: string,
+    addressId: string,
+    dto: UpdateAddressDto,
+  ): Promise<AddressResponseDto> {
+    const address = await this.addressRepo.findById(addressId);
+    if (!address) {
+      throw new NotFoundAppException('Address', addressId);
+    }
+
+    if (address.userId !== userId) {
+      throw new AppException(ErrorCode.FORBIDDEN, {
+        message: 'You can only update your own saved addresses',
+      });
+    }
+
+    if (dto.isDefault) {
+      await this.addressRepo.clearDefaults(userId);
+    }
+
+    const updates: Partial<Address> = {};
+    if (dto.label !== undefined) updates.label = dto.label;
+    if (dto.text !== undefined) updates.text = dto.text.trim();
+    if (dto.pincode !== undefined) updates.pincode = dto.pincode.trim();
+    if (dto.district !== undefined) updates.district = dto.district.trim();
+    if (dto.isDefault !== undefined) updates.isDefault = dto.isDefault;
+    if (dto.lat !== undefined && dto.lng !== undefined) {
+      updates.location = { lat: dto.lat, lng: dto.lng };
+    }
+
+    const updated = await this.addressRepo.updateByIdOrThrow(addressId, updates);
+    return toAddressResponseDto(updated);
   }
 
   async deleteAddress(userId: string, addressId: string): Promise<void> {

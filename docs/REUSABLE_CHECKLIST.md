@@ -286,7 +286,7 @@ modules/<feature>/
 - [x] `OrderStatusBadge`, `PaymentStatusBadge`, `VerificationStatusBadge`, `DeliveryStatusBadge`
 - [x] `OrderTimeline`
 - [ ] `ShopOpenIndicator` (open / closed / opens at)
-- [ ] `AddressCard`, `AddressText`
+- [x] `AddressCard` (label badge HOME/WORK/OTHER, Default indicator, edit & delete actions, set default button) 🧪, `AddressModal` (add/edit modal with Virudhunagar town/pincode auto-sync), `AddressesPage` (`/addresses`)
 - [ ] `DeliverySlotPicker`
 - [x] `ProductCard`, `ShopCard` (used in both list and search results)
 - [ ] `DistanceText`, `EtaText`

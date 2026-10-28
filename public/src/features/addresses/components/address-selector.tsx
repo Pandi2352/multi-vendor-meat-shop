@@ -119,7 +119,7 @@ export function AddressSelector({ selectedAddress, onSelect }: AddressSelectorPr
                       e.stopPropagation();
                       deleteMutation.mutate(addr.id);
                     }}
-                    className="p-1 text-muted hover:text-red-500 rounded-md transition-colors"
+                    className="p-1 text-muted hover:text-danger rounded-md transition-colors"
                   >
                     <Trash2 className="h-3.5 w-3.5" />
                   </button>

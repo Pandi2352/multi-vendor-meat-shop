@@ -9,6 +9,7 @@ import { CheckoutModal } from '@/features/orders/components/checkout-modal';
 import { OrdersPage } from '@/features/orders/pages/orders-page';
 import { OrderDetailPage } from '@/features/orders/pages/order-detail-page';
 import { ShopCataloguePage } from '@/features/shops/pages/shop-catalogue-page';
+import { AddressesPage } from '@/features/addresses';
 import { HomePage } from '@/pages/home-page';
 import { DistrictProvider } from '@/context/district-context';
 import { VendorApplyModal } from '@/features/vendors';
@@ -40,6 +41,7 @@ function StorefrontApp() {
         <Route path="/shops/:shopId" element={<ShopCataloguePage />} />
         <Route path="/orders" element={<OrdersPage />} />
         <Route path="/orders/:orderId" element={<OrderDetailPage />} />
+        <Route path="/addresses" element={<AddressesPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
 

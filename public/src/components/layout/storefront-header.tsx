@@ -74,6 +74,12 @@ export function StorefrontHeader({
             Partner With Us
           </Button>
 
+          <Link to="/addresses" className="hidden md:inline-flex">
+            <Button variant="outline" size="sm" leftIcon={<MapPin className="h-4 w-4" />}>
+              Addresses
+            </Button>
+          </Link>
+
           <Link to="/orders">
             <Button variant="outline" size="sm" leftIcon={<Package className="h-4 w-4" />}>
               Orders

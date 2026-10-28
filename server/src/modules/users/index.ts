@@ -9,6 +9,7 @@ export * from './repositories/role-permission.repository.js';
 export * from './dto/user-response.dto.js';
 export * from './dto/update-user.dto.js';
 export * from './dto/create-address.dto.js';
+export * from './dto/update-address.dto.js';
 export * from './dto/address-response.dto.js';
 export * from './dto/admin-users-query.dto.js';
 export * from './dto/assign-role.dto.js';

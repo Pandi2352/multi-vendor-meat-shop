@@ -22,12 +22,17 @@ export interface CreateAddressBody {
   lng?: number;
 }
 
+export interface UpdateAddressBody extends Partial<CreateAddressBody> {}
+
 export const addressesApi = {
   list: (): Promise<SavedAddress[]> =>
     http.get<SavedAddress[]>('/api/v1/users/me/addresses'),
 
   create: (body: CreateAddressBody): Promise<SavedAddress> =>
     http.post<SavedAddress>('/api/v1/users/me/addresses', body),
+
+  update: (id: string, body: UpdateAddressBody): Promise<SavedAddress> =>
+    http.patch<SavedAddress>(`/api/v1/users/me/addresses/${encodeURIComponent(id)}`, body),
 
   delete: (id: string): Promise<{ success: boolean }> =>
     http.delete<{ success: boolean }>(`/api/v1/users/me/addresses/${encodeURIComponent(id)}`),
