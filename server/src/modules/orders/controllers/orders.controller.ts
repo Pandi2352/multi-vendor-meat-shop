@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Post, Query } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { SwaggerTag } from '#common/constants';
 import {
@@ -17,6 +17,7 @@ import { CreateOrderDto } from '../dto/create-order.dto.js';
 import { CancelOrderDto } from '../dto/cancel-order.dto.js';
 import { QueryCustomerOrdersDto } from '../dto/query-orders.dto.js';
 import { OrderResponseDto } from '../dto/order-response.dto.js';
+import { ReorderResponseDto } from '../dto/reorder-response.dto.js';
 
 @ApiTags(SwaggerTag.ORDERS)
 @Controller('orders')
@@ -67,5 +68,17 @@ export class OrdersController {
     @Body() dto: CancelOrderDto,
   ): Promise<OrderResponseDto> {
     return this.orders.cancelCustomerOrder(customerId, id, dto);
+  }
+
+  @Post(':id/reorder')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: '1-Click reorder: add past order items directly to cart' })
+  @ApiOkEnvelope(ReorderResponseDto)
+  @ApiStandardResponses()
+  reorder(
+    @CurrentUser('id') customerId: string,
+    @UuidParam('id') id: string,
+  ): Promise<ReorderResponseDto> {
+    return this.orders.reorderCustomerOrder(customerId, id);
   }
 }

@@ -24,5 +24,7 @@ export enum SwaggerTag {
   ADMIN_FINANCE = 'Admin - Finance',
   REVIEWS = 'Reviews',
   COUPONS = 'Coupons',
+  SUPPORT_TICKETS = 'Support & Tickets',
+  FAVOURITES = 'Favourites',
 }
 

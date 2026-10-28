@@ -21,4 +21,8 @@ export class DisputeRepository extends BaseRepository<Dispute> {
   findByShop(shopId: string, limit = 50): Promise<Dispute[]> {
     return this.findMany({ shopId }, { sort: { createdAt: -1 }, limit });
   }
+
+  findByCustomerId(customerId: string, limit = 50): Promise<Dispute[]> {
+    return this.findMany({ customerId }, { sort: { createdAt: -1 }, limit });
+  }
 }

@@ -1,7 +1,8 @@
 import { Link } from 'react-router-dom';
-import { ShoppingBag, MapPin, Package, Store, Navigation, Loader2 } from 'lucide-react';
+import { ShoppingBag, MapPin, Package, Store, Navigation, Loader2, HelpCircle, Heart } from 'lucide-react';
 import { Button } from '@/components/ui';
 import { useCart } from '@/features/cart/api/use-cart';
+import { useFavouriteIds } from '@/features/favourites';
 import { useDistrict } from '@/context/district-context';
 import { VIRUDHUNAGAR_TOWNS } from '@/constants/tn-districts';
 
@@ -15,6 +16,7 @@ export function StorefrontHeader({
   onOpenPartnerModal,
 }: StorefrontHeaderProps) {
   const { data: cart } = useCart();
+  const { data: favouriteIds = [] } = useFavouriteIds();
   const { selectedDistrict, setSelectedDistrict, detectLocation, isLocating, isGpsDetected } =
     useDistrict();
   const itemCount = cart?.itemCount || 0;
@@ -80,9 +82,21 @@ export function StorefrontHeader({
             </Button>
           </Link>
 
+          <Link to="/favourites" className="hidden sm:inline-flex">
+            <Button variant="outline" size="sm" leftIcon={<Heart className="h-4 w-4 text-danger" />}>
+              Saved{favouriteIds.length > 0 ? ` (${favouriteIds.length})` : ''}
+            </Button>
+          </Link>
+
           <Link to="/orders">
             <Button variant="outline" size="sm" leftIcon={<Package className="h-4 w-4" />}>
               Orders
+            </Button>
+          </Link>
+
+          <Link to="/tickets" className="hidden lg:inline-flex">
+            <Button variant="outline" size="sm" leftIcon={<HelpCircle className="h-4 w-4" />}>
+              Support
             </Button>
           </Link>
 

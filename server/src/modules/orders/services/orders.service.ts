@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { AppException, ErrorCode, ForbiddenAppException } from '#common/exceptions';
-import { InventoryMovementType, OrderStatus, PaymentMethod, PaymentStatus, Role } from '#common/enums';
+import { InventoryMovementType, OrderStatus, PaymentMethod, PaymentStatus, Role, ShopStatus } from '#common/enums';
 import { generateId } from '#common/utils';
 import { PaginatedResult } from '#common/dto';
 import { CartService } from '#modules/cart';
@@ -16,6 +16,7 @@ import { CreateOrderDto } from '../dto/create-order.dto.js';
 import { CancelOrderDto } from '../dto/cancel-order.dto.js';
 import { QueryCustomerOrdersDto } from '../dto/query-orders.dto.js';
 import { OrderResponseDto } from '../dto/order-response.dto.js';
+import { ReorderResponseDto } from '../dto/reorder-response.dto.js';
 import { toOrderResponseDto } from '../mappers/order.mapper.js';
 
 @Injectable()
@@ -85,18 +86,12 @@ export class OrdersService {
         text: dto.deliveryAddress.text,
         pincode: dto.deliveryAddress.pincode,
         district: dto.deliveryAddress.district,
-        location: {
-          lat: dto.deliveryAddress.location.lat,
-          lng: dto.deliveryAddress.location.lng,
-        },
+        location: { lat: dto.deliveryAddress.location.lat, lng: dto.deliveryAddress.location.lng },
         label: dto.deliveryAddress.label,
       },
       customerNotes: dto.customerNotes,
       status: initialStatus,
-      payment: {
-        method: dto.paymentMethod,
-        status: initialPaymentStatus,
-      },
+      payment: { method: dto.paymentMethod, status: initialPaymentStatus },
       slot: dto.slot,
       couponCode: quote.couponCode,
     });
@@ -182,5 +177,68 @@ export class OrdersService {
 
     const events = await this.eventRepo.findByOrderId(order._id);
     return toOrderResponseDto(updated, events);
+  }
+
+  async reorderCustomerOrder(
+    customerId: string,
+    orderId: string,
+  ): Promise<ReorderResponseDto> {
+    const order = await this.orderRepo.findByIdOrThrow(orderId);
+    if (order.customerId !== customerId) {
+      throw new ForbiddenAppException('You do not have access to this order');
+    }
+
+    const shop = await this.shops.getShopById(order.shopId);
+    if (shop.status !== ShopStatus.OPEN) {
+      throw new AppException(ErrorCode.SHOP_CLOSED, {
+        message: `${shop.name} is currently closed`,
+      });
+    }
+
+    // Clear cart first so we can cleanly populate with reorder items
+    await this.cartService.clearCart(customerId);
+
+    let itemsAdded = 0;
+    const skippedItems: Array<{ productName: string; reason: string }> = [];
+
+    for (const item of order.items) {
+      try {
+        await this.cartService.addItem(customerId, {
+          shopId: order.shopId,
+          productId: item.productId,
+          grams: item.grams,
+          quantity: item.quantity,
+          cutType: item.cutType,
+          preparation: item.preparation,
+          notes: item.notes,
+          clearPreviousShop: true,
+        });
+        itemsAdded++;
+      } catch (err: unknown) {
+        const message = err instanceof AppException ? err.message : 'Item unavailable';
+        skippedItems.push({
+          productName: item.name,
+          reason: message,
+        });
+      }
+    }
+
+    if (itemsAdded === 0) {
+      throw new AppException(ErrorCode.OUT_OF_STOCK, {
+        message: 'None of the items from this order are available today',
+        details: { skippedItems },
+      });
+    }
+
+    const cart = await this.cartService.getCart(customerId);
+
+    return {
+      success: true,
+      shopId: order.shopId,
+      shopName: shop.name,
+      itemsAdded,
+      skippedItems,
+      cart,
+    };
   }
 }

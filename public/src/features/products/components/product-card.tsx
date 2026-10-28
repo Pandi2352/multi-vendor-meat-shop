@@ -4,6 +4,7 @@ import { Badge, Button } from '@/components/ui';
 import { formatINR, priceForGrams } from '@/utils';
 import { useAddCartItem } from '@/features/cart/api/use-cart';
 import type { Product } from '../api/products.api';
+import { FavouriteButton } from '@/features/favourites';
 import { WeightSelector } from './weight-selector';
 import { PreparationSelector } from './preparation-selector';
 
@@ -54,11 +55,14 @@ export function ProductCard({ product, shopId }: ProductCardProps) {
               </span>
             )}
           </div>
-          {product.isFreshDaily && (
-            <Badge tone="success" size="sm" dot>
-              Fresh Batch
-            </Badge>
-          )}
+          <div className="flex items-center gap-2">
+            {product.isFreshDaily && (
+              <Badge tone="success" size="sm" dot>
+                Fresh Batch
+              </Badge>
+            )}
+            <FavouriteButton productId={product.id} size="sm" />
+          </div>
         </div>
 
         {product.description && (

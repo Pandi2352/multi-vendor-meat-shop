@@ -5,6 +5,7 @@ import { Button } from '@/components/ui';
 import { formatDateIST, formatINR, formatWeight } from '@/utils';
 import { useOrdersList } from '../api/use-orders';
 import { OrderStatusBadge } from '../components/order-status-badge';
+import { ReorderButton } from '../components/reorder-button';
 
 export function OrdersPage() {
   const navigate = useNavigate();
@@ -84,13 +85,16 @@ export function OrdersPage() {
                   </p>
                 </div>
 
-                <div className="flex items-center justify-between sm:justify-end gap-4 border-t sm:border-t-0 pt-2 sm:pt-0 border-border">
+                <div className="flex items-center justify-between sm:justify-end gap-3 border-t sm:border-t-0 pt-2 sm:pt-0 border-border">
                   <div className="text-right">
                     <span className="text-xs text-muted block">Total (COD)</span>
                     <span className="font-bold text-base text-primary">
                       {formatINR(order.totals.totalPaise)}
                     </span>
                   </div>
+                  {order.status === 'DELIVERED' && (
+                    <ReorderButton orderId={order.id} size="sm" />
+                  )}
                   <ChevronRight className="h-5 w-5 text-muted" />
                 </div>
               </div>

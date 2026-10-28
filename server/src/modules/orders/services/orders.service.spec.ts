@@ -45,6 +45,8 @@ describe('OrdersModule Services', () => {
     mockCartService = {
       getCheckoutQuote: vi.fn(),
       clearCart: vi.fn(),
+      addItem: vi.fn(),
+      getCart: vi.fn(),
     };
 
     mockCoupons = {
@@ -378,5 +380,56 @@ describe('OrdersModule Services', () => {
         }),
       );
     });
+
+    it('reorders past order by populating customer cart with items', async () => {
+      const pastOrder: Partial<Order> = {
+        _id: 'ord-100',
+        orderNumber: 'ORD-100',
+        customerId: 'cust-1',
+        shopId: 'shop-1',
+        status: OrderStatus.DELIVERED,
+        items: [
+          {
+            productId: 'prod-1',
+            name: 'Broiler Curry Cut',
+            grams: 500,
+            quantity: 1,
+            cutType: 'CURRY_CUT' as any,
+            preparation: 'SKINLESS' as any,
+            pricePerKgPaise: 24000,
+            lineTotalPaise: 12000,
+          },
+        ],
+      };
+
+      mockOrderRepo.findByIdOrThrow.mockResolvedValue(pastOrder);
+      mockShops.getShopById.mockResolvedValue({ id: 'shop-1', name: 'Virudhunagar Stall', status: 'OPEN' });
+      mockCartService.clearCart.mockResolvedValue({ cleared: true });
+      mockCartService.addItem.mockResolvedValue({});
+      mockCartService.getCart.mockResolvedValue({
+        id: 'cart-1',
+        shopId: 'shop-1',
+        shopName: 'Virudhunagar Stall',
+        items: [{ productId: 'prod-1', name: 'Broiler Curry Cut' }],
+        subtotalPaise: 12000,
+      });
+
+      const res = await ordersService.reorderCustomerOrder('cust-1', 'ord-100');
+
+      expect(res.success).toBe(true);
+      expect(res.itemsAdded).toBe(1);
+      expect(res.skippedItems).toHaveLength(0);
+      expect(mockCartService.clearCart).toHaveBeenCalledWith('cust-1');
+      expect(mockCartService.addItem).toHaveBeenCalledWith(
+        'cust-1',
+        expect.objectContaining({
+          shopId: 'shop-1',
+          productId: 'prod-1',
+          grams: 500,
+          quantity: 1,
+        }),
+      );
+    });
   });
 });
+

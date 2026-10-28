@@ -1,11 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import type { QueryFilter } from 'mongoose';
-import { AppException, ErrorCode } from '#common/exceptions';
+import { AppException, ErrorCode, ForbiddenAppException } from '#common/exceptions';
 import { DisputeStatus, OrderStatus } from '#common/enums';
 import { PaginatedResult } from '#common/dto';
 import { createReferenceNumber, ReferencePrefix } from '#common/utils';
 import { OrderRepository } from '#modules/orders';
 import { FinanceService } from '#modules/finance';
+import { UserRepository } from '#modules/users';
 import { Dispute, DisputeDocument } from '../schemas/dispute.schema.js';
 import { DisputeRepository } from '../repositories/dispute.repository.js';
 import { CreateDisputeDto } from '../dto/create-dispute.dto.js';
@@ -20,6 +21,7 @@ export class DisputesService {
     private readonly disputeRepo: DisputeRepository,
     private readonly orderRepo: OrderRepository,
     private readonly financeService: FinanceService,
+    private readonly userRepo: UserRepository,
   ) {}
 
   async list(query: DisputeQueryDto): Promise<PaginatedResult<DisputeResponseDto>> {
@@ -63,8 +65,56 @@ export class DisputesService {
     return toDisputeResponseDto(dispute);
   }
 
-  async create(dto: CreateDisputeDto, customerId: string) {
+  async listCustomerDisputes(customerId: string): Promise<DisputeResponseDto[]> {
+    const disputes = await this.disputeRepo.findByCustomerId(customerId);
+    return disputes.map(toDisputeResponseDto);
+  }
+
+  async getCustomerDispute(customerId: string, id: string): Promise<DisputeResponseDto> {
+    const dispute = await this.disputeRepo.findByIdOrThrow(id);
+    if (dispute.customerId !== customerId) {
+      throw new ForbiddenAppException('You do not have access to this support ticket');
+    }
+    return toDisputeResponseDto(dispute);
+  }
+
+  async getDisputeForOrder(customerId: string, orderId: string): Promise<DisputeResponseDto | null> {
+    const disputes = await this.disputeRepo.findByOrderId(orderId);
+    const dispute = disputes.find((d) => d.customerId === customerId);
+    return dispute ? toDisputeResponseDto(dispute) : null;
+  }
+
+  async create(dto: CreateDisputeDto, customerId: string): Promise<DisputeResponseDto> {
     const order = await this.orderRepo.findByIdOrThrow(dto.orderId);
+    if (order.customerId !== customerId) {
+      throw new ForbiddenAppException('You do not have permission to file an issue for this order');
+    }
+
+    if ([OrderStatus.CANCELLED, OrderStatus.PENDING_PAYMENT].includes(order.status)) {
+      throw new AppException(ErrorCode.CONFLICT, {
+        message: 'Cannot dispute cancelled or unpaid orders',
+      });
+    }
+
+    const existing = await this.disputeRepo.findByOrderId(order._id);
+    const active = existing.find((d) => [DisputeStatus.OPEN, DisputeStatus.UNDER_REVIEW].includes(d.status));
+    if (active) {
+      throw new AppException(ErrorCode.CONFLICT, {
+        message: `Ticket ${active.ticketNumber} is already active for this order`,
+      });
+    }
+
+    let customerName = order.deliveryAddress?.label || 'Customer';
+    let customerPhone = '';
+    try {
+      const user = await this.userRepo.findById(customerId);
+      if (user) {
+        customerName = user.name || customerName;
+        customerPhone = user.phone || '';
+      }
+    } catch {
+      // Continue with default
+    }
 
     const ticketNumber = createReferenceNumber(ReferencePrefix.TICKET);
     const dispute = await this.disputeRepo.create({
@@ -73,8 +123,8 @@ export class DisputesService {
       orderNumber: order.orderNumber,
       shopId: order.shopId,
       customerId,
-      customerName: order.deliveryAddress?.label || 'Customer',
-      customerPhone: '',
+      customerName,
+      customerPhone,
       reason: dto.reason,
       status: DisputeStatus.OPEN,
       customerComments: dto.customerComments,

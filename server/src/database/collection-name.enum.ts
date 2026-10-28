@@ -30,5 +30,6 @@ export enum CollectionName {
   ROLE_PERMISSIONS = 'role_permissions',
   IDEMPOTENCY_RECORDS = 'idempotency_records',
   COUNTERS = 'counters',
+  FAVOURITES = 'favourites',
 }
 

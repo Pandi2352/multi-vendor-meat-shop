@@ -10,6 +10,8 @@ import { OrdersPage } from '@/features/orders/pages/orders-page';
 import { OrderDetailPage } from '@/features/orders/pages/order-detail-page';
 import { ShopCataloguePage } from '@/features/shops/pages/shop-catalogue-page';
 import { AddressesPage } from '@/features/addresses';
+import { TicketsPage } from '@/features/tickets';
+import { FavouritesPage } from '@/features/favourites';
 import { HomePage } from '@/pages/home-page';
 import { DistrictProvider } from '@/context/district-context';
 import { VendorApplyModal } from '@/features/vendors';
@@ -42,6 +44,8 @@ function StorefrontApp() {
         <Route path="/orders" element={<OrdersPage />} />
         <Route path="/orders/:orderId" element={<OrderDetailPage />} />
         <Route path="/addresses" element={<AddressesPage />} />
+        <Route path="/tickets" element={<TicketsPage />} />
+        <Route path="/favourites" element={<FavouritesPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
 

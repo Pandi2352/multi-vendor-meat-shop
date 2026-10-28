@@ -59,3 +59,14 @@ export const useCancelOrder = () => {
     },
   });
 };
+
+export const useReorderOrder = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => ordersApi.reorder(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: cartKeys.all });
+    },
+  });
+};
+

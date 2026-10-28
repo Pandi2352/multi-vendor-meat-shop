@@ -2,6 +2,7 @@ export * from './schemas/dispute.schema.js';
 export * from './repositories/dispute.repository.js';
 export * from './services/disputes.service.js';
 export * from './controllers/admin-disputes.controller.js';
+export * from './controllers/customer-tickets.controller.js';
 export * from './dto/create-dispute.dto.js';
 export * from './dto/resolve-dispute.dto.js';
 export * from './dto/dispute-query.dto.js';

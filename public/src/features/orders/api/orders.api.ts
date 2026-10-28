@@ -9,6 +9,15 @@ export type CreateOrderBody = components['schemas']['CreateOrderDto'] & {
 };
 export type CancelOrderBody = components['schemas']['CancelOrderDto'];
 
+export interface ReorderResponse {
+  success: boolean;
+  shopId: string;
+  shopName: string;
+  itemsAdded: number;
+  skippedItems: Array<{ productName: string; reason: string }>;
+  cart: unknown;
+}
+
 export type DeliveryTaskResponse = components['schemas']['DeliveryTaskResponseDto'];
 
 export const ordersApi = {
@@ -31,4 +40,7 @@ export const ordersApi = {
     http.post<{ success: boolean; maskedEmail: string; message: string }>(
       `/api/v1/delivery/tasks/order/${encodeURIComponent(orderId)}/resend-otp`,
     ),
+
+  reorder: (id: string): Promise<ReorderResponse> =>
+    http.post<ReorderResponse>(`/api/v1/orders/${encodeURIComponent(id)}/reorder`),
 };

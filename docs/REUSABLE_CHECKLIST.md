@@ -415,8 +415,13 @@ modules/<feature>/
 - [x] `status-config.ts` — label key + tone for every status enum
 - [x] `tn-districts.ts` — 38 Tamil Nadu districts in English and Tamil
 - [x] `finance` — `commissions`, `settlements`, `ledger_entries` modules, double-entry ledger portal & admin payout disbursements (/admin/finance)
-- [x] `disputes` — `support_tickets` module, meat complaint arbitration, ledger debit adjustments & admin resolution portal (/admin/disputes)
+- [x] `disputes` — `support_tickets` module, meat complaint arbitration, ledger debit adjustments, admin resolution portal (/admin/disputes), and customer issue filing & refund tracking (`/tickets`, `POST /api/v1/tickets`, `GET /api/v1/tickets`, `GET /api/v1/tickets/order/:orderId`)
 - [x] `addresses` — customer address book with TN district selection and pincode validation
+- [x] `coupons` — promo codes and checkout discounts module (`FIRSTMEAT50`, `VIRUDHUNAGAR20`, `FREESHIP`), quote calculation, minimum order & discount caps
+- [x] `support-tickets` (public) — customer ticket management (`TicketCard`, `TicketStatusBadge`, `CreateTicketModal`, `TicketsPage`) with order details integration
+- [x] `favourites` — `favourites` collection (`Favourite` schema, `FavouriteRepository`, `FavouritesService`, `FavouritesController`), live stall stock enrichment, and fast customer id lookup (`/favourites`, `GET /api/v1/favourites`, `GET /api/v1/favourites/ids`, `POST /api/v1/favourites/:productId/toggle`, `DELETE /api/v1/favourites/:productId`) 🧪 (unit + e2e)
+- [x] `reorder` — 1-click past order reorder (`POST /api/v1/orders/:id/reorder`, `ReorderButton`) with out-of-stock item handling and single-shop cart population 🧪 (unit + e2e)
+- [x] `favourites` (public) — `FavouriteButton`, `FavouriteCard`, `FavouritesPage` (`/favourites`), and storefront header `Saved` link with live count badge 🧪
 - [ ] `pagination.ts` defaults, `upload.ts` limits
 - [ ] `types/api.generated.ts` (generated), `types/common.ts` (`ID = string`, `Paginated<T>`, `ApiResponse<T>`, `SelectOption`)
 

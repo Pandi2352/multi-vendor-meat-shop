@@ -10,6 +10,7 @@ export * from './dto/cancel-order.dto.js';
 export * from './dto/update-order-status.dto.js';
 export * from './dto/query-orders.dto.js';
 export * from './dto/order-response.dto.js';
+export * from './dto/reorder-response.dto.js';
 export * from './mappers/order.mapper.js';
 export * from './services/order-number.service.js';
 export * from './services/orders.service.js';
