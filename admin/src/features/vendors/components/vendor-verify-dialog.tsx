@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { X, CheckCircle2, AlertTriangle, Ban, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui';
+import { useBodyScrollLock } from '@/hooks';
 import { useVerifyVendor, type VendorProfile, type VendorStatus } from '../api';
 import { VendorInvitedPanel } from './vendor-invited-panel';
 
@@ -11,6 +12,7 @@ interface VendorVerifyDialogProps {
 }
 
 export function VendorVerifyDialog({ vendor, action, onClose }: VendorVerifyDialogProps) {
+  useBodyScrollLock(!!vendor && !!action);
   const [reason, setReason] = useState('');
   const [approved, setApproved] = useState<VendorProfile | null>(null);
 

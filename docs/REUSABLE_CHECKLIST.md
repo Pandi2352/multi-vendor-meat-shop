@@ -363,6 +363,7 @@ modules/<feature>/
 - [ ] `useUrlState` / `useQueryParams` — filters, page, sort synced to URL 🧪
 - [x] admin `useSearchParamState(key, allowed, fallback)` — one allowed value in the URL (orders page tab)
 - [x] admin `useCountdown` — resend timers
+- [x] admin `useBodyScrollLock(isLocked)` — locks document body scrolling while modals/drawers are open
 - [ ] `usePagination`
 - [ ] `useConfirm` (promise-based confirm dialog)
 - [x] `useCopyToClipboard` (with copy state and auto toast feedback) 🧪

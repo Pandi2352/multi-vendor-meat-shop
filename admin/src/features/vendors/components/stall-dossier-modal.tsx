@@ -1,6 +1,7 @@
 import { X, Store, CheckCircle2, AlertCircle, Ban, Pencil } from 'lucide-react';
 import { Button } from '@/components/ui';
 import { formatDateIST } from '@/utils/format';
+import { useBodyScrollLock } from '@/hooks';
 import type { VendorProfile, VendorStatus } from '../api';
 import { VendorStatusBadge } from './vendor-status-badge';
 import { StallDossierContent } from './stall-dossier-content';
@@ -19,6 +20,8 @@ export function StallDossierModal({
   onAction,
   onEdit,
 }: StallDossierModalProps) {
+  useBodyScrollLock(!!vendor);
+
   if (!vendor) return null;
 
   const isApproved = vendor.status === 'APPROVED';
@@ -60,7 +63,7 @@ export function StallDossierModal({
         <StallDossierContent vendor={vendor} />
 
         {/* Footer Bar */}
-        <div className="px-6 py-4 border-t border-border bg-surface-muted/40 flex items-center justify-between">
+        <div className="px-6 py-3 border-t border-border bg-surface-muted/40 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-2">
             <Button variant="outline" size="sm" onClick={onClose}>
               Close Dossier

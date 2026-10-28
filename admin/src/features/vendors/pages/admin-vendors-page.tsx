@@ -1,8 +1,9 @@
 import { useState, useMemo } from 'react';
-import { Plus, Store, CheckCircle, Clock, Ban } from 'lucide-react';
+import { Plus, Store, CheckCircle, Clock, Ban, LayoutGrid, List } from 'lucide-react';
 import { Button, LoaderState, Tabs, SearchInput, type TabItem } from '@/components/ui';
 import { useAdminVendors, type VendorProfile, type VendorStatus } from '../api';
 import { VendorCard } from '../components/vendor-card';
+import { VendorTable } from '../components/vendor-table';
 import { VendorKpiStrip } from '../components/vendor-kpi-strip';
 import { VendorVerifyDialog } from '../components/vendor-verify-dialog';
 import { AddVendorModal } from '../components/add-vendor-modal';
@@ -10,12 +11,14 @@ import { EditVendorModal } from '../components/edit-vendor-modal';
 import { StallDossierModal } from '../components/stall-dossier-modal';
 
 type VendorTab = 'ALL' | 'PENDING' | 'APPROVED' | 'SUSPENDED';
+type ViewMode = 'grid' | 'table';
 
 /** Executive management page for butcher stalls across Sivakasi & Virudhunagar district. */
 export function AdminVendorsPage() {
   const [tab, setTab] = useState<VendorTab>('ALL');
   const [selectedTown, setSelectedTown] = useState<string>('ALL');
   const [search, setSearch] = useState('');
+  const [viewMode, setViewMode] = useState<ViewMode>('grid');
   const [isAddOpen, setIsAddOpen] = useState(false);
 
   const [dossierTarget, setDossierTarget] = useState<VendorProfile | null>(null);
@@ -38,21 +41,12 @@ export function AdminVendorsPage() {
 
   const filteredVendors = useMemo(() => {
     return allVendors.filter((v) => {
-      if (tab === 'PENDING') {
-        const isP =
-          v.status === 'SUBMITTED' ||
-          v.status === 'UNDER_REVIEW' ||
-          v.status === 'RESUBMISSION_REQUIRED';
-        if (!isP) return false;
-      } else if (tab === 'APPROVED' && v.status !== 'APPROVED') {
-        return false;
-      } else if (tab === 'SUSPENDED' && v.status !== 'SUSPENDED') {
+      if (tab === 'PENDING' && !['SUBMITTED', 'UNDER_REVIEW', 'RESUBMISSION_REQUIRED'].includes(v.status)) {
         return false;
       }
-
-      if (selectedTown !== 'ALL' && v.shop?.city !== selectedTown) {
-        return false;
-      }
+      if (tab === 'APPROVED' && v.status !== 'APPROVED') return false;
+      if (tab === 'SUSPENDED' && v.status !== 'SUSPENDED') return false;
+      if (selectedTown !== 'ALL' && v.shop?.city !== selectedTown) return false;
 
       if (search.trim()) {
         const q = search.toLowerCase();
@@ -107,7 +101,7 @@ export function AdminVendorsPage() {
         </Button>
       </div>
 
-      {/* Awesome KPI Count Cards with Icons */}
+      {/* Modern KPI Cards with Light Watermark Icons */}
       <VendorKpiStrip
         totalCount={allVendors.length}
         approvedCount={approvedCount}
@@ -115,15 +109,46 @@ export function AdminVendorsPage() {
         hubCount={distinctTowns.length}
       />
 
-      {/* Filter and Search Bar */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-1">
+      {/* Filter, View Switcher and Search Bar */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-1">
         <Tabs<VendorTab> tabs={tabItems} activeTab={tab} onChange={setTab} />
-        <div className="w-full sm:w-80">
-          <SearchInput
-            value={search}
-            onChange={setSearch}
-            placeholder="Search stall, owner, town, or FSSAI..."
-          />
+        <div className="flex items-center gap-2 w-full sm:w-auto">
+          <div className="flex-1 sm:w-72">
+            <SearchInput
+              value={search}
+              onChange={setSearch}
+              placeholder="Search stall, owner, town, or FSSAI..."
+            />
+          </div>
+          {/* Common View Switcher */}
+          <div className="flex items-center rounded-md border border-border bg-surface p-0.5 shrink-0">
+            <button
+              type="button"
+              onClick={() => setViewMode('grid')}
+              className={`p-1.5 rounded-md transition-colors ${
+                viewMode === 'grid'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'text-muted hover:text-text hover:bg-surface-muted'
+              }`}
+              title="Grid View"
+              aria-label="Grid View"
+            >
+              <LayoutGrid className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewMode('table')}
+              className={`p-1.5 rounded-md transition-colors ${
+                viewMode === 'table'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'text-muted hover:text-text hover:bg-surface-muted'
+              }`}
+              title="Table View"
+              aria-label="Table View"
+            >
+              <List className="h-4 w-4" />
+            </button>
+          </div>
         </div>
       </div>
 
@@ -163,7 +188,7 @@ export function AdminVendorsPage() {
         </div>
       )}
 
-      {/* Grid of Stalls */}
+      {/* Stalls Content: Grid or Table View */}
       {isLoading ? (
         <LoaderState
           title="Loading butcher stalls..."
@@ -175,7 +200,7 @@ export function AdminVendorsPage() {
           <p className="text-sm font-medium text-text">No stalls match this filter</p>
           <p className="text-xs text-muted">Try clearing the search query or town filter.</p>
         </div>
-      ) : (
+      ) : viewMode === 'grid' ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredVendors.map((vendor) => (
             <VendorCard
@@ -187,6 +212,13 @@ export function AdminVendorsPage() {
             />
           ))}
         </div>
+      ) : (
+        <VendorTable
+          vendors={filteredVendors}
+          onOpenDossier={(v) => setDossierTarget(v)}
+          onAction={(v, action) => setVerifyTarget({ vendor: v, action })}
+          onEdit={(v) => setEditTarget(v)}
+        />
       )}
 
       {/* Modals & Dialogs */}

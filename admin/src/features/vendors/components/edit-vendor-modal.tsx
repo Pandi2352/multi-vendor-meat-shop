@@ -1,4 +1,5 @@
 import { X, Store } from 'lucide-react';
+import { useBodyScrollLock } from '@/hooks';
 import type { VendorProfile } from '../api';
 import { EditVendorForm } from './edit-vendor-form';
 
@@ -10,6 +11,8 @@ interface EditVendorModalProps {
 
 /** Modal dialog for editing stall details and operational settings. */
 export function EditVendorModal({ vendor, onClose, onSaved }: EditVendorModalProps) {
+  useBodyScrollLock(!!vendor);
+
   if (!vendor) return null;
 
   const handleSaved = (updated: VendorProfile) => {
@@ -19,7 +22,7 @@ export function EditVendorModal({ vendor, onClose, onSaved }: EditVendorModalPro
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-[2px] animate-in fade-in duration-150">
-      <div className="bg-surface border border-border rounded-md w-full max-w-4xl lg:max-w-5xl min-h-[580px] max-h-[92vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-150">
+      <div className="bg-surface border border-border rounded-md w-full max-w-4xl lg:max-w-5xl max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-150">
         <div className="flex items-center justify-between px-6 py-4 border-b border-border">
           <div className="flex items-center gap-2.5">
             <div className="p-2 rounded-md bg-primary/10 border border-primary/20 text-primary">

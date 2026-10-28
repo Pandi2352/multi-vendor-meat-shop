@@ -6,3 +6,4 @@ export * from './use-media-query';
 export * from './use-persisted-state';
 export * from './use-search-param-state';
 export * from './use-zod-form';
+export * from './use-body-scroll-lock';

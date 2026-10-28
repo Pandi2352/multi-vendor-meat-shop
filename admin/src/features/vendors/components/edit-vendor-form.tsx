@@ -140,17 +140,18 @@ export function EditVendorForm({ vendor, onSaved, onCancel }: EditVendorFormProp
     <form
       onSubmit={handleSubmit}
       noValidate
-      className="px-6 py-5 md:px-8 space-y-4 overflow-y-auto text-xs sm:text-sm"
+      className="flex-1 flex flex-col min-h-0 overflow-hidden text-xs sm:text-sm"
     >
-      {updateMutation.isError && (
-        <div className="p-3 rounded-md bg-destructive/10 border border-destructive/20 text-destructive flex items-center gap-2">
-          <AlertCircle className="h-4 w-4 shrink-0" />
-          <span>Failed to update stall details. Please check values.</span>
-        </div>
-      )}
+      <div className="flex-1 overflow-y-auto px-6 py-5 md:px-8 space-y-4">
+        {updateMutation.isError && (
+          <div className="p-3 rounded-md bg-destructive/10 border border-destructive/20 text-destructive flex items-center gap-2">
+            <AlertCircle className="h-4 w-4 shrink-0" />
+            <span>Failed to update stall details. Please check values.</span>
+          </div>
+        )}
 
-      {/* Shop Names: English + Tamil */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {/* Shop Names: English + Tamil */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <FormField htmlFor="edit-shop-name-en" label="Shop Name (English) *" error={errors.shopName}>
           <Input
             id="edit-shop-name-en"
@@ -219,8 +220,10 @@ export function EditVendorForm({ vendor, onSaved, onCancel }: EditVendorFormProp
         onUpdate={(key, val) => updateField(key as keyof EditFormData, val)}
       />
 
-      {/* Actions */}
-      <div className="pt-4 flex items-center justify-end gap-3 border-t border-border">
+      </div>
+
+      {/* Pinned Actions Footer without unwanted space */}
+      <div className="px-6 py-3 md:px-8 bg-surface-muted/40 border-t border-border flex items-center justify-end gap-3 shrink-0">
         <Button type="button" variant="outline" size="sm" onClick={onCancel}>
           Cancel
         </Button>
