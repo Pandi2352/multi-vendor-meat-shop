@@ -1,25 +1,25 @@
 import { useState, useMemo } from 'react';
-import { Plus, Store, CheckCircle, Clock, Ban, LayoutGrid, List } from 'lucide-react';
-import { Button, LoaderState, Tabs, SearchInput, type TabItem } from '@/components/ui';
+import { Plus, Store, CheckCircle, Clock, Ban } from 'lucide-react';
+import { Button, LoaderState, Pagination, type TabItem, type SelectOption } from '@/components/ui';
 import { useAdminVendors, type VendorProfile, type VendorStatus } from '../api';
 import { VendorCard } from '../components/vendor-card';
 import { VendorTable } from '../components/vendor-table';
 import { VendorKpiStrip } from '../components/vendor-kpi-strip';
+import { VendorToolbar, type VendorTab, type ViewMode } from '../components/vendor-toolbar';
 import { VendorVerifyDialog } from '../components/vendor-verify-dialog';
 import { AddVendorModal } from '../components/add-vendor-modal';
 import { EditVendorModal } from '../components/edit-vendor-modal';
 import { StallDossierModal } from '../components/stall-dossier-modal';
 
-type VendorTab = 'ALL' | 'PENDING' | 'APPROVED' | 'SUSPENDED';
-type ViewMode = 'grid' | 'table';
-
-/** Executive management page for butcher stalls across Sivakasi & Virudhunagar district. */
+/** Executive management page for certified butcher stalls. */
 export function AdminVendorsPage() {
   const [tab, setTab] = useState<VendorTab>('ALL');
   const [selectedTown, setSelectedTown] = useState<string>('ALL');
   const [search, setSearch] = useState('');
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
   const [isAddOpen, setIsAddOpen] = useState(false);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(9);
 
   const [dossierTarget, setDossierTarget] = useState<VendorProfile | null>(null);
   const [editTarget, setEditTarget] = useState<VendorProfile | null>(null);
@@ -28,16 +28,25 @@ export function AdminVendorsPage() {
     action: VendorStatus;
   } | null>(null);
 
-  const { data, isLoading } = useAdminVendors();
+  const { data, isLoading } = useAdminVendors({ limit: 100 });
   const allVendors = data?.items || [];
 
   const distinctTowns = useMemo(() => {
     const towns = new Set<string>();
     allVendors.forEach((v) => {
-      if (v.shop?.city) towns.add(v.shop.city);
+      const c = v.shop?.city?.trim();
+      if (c) towns.add(c);
     });
     return Array.from(towns);
   }, [allVendors]);
+
+  const townOptions: SelectOption[] = useMemo(() => [
+    { value: 'ALL', label: `All Towns (${allVendors.length})` },
+    ...distinctTowns.map((town) => ({
+      value: town,
+      label: `${town} (${allVendors.filter((v) => v.shop?.city?.trim().toLowerCase() === town.toLowerCase()).length})`,
+    })),
+  ], [allVendors, distinctTowns]);
 
   const filteredVendors = useMemo(() => {
     return allVendors.filter((v) => {
@@ -46,7 +55,13 @@ export function AdminVendorsPage() {
       }
       if (tab === 'APPROVED' && v.status !== 'APPROVED') return false;
       if (tab === 'SUSPENDED' && v.status !== 'SUSPENDED') return false;
-      if (selectedTown !== 'ALL' && v.shop?.city !== selectedTown) return false;
+      if (
+        selectedTown &&
+        selectedTown !== 'ALL' &&
+        v.shop?.city?.trim().toLowerCase() !== selectedTown.trim().toLowerCase()
+      ) {
+        return false;
+      }
 
       if (search.trim()) {
         const q = search.toLowerCase();
@@ -61,6 +76,12 @@ export function AdminVendorsPage() {
       return true;
     });
   }, [allVendors, tab, selectedTown, search]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredVendors.length / pageSize));
+  const paginatedVendors = useMemo(() => {
+    const start = (page - 1) * pageSize;
+    return filteredVendors.slice(start, start + pageSize);
+  }, [filteredVendors, page, pageSize]);
 
   const pendingCount = allVendors.filter(
     (v) =>
@@ -85,7 +106,7 @@ export function AdminVendorsPage() {
         <div>
           <h1 className="text-xl font-bold text-text flex items-center gap-2">
             <Store className="h-5 w-5 text-primary" />
-            Butcher Stalls & Verification (சிவகாசி & சுற்றியுள்ள பகுதிகள்)
+            Butcher Stalls
           </h1>
           <p className="text-xs text-muted mt-0.5">
             Manage certified butcher stalls, FSSAI compliance, operational hours, and doorstep delivery coverage.
@@ -101,7 +122,7 @@ export function AdminVendorsPage() {
         </Button>
       </div>
 
-      {/* Modern KPI Cards with Light Watermark Icons */}
+      {/* Compact Modern KPI Cards */}
       <VendorKpiStrip
         totalCount={allVendors.length}
         approvedCount={approvedCount}
@@ -109,90 +130,34 @@ export function AdminVendorsPage() {
         hubCount={distinctTowns.length}
       />
 
-      {/* Filter, View Switcher and Search Bar */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-1">
-        <Tabs<VendorTab> tabs={tabItems} activeTab={tab} onChange={setTab} />
-        <div className="flex items-center gap-2 w-full sm:w-auto">
-          <div className="flex-1 sm:w-72">
-            <SearchInput
-              value={search}
-              onChange={setSearch}
-              placeholder="Search stall, owner, town, or FSSAI..."
-            />
-          </div>
-          {/* Common View Switcher */}
-          <div className="flex items-center rounded-md border border-border bg-surface p-0.5 shrink-0">
-            <button
-              type="button"
-              onClick={() => setViewMode('grid')}
-              className={`p-1.5 rounded-md transition-colors ${
-                viewMode === 'grid'
-                  ? 'bg-primary text-primary-foreground'
-                  : 'text-muted hover:text-text hover:bg-surface-muted'
-              }`}
-              title="Grid View"
-              aria-label="Grid View"
-            >
-              <LayoutGrid className="h-4 w-4" />
-            </button>
-            <button
-              type="button"
-              onClick={() => setViewMode('table')}
-              className={`p-1.5 rounded-md transition-colors ${
-                viewMode === 'table'
-                  ? 'bg-primary text-primary-foreground'
-                  : 'text-muted hover:text-text hover:bg-surface-muted'
-              }`}
-              title="Table View"
-              aria-label="Table View"
-            >
-              <List className="h-4 w-4" />
-            </button>
-          </div>
-        </div>
-      </div>
+      {/* Filter Toolbar */}
+      <VendorToolbar
+        tab={tab}
+        tabItems={tabItems}
+        onTabChange={(t) => {
+          setTab(t);
+          setPage(1);
+        }}
+        selectedTown={selectedTown}
+        townOptions={townOptions}
+        onTownChange={(val) => {
+          setSelectedTown(val);
+          setPage(1);
+        }}
+        search={search}
+        onSearchChange={(val) => {
+          setSearch(val);
+          setPage(1);
+        }}
+        viewMode={viewMode}
+        onViewModeChange={setViewMode}
+      />
 
-      {/* Quick Town Filter Pills */}
-      {distinctTowns.length > 0 && (
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs">
-          <span className="text-[11px] text-muted font-medium shrink-0 mr-1">Filter Town:</span>
-          <button
-            type="button"
-            onClick={() => setSelectedTown('ALL')}
-            className={`px-2.5 py-1 rounded-md text-xs font-medium border transition-colors shrink-0 ${
-              selectedTown === 'ALL'
-                ? 'bg-primary text-primary-foreground border-primary'
-                : 'bg-surface text-muted border-border hover:text-text hover:bg-surface-muted'
-            }`}
-          >
-            All Towns ({allVendors.length})
-          </button>
-          {distinctTowns.map((town) => {
-            const count = allVendors.filter((v) => v.shop?.city === town).length;
-            const isSel = selectedTown === town;
-            return (
-              <button
-                key={town}
-                type="button"
-                onClick={() => setSelectedTown(town)}
-                className={`px-2.5 py-1 rounded-md text-xs font-medium border transition-colors shrink-0 ${
-                  isSel
-                    ? 'bg-primary text-primary-foreground border-primary'
-                    : 'bg-surface text-muted border-border hover:text-text hover:bg-surface-muted'
-                }`}
-              >
-                {town} ({count})
-              </button>
-            );
-          })}
-        </div>
-      )}
-
-      {/* Stalls Content: Grid or Table View */}
+      {/* Stalls Display: Grid or Table View */}
       {isLoading ? (
         <LoaderState
           title="Loading butcher stalls..."
-          description="Fetching verified Sivakasi and surrounding butcher stalls..."
+          description="Fetching verified butcher stalls..."
         />
       ) : filteredVendors.length === 0 ? (
         <div className="p-12 text-center border border-dashed border-border rounded-md space-y-2 bg-surface">
@@ -202,7 +167,7 @@ export function AdminVendorsPage() {
         </div>
       ) : viewMode === 'grid' ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredVendors.map((vendor) => (
+          {paginatedVendors.map((vendor) => (
             <VendorCard
               key={vendor.id}
               vendor={vendor}
@@ -214,11 +179,30 @@ export function AdminVendorsPage() {
         </div>
       ) : (
         <VendorTable
-          vendors={filteredVendors}
+          vendors={paginatedVendors}
           onOpenDossier={(v) => setDossierTarget(v)}
           onAction={(v, action) => setVerifyTarget({ vendor: v, action })}
           onEdit={(v) => setEditTarget(v)}
         />
+      )}
+
+      {/* Common Pagination */}
+      {filteredVendors.length > 0 && (
+        <div className="pt-2">
+          <Pagination
+            page={page}
+            totalPages={totalPages}
+            totalItems={filteredVendors.length}
+            pageSize={pageSize}
+            pageSizeOptions={[6, 9, 12, 18, 24]}
+            onPageChange={setPage}
+            onPageSizeChange={(sz) => {
+              setPageSize(sz);
+              setPage(1);
+            }}
+            size="sm"
+          />
+        </div>
       )}
 
       {/* Modals & Dialogs */}

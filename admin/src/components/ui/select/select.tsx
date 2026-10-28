@@ -21,19 +21,8 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
 
     const handleChange = (val: string | string[]) => {
       if (!onChange) return;
-      // Support direct value callback
-      (onChange as (val: string | string[]) => void)(val);
-      // Support event-like callback
-      try {
-        (onChange as (e: { target: { value: string; name?: string } }) => void)({
-          target: {
-            value: Array.isArray(val) ? val[0] || '' : val,
-            name: props.name,
-          },
-        });
-      } catch {
-        // Handled
-      }
+      const strVal = Array.isArray(val) ? val[0] || '' : val;
+      (onChange as (value: string | string[]) => void)(strVal);
     };
 
     return <CustomSelect {...props} size={effectiveSize} onChange={handleChange} />;
