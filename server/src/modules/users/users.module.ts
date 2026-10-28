@@ -53,6 +53,7 @@ import { VendorStaffController } from './controllers/vendor-staff.controller.js'
     ShopNameLookup,
   ],
   exports: [
+    UserRepository,
     UsersService,
     AddressesService,
     AddressRepository,

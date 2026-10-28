@@ -348,4 +348,55 @@ describe('Virudhunagar End-to-End COD Order & Tracking (e2e)', () => {
     expect(earnings.cashInHandPaise).toBeGreaterThan(0);
     expect(earnings.recentTrips.some((t: { id: string }) => t.id === deliveryTaskId)).toBe(true);
   });
+
+  it('13. customer submits a verified 5-star review for the delivered order', async () => {
+    const reviewRes = await http()
+      .post(`${API}/orders/${createdOrderId}/review`)
+      .set('Authorization', `Bearer ${customerToken}`)
+      .send({
+        rating: 5,
+        comment: 'Exceptional fresh cut and prompt delivery in Virudhunagar!',
+      })
+      .expect(201);
+
+    expect(reviewRes.body.success).toBe(true);
+    const review = reviewRes.body.data;
+    expect(review.rating).toBe(5);
+    expect(review.isVerifiedPurchase).toBe(true);
+    expect(review.comment).toBe('Exceptional fresh cut and prompt delivery in Virudhunagar!');
+
+    // Duplicate review attempt should be rejected with 409 Conflict
+    const dupRes = await http()
+      .post(`${API}/orders/${createdOrderId}/review`)
+      .set('Authorization', `Bearer ${customerToken}`)
+      .send({
+        rating: 4,
+        comment: 'Attempting duplicate review',
+      })
+      .expect(409);
+
+    expect(dupRes.body.error.code).toBe('REVIEW_ALREADY_EXISTS');
+  });
+
+  it('14. stall rating summary and public profile reflect customer rating', async () => {
+    // 1. Check shop rating summary endpoint
+    const summaryRes = await http()
+      .get(`${API}/shops/${shopId}/reviews/summary`)
+      .expect(200);
+
+    expect(summaryRes.body.success).toBe(true);
+    expect(summaryRes.body.data.averageRating).toBe(5);
+    expect(summaryRes.body.data.totalReviews).toBeGreaterThanOrEqual(1);
+    expect(summaryRes.body.data.distribution['5']).toBeGreaterThanOrEqual(1);
+
+    // 2. Check shop public profile has updated rating
+    const shopRes = await http()
+      .get(`${API}/shops/${shopId}`)
+      .expect(200);
+
+    expect(shopRes.body.success).toBe(true);
+    expect(shopRes.body.data.ratingAverage).toBe(5);
+    expect(shopRes.body.data.ratingCount).toBeGreaterThanOrEqual(1);
+  });
 });
+

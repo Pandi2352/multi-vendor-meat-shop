@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Store, MapPin, Clock, Truck, ShieldCheck, ChevronRight, Zap } from 'lucide-react';
+import { Store, MapPin, Clock, Truck, ShieldCheck, ChevronRight, Zap, Star } from 'lucide-react';
 import { Badge, Button } from '@/components/ui';
 import { calculateDistanceKm, formatDistance, formatINR } from '@/utils';
 import { useDistrict } from '@/context/district-context';
@@ -53,13 +53,25 @@ export function ShopCard({ shop }: ShopCardProps) {
           </Badge>
         </div>
 
-        {/* Proximity & Delivery ETA badges */}
+        {/* Proximity, Rating & Delivery ETA badges */}
         <div className="flex items-center gap-1.5 flex-wrap my-2.5">
+          {shop.ratingAverage && shop.ratingAverage > 0 ? (
+            <Badge tone="warning" size="sm">
+              <Star className="h-3 w-3 fill-warning" />
+              <span>{shop.ratingAverage.toFixed(1)}</span>
+              <span className="text-muted font-normal">({shop.ratingCount || 0})</span>
+            </Badge>
+          ) : (
+            <Badge tone="neutral" size="sm">
+              <Star className="h-3 w-3 text-muted" />
+              <span>New</span>
+            </Badge>
+          )}
           <span className="inline-flex items-center gap-1 text-[11px] font-medium bg-surface-muted text-text px-2 py-0.5 rounded-md border border-border">
             <MapPin className="h-3 w-3 text-primary" />
             <span>{formatDistance(distanceKm)}</span>
           </span>
-          <span className="inline-flex items-center gap-1 text-[11px] font-medium bg-emerald-500/10 text-emerald-600 px-2 py-0.5 rounded-md border border-emerald-500/20">
+          <span className="inline-flex items-center gap-1 text-[11px] font-medium bg-success-soft text-success px-2 py-0.5 rounded-md border border-success/20">
             <Zap className="h-3 w-3" />
             <span>Delivers in ~{etaMins}m</span>
           </span>

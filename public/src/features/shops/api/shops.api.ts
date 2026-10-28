@@ -3,6 +3,8 @@ import type { components } from '@/types/api.generated';
 
 export type Shop = components['schemas']['ShopResponseDto'] & {
   distanceMeters?: number;
+  ratingAverage?: number;
+  ratingCount?: number;
 };
 
 export const shopsApi = {

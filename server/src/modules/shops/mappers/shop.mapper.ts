@@ -31,6 +31,8 @@ export const toShopResponseDto = (shop: Shop): ShopResponseDto => ({
   deliveryFeePaise: shop.deliveryFeePaise,
   freeDeliveryAbovePaise: shop.freeDeliveryAbovePaise,
   images: shop.images ?? [],
+  ratingAverage: shop.ratingAverage ?? 0,
+  ratingCount: shop.ratingCount ?? 0,
   distanceMeters:
     typeof (shop as { distanceMeters?: number }).distanceMeters === 'number'
       ? Math.round((shop as { distanceMeters?: number }).distanceMeters!)

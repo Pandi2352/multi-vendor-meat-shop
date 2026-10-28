@@ -76,6 +76,12 @@ export class Shop extends BaseEntity implements SoftDeletable {
   @Prop({ type: [String], default: [] })
   images!: string[];
 
+  @Prop({ type: Number, default: 0, min: 0, max: 5 })
+  ratingAverage?: number;
+
+  @Prop({ type: Number, default: 0, min: 0 })
+  ratingCount?: number;
+
   deletedAt!: Date | null;
   deletedBy!: string | null;
 }

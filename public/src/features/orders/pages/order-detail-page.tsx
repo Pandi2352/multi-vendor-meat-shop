@@ -8,6 +8,7 @@ import { OrderStatusBadge } from '../components/order-status-badge';
 import { OrderTimeline } from '../components/order-timeline';
 import { LiveOrderTracker } from '../components/live-order-tracker';
 import { OrderItemsSummary } from '../components/order-items-summary';
+import { OrderReviewForm } from '@/features/reviews';
 
 export function OrderDetailPage() {
   const { orderId } = useParams<{ orderId: string }>();
@@ -39,6 +40,7 @@ export function OrderDetailPage() {
   }
 
   const isCancellable = ['PLACED', 'PENDING_PAYMENT'].includes(order.status);
+  const isDelivered = order.status === 'DELIVERED';
 
   const handleCancel = async () => {
     if (!orderId) return;
@@ -61,6 +63,11 @@ export function OrderDetailPage() {
 
       {/* Live Order Tracker: Pickup Status, Courier Contact & Handover OTP */}
       <LiveOrderTracker order={order} deliveryTask={deliveryTask} />
+
+      {/* Verified Customer Review Prompt (Delivered Orders) */}
+      {isDelivered && (
+        <OrderReviewForm orderId={order.id} shopName={order.shopName || 'Butcher Stall'} />
+      )}
 
       {/* Order Info & Live Stepper */}
       <div className="rounded-md border border-border bg-surface p-6">

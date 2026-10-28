@@ -48,6 +48,12 @@ export class ShopResponseDto {
   @ApiProperty({ type: [String], example: [] })
   images!: string[];
 
+  @ApiProperty({ example: 4.8, description: 'Average customer rating out of 5' })
+  ratingAverage!: number;
+
+  @ApiProperty({ example: 24, description: 'Total number of customer reviews' })
+  ratingCount!: number;
+
   @ApiPropertyOptional({ example: 1450, description: 'Distance in meters computed by $geoNear' })
   distanceMeters?: number;
 

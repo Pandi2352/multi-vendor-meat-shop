@@ -7,6 +7,7 @@ import { useShopProducts } from '@/features/products/api/use-products';
 import { ProductCard } from '@/features/products/components/product-card';
 import { useDistrict } from '@/context/district-context';
 import { CUT_FILTER_OPTIONS } from '@/constants/tn-districts';
+import { ShopReviewsSection } from '@/features/reviews';
 import { useShopDetail } from '../api/use-shops';
 import { ShopProfileBanner } from '../components/shop-profile-banner';
 
@@ -124,6 +125,11 @@ export function ShopCataloguePage() {
           ))}
         </div>
       )}
+
+      {/* Customer Reviews & Stall Ratings */}
+      <div className="pt-8 border-t border-border">
+        <ShopReviewsSection shopId={shop.id} shopName={shop.name} />
+      </div>
     </div>
   );
 }

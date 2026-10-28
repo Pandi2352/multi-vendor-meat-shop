@@ -128,4 +128,13 @@ export const ERROR_CATALOG: Readonly<Record<E, ErrorDefinition>> = {
     status: HttpStatus.CONFLICT,
     message: 'Delivery task is in an invalid state for this operation',
   },
+
+  [E.REVIEW_ALREADY_EXISTS]: {
+    status: HttpStatus.CONFLICT,
+    message: 'A review has already been submitted for this order',
+  },
+  [E.REVIEW_ORDER_NOT_DELIVERED]: {
+    status: HttpStatus.UNPROCESSABLE_ENTITY,
+    message: 'Only delivered orders can be reviewed',
+  },
 };

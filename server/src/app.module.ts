@@ -18,6 +18,7 @@ import { DeliveryModule } from '#modules/delivery';
 import { FinanceModule } from '#modules/finance';
 import { DisputesModule } from '#modules/disputes';
 import { DashboardsModule } from '#modules/dashboards';
+import { ReviewsModule } from '#modules/reviews';
 import { APP_PROVIDERS } from './app.providers.js';
 
 @Module({
@@ -41,6 +42,7 @@ import { APP_PROVIDERS } from './app.providers.js';
     FinanceModule,
     DisputesModule,
     DashboardsModule,
+    ReviewsModule,
   ],
   providers: APP_PROVIDERS,
 })

@@ -1,4 +1,4 @@
-import { Store, MapPin, Clock, Truck, ShieldCheck } from 'lucide-react';
+import { Store, MapPin, Clock, Truck, ShieldCheck, Star } from 'lucide-react';
 import { Badge } from '@/components/ui';
 import { formatINR } from '@/utils';
 import type { Shop } from '../api/shops.api';
@@ -18,8 +18,15 @@ export function ShopProfileBanner({ shop }: ShopProfileBannerProps) {
             <Store className="h-6 w-6" />
           </div>
           <div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <h1 className="text-xl font-bold text-text">{shop.name}</h1>
+              {shop.ratingAverage && shop.ratingAverage > 0 ? (
+                <Badge tone="warning" size="sm">
+                  <Star className="h-3.5 w-3.5 fill-warning" />
+                  <span className="font-bold">{shop.ratingAverage.toFixed(1)}</span>
+                  <span className="text-muted font-normal">({shop.ratingCount} reviews)</span>
+                </Badge>
+              ) : null}
               <Badge tone="success" size="sm" dot>FSSAI Verified</Badge>
             </div>
             <p className="text-xs text-muted flex items-center gap-1 mt-1">

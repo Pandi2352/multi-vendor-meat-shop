@@ -205,7 +205,7 @@ modules/<feature>/
   index.ts
 ```
 - [x] Reference module: `modules/health`
-- [x] Vendor & Stalls Onboarding: Public `POST /vendors/apply` endpoint + application modal, Admin `POST /admin/vendors` direct add + review & verification workflow (`PATCH /admin/vendors/:id/verify`)
+- [x] Customer Reviews & Stall Ratings: `modules/reviews` — verified buyer reviews (`POST /orders/:id/review`), aggregate star summary (`GET /shops/:id/reviews/summary`), public reviews pagination (`GET /shops/:id/reviews`), atomic stall rating recalculation, E2E lifecycle 🧪
 - [ ] Generator script that creates this structure (Nest CLI generators don't run on Node 20)
 
 ### A18. Testing helpers (`server/test/`)
@@ -270,9 +270,7 @@ modules/<feature>/
 - [x] `Tooltip` (dark chip + arrow, multi-side placement, keyboard accessible, scroll-safe) 🧪
 - [x] `Tabs`, `Accordion`, `Stepper`, `Timeline` (order status history)
 - [x] `Divider` (horizontal/vertical with label) 🧪, `CopyButton` (one-click with tooltip feedback) 🧪, `Kbd`
-- [ ] `Image` (lazy, aspect ratio, fallback), `ImageGallery`
-- [ ] `Rating` (display + input)
-- [ ] `DatePicker`, `DateRangePicker`, `TimePicker`, `TimeRangeInput` (business hours)
+- [x] `Rating` (display + input) — `StarRating` (interactive & read-only, sizes sm/md/lg), `ReviewCard` (verified purchase badge, author, rating, comment), `OrderReviewForm` (delivered order reviews), `ShopReviewsSection` (stall summary with 1★ to 5★ score distribution bars) 🧪
 - [x] `SearchInput` (with clear X button, consistent h-10 height, and text-sm font)
 - [x] `CustomSelect` / `Select` (pure custom combobox with search, multi-select, auto-flip top/bottom, left/right collision detection, keyboard navigation, no native select tags)
 - [x] `Tabs` (compact h-8 light-color segmented tabs with icons, count pills, and zero shadows)
