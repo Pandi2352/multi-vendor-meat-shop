@@ -96,7 +96,15 @@ export async function runVirudhunagarSeed(): Promise<void> {
   }
 
   // 2. Seed Shops, Vendors, Products, and Live Batches
-  console.log('\n🥩 Seeding Real Virudhunagar Butcher Stalls & Inventory...');
+  console.log('\n🧹 Removing old vendor data for clean Sivakasi-focused marketplace...');
+  await VendorProfileModel.deleteMany({});
+  await ShopModel.deleteMany({});
+  await ProductModel.deleteMany({});
+  await InventoryBatchModel.deleteMany({});
+  await InventoryMovementModel.deleteMany({});
+  await UserModel.deleteMany({ role: Role.VENDOR_OWNER });
+
+  console.log('\n🥩 Seeding 15 Real Sivakasi & Surrounding Butcher Stalls & Inventory...');
   const batchDate = dayjs().format('YYYY-MM-DD');
   const expiresAt = dayjs().endOf('day').toDate();
 
@@ -125,6 +133,7 @@ export async function runVirudhunagarSeed(): Promise<void> {
         businessName: shopDef.name,
         ownerName: shopDef.vendorOwnerName,
         fssaiNumber: shopDef.fssaiNumber,
+        allowedCategories: Array.from(new Set(shopDef.products.map((p) => p.categorySlug))),
         status: VendorVerificationStatus.APPROVED,
         verifiedAt: new Date(),
       });
@@ -136,6 +145,7 @@ export async function runVirudhunagarSeed(): Promise<void> {
     const shopData = {
       vendorId: vendorProfile._id,
       name: shopDef.name,
+      nameTa: shopDef.nameTa,
       slug: shopDef.slug,
       description: shopDef.description,
       phone: shopDef.phone,

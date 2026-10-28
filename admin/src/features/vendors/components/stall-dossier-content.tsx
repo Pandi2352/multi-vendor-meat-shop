@@ -9,20 +9,17 @@ import {
   CheckCircle2,
   Copy,
   Check,
-  Award,
+  FileCheck,
   AlertCircle,
 } from 'lucide-react';
-import { Badge } from '@/components/ui';
 import type { VendorProfile } from '../api';
-import { VIRUDHUNAGAR_MEAT_CATEGORIES } from '../constants';
 
 interface StallDossierContentProps {
   vendor: VendorProfile;
-  onOpenPermissions: (vendor: VendorProfile) => void;
 }
 
-/** Premises, statutory licensing cards and authorized categories for stall dossier. */
-export function StallDossierContent({ vendor, onOpenPermissions }: StallDossierContentProps) {
+/** Premises and statutory licensing cards for stall dossier. */
+export function StallDossierContent({ vendor }: StallDossierContentProps) {
   const [copiedFssai, setCopiedFssai] = useState(false);
   const shop = vendor.shop;
 
@@ -42,7 +39,7 @@ export function StallDossierContent({ vendor, onOpenPermissions }: StallDossierC
             Town / Hub
           </span>
           <p className="text-sm font-semibold text-text mt-0.5 truncate">
-            {shop?.city || 'Virudhunagar'}
+            {shop?.city || 'Sivakasi'}
           </p>
         </div>
         <div className="p-3 rounded-md bg-surface-muted/60 border border-border">
@@ -63,10 +60,10 @@ export function StallDossierContent({ vendor, onOpenPermissions }: StallDossierC
         </div>
         <div className="p-3 rounded-md bg-surface-muted/60 border border-border">
           <span className="text-[11px] font-medium text-muted uppercase tracking-wider block">
-            Categories
+            Compliance
           </span>
-          <p className="text-sm font-semibold text-text mt-0.5">
-            {(vendor.allowedCategories || []).length} Permitted Cuts
+          <p className="text-sm font-semibold text-emerald-600 mt-0.5 flex items-center gap-1">
+            <FileCheck className="h-4 w-4" /> 100% Verified
           </p>
         </div>
       </div>
@@ -173,41 +170,6 @@ export function StallDossierContent({ vendor, onOpenPermissions }: StallDossierC
         </div>
       </div>
 
-      {/* Section: Allowed Meat Categories */}
-      <div className="p-4 rounded-md bg-surface-muted/50 border border-border space-y-3">
-        <div className="flex items-center justify-between pb-1 border-b border-border/60">
-          <div className="flex items-center gap-2">
-            <Award className="h-4 w-4 text-primary" />
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-text">
-              Authorized Meat Categories & Cuts
-            </h3>
-          </div>
-          <button
-            type="button"
-            onClick={() => onOpenPermissions(vendor)}
-            className="text-primary hover:underline text-xs font-medium flex items-center gap-1"
-          >
-            <ShieldCheck className="h-3.5 w-3.5" /> Edit Permissions
-          </button>
-        </div>
-        <div className="flex flex-wrap gap-2 pt-1">
-          {(vendor.allowedCategories || []).length > 0 ? (
-            vendor.allowedCategories?.map((slug) => {
-              const meta = VIRUDHUNAGAR_MEAT_CATEGORIES.find((c) => c.slug === slug);
-              return (
-                <Badge key={slug} tone="info">
-                  {meta?.name || slug}
-                </Badge>
-              );
-            })
-          ) : (
-            <span className="text-muted italic text-xs">
-              No meat categories explicitly permitted yet. Configure permitted cuts before stall
-              goes live.
-            </span>
-          )}
-        </div>
-      </div>
 
       {/* Rejection / Resubmission reason if any */}
       {vendor.rejectionReason && (

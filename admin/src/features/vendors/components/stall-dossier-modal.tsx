@@ -9,7 +9,6 @@ interface StallDossierModalProps {
   vendor: VendorProfile | null;
   onClose: () => void;
   onAction: (vendor: VendorProfile, action: VendorStatus) => void;
-  onOpenPermissions: (vendor: VendorProfile) => void;
   onEdit?: (vendor: VendorProfile) => void;
 }
 
@@ -18,7 +17,6 @@ export function StallDossierModal({
   vendor,
   onClose,
   onAction,
-  onOpenPermissions,
   onEdit,
 }: StallDossierModalProps) {
   if (!vendor) return null;
@@ -59,7 +57,7 @@ export function StallDossierModal({
         </div>
 
         {/* Modal Scrollable Body */}
-        <StallDossierContent vendor={vendor} onOpenPermissions={onOpenPermissions} />
+        <StallDossierContent vendor={vendor} />
 
         {/* Footer Bar */}
         <div className="px-6 py-4 border-t border-border bg-surface-muted/40 flex items-center justify-between">

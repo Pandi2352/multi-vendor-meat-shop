@@ -1,123 +1,131 @@
-import { FileText, ShieldCheck, CheckCircle2, AlertCircle, Ban, X, Pencil } from 'lucide-react';
+import {
+  FileText,
+  CheckCircle2,
+  AlertCircle,
+  Ban,
+  Pencil,
+  MapPin,
+  Clock,
+  Navigation,
+} from 'lucide-react';
 import type { VendorProfile, VendorStatus } from '../api';
 import { VendorStatusBadge } from './vendor-status-badge';
-import { VIRUDHUNAGAR_MEAT_CATEGORIES } from '../constants';
 
 interface VendorCardProps {
   vendor: VendorProfile;
   onOpenDossier: (vendor: VendorProfile) => void;
-  onOpenPermissions: (vendor: VendorProfile) => void;
   onAction: (vendor: VendorProfile, action: VendorStatus) => void;
   onEdit?: (vendor: VendorProfile) => void;
 }
 
+function getMonogram(name: string): string {
+  const words = name.trim().split(/\s+/);
+  if (words.length >= 2) return `${words[0][0]}${words[1][0]}`.toUpperCase();
+  return name.slice(0, 2).toUpperCase();
+}
+
+/** Modern stall card displaying identity, bilingual name, coverage and operations. */
 export function VendorCard({
   vendor,
   onOpenDossier,
-  onOpenPermissions,
   onAction,
   onEdit,
 }: VendorCardProps) {
   const isPending = vendor.status === 'SUBMITTED' || vendor.status === 'UNDER_REVIEW';
   const isApproved = vendor.status === 'APPROVED';
   const isSuspended = vendor.status === 'SUSPENDED';
-
-  const categories = vendor.allowedCategories || [];
+  const shop = vendor.shop;
 
   return (
-    <div className="p-4 rounded-md border border-border bg-surface hover:border-primary/40 transition-colors flex flex-col justify-between space-y-3 text-xs">
-      <div className="space-y-2">
-        <div className="flex items-start justify-between gap-2">
-          <div>
-            <h3 className="font-semibold text-text text-sm leading-tight flex items-center gap-1.5 flex-wrap">
-              <span>{vendor.businessName}</span>
-              {vendor.shop?.nameTa && (
-                <span className="text-muted font-normal text-xs font-sans">({vendor.shop.nameTa})</span>
+    <div className="p-4 rounded-md border border-border bg-surface hover:border-primary/50 transition-all flex flex-col justify-between space-y-3.5 text-xs">
+      {/* Header with Monogram, Title, and Status */}
+      <div className="space-y-3">
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex items-start gap-2.5 min-w-0">
+            <div className="h-10 w-10 shrink-0 rounded-md bg-primary/10 border border-primary/20 text-primary font-bold flex items-center justify-center text-xs tracking-wider">
+              {getMonogram(vendor.businessName)}
+            </div>
+            <div className="min-w-0">
+              <h3
+                onClick={() => onOpenDossier(vendor)}
+                className="font-semibold text-text text-sm leading-tight hover:text-primary transition-colors cursor-pointer truncate"
+                title={vendor.businessName}
+              >
+                {vendor.businessName}
+              </h3>
+              {shop?.nameTa && (
+                <p className="text-muted font-sans text-[11px] truncate mt-0.5" title={shop.nameTa}>
+                  {shop.nameTa}
+                </p>
               )}
-            </h3>
-            <p className="text-muted text-[11px] mt-0.5">Owner: <span className="text-text font-medium">{vendor.ownerName}</span></p>
+              <p className="text-muted text-[11px] mt-0.5 truncate">
+                Owner: <span className="text-text font-medium">{vendor.ownerName}</span>
+              </p>
+            </div>
           </div>
           <VendorStatusBadge status={vendor.status} />
         </div>
 
-        <div className="p-2.5 rounded-md bg-surface-muted border border-border space-y-1">
-          <div className="flex items-center justify-between text-muted">
-            <span>FSSAI Lic:</span>
-            <span className="font-mono text-text font-medium">{vendor.fssaiNumber}</span>
+        {/* Operational Highlights Card */}
+        <div className="p-3 rounded-md bg-surface-muted/50 border border-border space-y-2">
+          {/* Location Line */}
+          <div className="flex items-center gap-1.5 text-xs text-text min-w-0">
+            <MapPin className="h-3.5 w-3.5 text-primary shrink-0" />
+            <span className="font-semibold shrink-0">{shop?.city || 'Virudhunagar'}</span>
+            <span className="text-muted truncate">• {shop?.locality || 'Town Centre'}</span>
           </div>
-          {vendor.shop && (
-            <div className="flex items-center justify-between text-muted">
-              <span>Town / Area:</span>
-              <span className="font-medium text-text">{vendor.shop.city} ({vendor.shop.locality})</span>
-            </div>
-          )}
-          {vendor.shop?.openingTime && (
-            <div className="flex items-center justify-between text-muted">
-              <span>Hours:</span>
-              <span className="text-text">{vendor.shop.openingTime} – {vendor.shop.closingTime || '21:00'}</span>
-            </div>
-          )}
+
+          {/* Hours & Dispatch Radius */}
+          <div className="grid grid-cols-2 gap-2 text-[11px] text-muted">
+            <span className="flex items-center gap-1 truncate">
+              <Clock className="h-3 w-3 text-muted shrink-0" />
+              <span className="text-text font-medium truncate">
+                {shop?.openingTime || '06:00'} – {shop?.closingTime || '21:00'}
+              </span>
+            </span>
+            <span className="flex items-center gap-1 truncate">
+              <Navigation className="h-3 w-3 text-muted shrink-0" />
+              <span className="text-text font-medium truncate">
+                {shop?.serviceRadiusKm || 8} km radius
+              </span>
+            </span>
+          </div>
+
+          {/* FSSAI Statutory Strip */}
+          <div className="pt-2 border-t border-border/60 flex items-center justify-between text-[11px]">
+            <span className="text-muted font-mono truncate">
+              LIC: <span className="text-text font-medium">{vendor.fssaiNumber}</span>
+            </span>
+            <span className="inline-flex items-center gap-1 text-emerald-600 font-medium shrink-0">
+              <CheckCircle2 className="h-3 w-3" /> FSSAI Verified
+            </span>
+          </div>
         </div>
 
-        {/* Permitted Categories Badges */}
-        <div className="space-y-1">
-          <div className="flex items-center justify-between text-[11px] text-muted">
-            <span>Permitted Meats:</span>
-            <button
-              type="button"
-              onClick={() => onOpenPermissions(vendor)}
-              className="text-purple-600 dark:text-purple-400 hover:underline flex items-center gap-0.5"
-            >
-              <ShieldCheck className="h-3 w-3" />
-              <span>Configure</span>
-            </button>
-          </div>
-          <div className="flex flex-wrap gap-1">
-            {categories.length > 0 ? (
-              categories.map((slug) => {
-                const meta = VIRUDHUNAGAR_MEAT_CATEGORIES.find((c) => c.slug === slug);
-                return (
-                  <span
-                    key={slug}
-                    className={`px-1.5 py-0.5 text-[10px] font-medium rounded-md border ${
-                      meta?.badgeColor || 'bg-surface-muted text-muted border-border'
-                    }`}
-                  >
-                    {meta?.name || slug}
-                  </span>
-                );
-              })
-            ) : (
-              <span className="text-[11px] text-muted italic">No categories assigned</span>
-            )}
-          </div>
-        </div>
 
         {vendor.rejectionReason && (
-          <p className="text-rose-600 bg-rose-50/80 dark:bg-rose-950/20 p-1.5 rounded-md border border-rose-200 dark:border-rose-900/40 text-[11px]">
+          <p className="text-destructive bg-destructive/10 p-2 rounded-md border border-destructive/20 text-[11px]">
             <strong>Note:</strong> {vendor.rejectionReason}
           </p>
         )}
       </div>
 
-      <div className="pt-2 border-t border-border flex items-center justify-between gap-1.5 flex-wrap">
+      {/* Action Footer */}
+      <div className="pt-3 border-t border-border flex items-center justify-between gap-2">
         <div className="flex items-center gap-1.5">
-          {/* Dossier Button - Sky Blue */}
           <button
             type="button"
             onClick={() => onOpenDossier(vendor)}
-            className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-md transition-colors bg-sky-50 text-sky-700 border border-sky-200 hover:bg-sky-100 hover:border-sky-300 dark:bg-sky-950/40 dark:text-sky-300 dark:border-sky-800"
+            className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-md border border-border bg-surface text-text hover:bg-surface-muted transition-colors"
           >
-            <FileText className="h-3 w-3 text-sky-600 dark:text-sky-400" />
+            <FileText className="h-3 w-3 text-muted" />
             <span>Dossier</span>
           </button>
-
-          {/* Edit Button */}
           {onEdit && (
             <button
               type="button"
               onClick={() => onEdit(vendor)}
-              className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-md transition-colors bg-surface-muted text-text border border-border hover:bg-surface hover:border-primary/50"
+              className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-md border border-border bg-surface text-text hover:bg-surface-muted transition-colors"
               title="Edit stall details"
             >
               <Pencil className="h-3 w-3 text-muted" />
@@ -127,54 +135,36 @@ export function VendorCard({
         </div>
 
         <div className="flex items-center gap-1.5 ml-auto">
-          {/* Quick Approve - Emerald Green */}
           {(!isApproved || isSuspended) && (
             <button
               type="button"
               onClick={() => onAction(vendor, 'APPROVED')}
-              title={isSuspended ? 'Re-activate stall' : 'Quick approve stall application'}
-              className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-md transition-colors bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 hover:border-emerald-300 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800"
+              className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
             >
-              <CheckCircle2 className="h-3 w-3 text-emerald-600 dark:text-emerald-400" />
-              <span>{isSuspended ? 'Re-activate' : 'Approve'}</span>
+              <CheckCircle2 className="h-3 w-3" />
+              <span>{isSuspended ? 'Reactivate' : 'Approve'}</span>
             </button>
           )}
 
-          {/* Request Changes - Amber Gold */}
           {isPending && (
             <button
               type="button"
               onClick={() => onAction(vendor, 'RESUBMISSION_REQUIRED')}
-              title="Request changes from vendor"
-              className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-md transition-colors bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 hover:border-amber-300 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800"
+              className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-md border border-border text-text hover:bg-surface-muted transition-colors"
             >
-              <AlertCircle className="h-3 w-3 text-amber-600 dark:text-amber-400" />
+              <AlertCircle className="h-3 w-3 text-amber-600" />
               <span>Changes</span>
             </button>
           )}
 
-          {/* Suspend Stall - Rose Red */}
           {isApproved && (
             <button
               type="button"
               onClick={() => onAction(vendor, 'SUSPENDED')}
-              title="Suspend butcher stall"
-              className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-md transition-colors bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100 hover:border-rose-300 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-800"
+              className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-md border border-destructive/30 text-destructive hover:bg-destructive/10 transition-colors"
             >
-              <Ban className="h-3 w-3 text-rose-600 dark:text-rose-400" />
+              <Ban className="h-3 w-3" />
               <span>Suspend</span>
-            </button>
-          )}
-
-          {/* Reject Application - Rose Red */}
-          {isPending && (
-            <button
-              type="button"
-              onClick={() => onAction(vendor, 'REJECTED')}
-              title="Reject stall application"
-              className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-md transition-colors text-muted hover:text-rose-600 hover:bg-rose-50 p-1"
-            >
-              <X className="h-3.5 w-3.5" />
             </button>
           )}
         </div>
