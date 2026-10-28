@@ -17,6 +17,9 @@ export class InvitationDetailsResponseDto {
   @ApiProperty({ enum: InvitationStatus, example: InvitationStatus.PENDING })
   status!: InvitationStatus;
 
+  @ApiPropertyOptional({ example: 'Virudhunagar Chettinad Mutton Stall', description: 'Shop staff and owner invites' })
+  shopName?: string;
+
   @ApiProperty({ example: false })
   isExpired!: boolean;
 

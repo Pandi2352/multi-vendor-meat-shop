@@ -12,5 +12,7 @@ export const toUserInvitationResponseDto = (inv: UserInvitation): UserInvitation
   status: inv.status,
   expiresAt: inv.expiresAt.toISOString(),
   acceptedAt: inv.acceptedAt ? inv.acceptedAt.toISOString() : null,
+  dutyTitle: inv.dutyTitle ?? undefined,
+  isExpired: inv.expiresAt.getTime() <= Date.now(),
   createdAt: inv.createdAt instanceof Date ? inv.createdAt.toISOString() : String(inv.createdAt),
 });

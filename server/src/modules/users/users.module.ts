@@ -13,6 +13,7 @@ import { AddressesService } from './services/addresses.service.js';
 import { AdminUsersService } from './services/admin-users.service.js';
 import { AdminRolesService } from './services/admin-roles.service.js';
 import { InvitationsService } from './services/invitations.service.js';
+import { ShopNameLookup } from './services/shop-name.lookup.js';
 import { SuperAdminSeeder } from './services/super-admin-seeder.service.js';
 import { VendorStaffService } from './services/vendor-staff.service.js';
 import { UsersController } from './controllers/users.controller.js';
@@ -49,6 +50,7 @@ import { VendorStaffController } from './controllers/vendor-staff.controller.js'
     VendorStaffService,
     SuperAdminSeeder,
     InvitationsService,
+    ShopNameLookup,
   ],
   exports: [
     UsersService,
@@ -60,6 +62,7 @@ import { VendorStaffController } from './controllers/vendor-staff.controller.js'
     UserInvitationRepository,
     RolePermissionRepository,
     InvitationsService,
+    ShopNameLookup,
   ],
 })
 export class UsersModule {}

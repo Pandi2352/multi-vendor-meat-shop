@@ -32,3 +32,15 @@ export const zNewPassword = () =>
     .string()
     .min(PASSWORD_MIN_LENGTH, `Use at least ${PASSWORD_MIN_LENGTH} characters`)
     .max(PASSWORD_MAX_LENGTH, `Use at most ${PASSWORD_MAX_LENGTH} characters`);
+
+/** Indian mobile, typed with or without +91, spaces or dashes. Same rule as the server's `IsIndianPhone`. */
+const INDIAN_MOBILE = /^(?:\+?91|0)?[6-9]\d{9}$/;
+
+/** Optional phone field: empty stays empty (sent as undefined), otherwise must be an Indian mobile. */
+export const zOptionalIndianPhone = () =>
+  z
+    .string()
+    .trim()
+    .transform((value) => value.replace(/[\s-]/g, ''))
+    .refine((value) => value === '' || INDIAN_MOBILE.test(value), 'Enter a 10-digit mobile number, like 98765 43210')
+    .transform((value) => value || undefined);

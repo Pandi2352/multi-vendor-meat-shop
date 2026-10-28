@@ -39,6 +39,8 @@ const ROUTES: [string, AnyController, string, P[]][] = [
   ['invite staff', VendorStaffController, 'add', [P.STAFF_MANAGE]],
   ['edit staff', VendorStaffController, 'update', [P.STAFF_MANAGE]],
   ['remove staff', VendorStaffController, 'remove', [P.STAFF_MANAGE]],
+  ['resend a staff invite', VendorStaffController, 'resendInvitation', [P.STAFF_MANAGE]],
+  ['cancel a staff invite', VendorStaffController, 'cancelInvitation', [P.STAFF_MANAGE]],
   ['see the balance', VendorFinanceController, 'getSummary', [P.SETTLEMENT_READ]],
   ['see the ledger', VendorFinanceController, 'getLedger', [P.SETTLEMENT_READ]],
   ['see settlements', VendorFinanceController, 'getSettlements', [P.SETTLEMENT_READ]],

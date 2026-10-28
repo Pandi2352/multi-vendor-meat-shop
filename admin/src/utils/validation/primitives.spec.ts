@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { zEmail, zNewPassword, zOtp, zRequiredString } from './primitives';
+import { zEmail, zNewPassword, zOptionalIndianPhone, zOtp, zRequiredString } from './primitives';
 
 describe('validation primitives', () => {
   it('normalises and validates email', () => {
@@ -25,5 +25,14 @@ describe('validation primitives', () => {
     expect(zNewPassword().safeParse('Short@1').error?.issues[0].message).toBe('Use at least 8 characters');
     expect(zNewPassword().safeParse('Mutton@2026').success).toBe(true);
     expect(zNewPassword().safeParse('x'.repeat(129)).success).toBe(false);
+  });
+
+  it('accepts Indian mobiles in the usual ways and leaves an empty phone out', () => {
+    expect(zOptionalIndianPhone().parse('98765 43210')).toBe('9876543210');
+    expect(zOptionalIndianPhone().parse('+91-98765-43210')).toBe('+919876543210');
+    expect(zOptionalIndianPhone().parse('09876543210')).toBe('09876543210');
+    expect(zOptionalIndianPhone().parse('  ')).toBeUndefined();
+    expect(zOptionalIndianPhone().safeParse('12345').success).toBe(false);
+    expect(zOptionalIndianPhone().safeParse('5876543210').success).toBe(false);
   });
 });

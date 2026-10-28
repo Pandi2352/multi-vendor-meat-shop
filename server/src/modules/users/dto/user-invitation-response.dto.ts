@@ -41,6 +41,12 @@ export class UserInvitationResponseDto {
   @ApiPropertyOptional({ description: 'Whether the invitation email was sent. Present only on issue/resend.', example: true })
   emailSent?: boolean;
 
+  @ApiPropertyOptional({ example: 'Master cutter', description: 'Shop staff invites: their job at the shop' })
+  dutyTitle?: string;
+
+  @ApiProperty({ example: false, description: 'Past its expiry date (the status may still say PENDING)' })
+  isExpired!: boolean;
+
   @ApiProperty({ example: '2026-10-26T12:00:00.000Z' })
   createdAt!: string;
 }

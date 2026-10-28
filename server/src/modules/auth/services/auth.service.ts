@@ -1,9 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { AppException, ErrorCode } from '#common/exceptions';
-import { InvitationStatus, ROLE_PERMISSIONS, isPortalRole } from '#common/enums';
+import { InvitationStatus, ROLE_PERMISSIONS, Role, isPortalRole } from '#common/enums';
 import { hashPassword, sha256, verifyPassword } from '#common/utils';
 import { AppConfigService } from '#config';
-import { UserInvitationRepository, UsersService, toUserResponseDto, type User } from '#modules/users';
+import {
+  ShopNameLookup,
+  UserInvitationRepository,
+  UsersService,
+  canJoinShopAsStaff,
+  toUserResponseDto,
+  type User,
+} from '#modules/users';
 import { OtpService } from './otp.service.js';
 import { TokenService } from './token.service.js';
 import { assertCanSignIn } from '../utils/account-status.util.js';
@@ -32,6 +39,7 @@ export class AuthService {
     private readonly usersService: UsersService,
     private readonly sessionRepo: RefreshSessionRepository,
     private readonly invitationRepo: UserInvitationRepository,
+    private readonly shopNames: ShopNameLookup,
   ) {}
 
   // ---------- Storefront (customers sign up by verifying their email) ----------
@@ -87,6 +95,7 @@ export class AuthService {
       name: invitation.name,
       role: invitation.role,
       shopId: invitation.shopId,
+      shopName: await this.shopNames.nameOf(invitation.shopId),
       status: invitation.status,
       isExpired,
       expiresAt: invitation.expiresAt,
@@ -115,6 +124,18 @@ export class AuthService {
       });
     }
 
+    // A staff invite is re-checked now: the account may have become an owner, another shop's
+    // staff, or been suspended since the owner sent it.
+    if (invitation.role === Role.VENDOR_STAFF && invitation.shopId) {
+      const account = await this.usersService.findByEmail(invitation.email);
+      if (!canJoinShopAsStaff(account, invitation.shopId)) {
+        await this.invitationRepo.updateById(invitation._id, { status: InvitationStatus.REVOKED });
+        throw new AppException(ErrorCode.BUSINESS_RULE_VIOLATION, {
+          message: 'This invitation can’t be used with your account any more. Ask the shop owner to contact the admin team.',
+        });
+      }
+    }
+
     const passwordHash = hashPassword(dto.password);
     const user = await this.usersService.createOrActivateInvitedUser({
       email: invitation.email,
@@ -122,6 +143,7 @@ export class AuthService {
       name: dto.name || invitation.name,
       phone: invitation.phone,
       shopId: invitation.shopId,
+      dutyTitle: invitation.dutyTitle,
       passwordHash,
     });
 

@@ -63,6 +63,7 @@ export class UsersService {
     name?: string;
     phone?: string;
     shopId?: string | null;
+    dutyTitle?: string | null;
     passwordHash: string;
   }): Promise<User> {
     const existing = await this.findByEmail(data.email);
@@ -74,6 +75,7 @@ export class UsersService {
         ...(data.name ? { name: data.name } : {}),
         ...(data.phone ? { phone: data.phone } : {}),
         shopId: data.shopId !== undefined ? data.shopId : existing.shopId,
+        ...(data.dutyTitle ? { dutyTitle: data.dutyTitle } : {}),
       });
     }
 
@@ -83,6 +85,7 @@ export class UsersService {
       name: data.name,
       phone: data.phone,
       shopId: data.shopId ?? null,
+      dutyTitle: data.dutyTitle ?? null,
       status: UserStatus.ACTIVE,
       passwordHash: data.passwordHash,
       deletedAt: null,

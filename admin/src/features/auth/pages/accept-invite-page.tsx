@@ -85,7 +85,9 @@ export function AcceptInvitePage() {
           Activate Your Portal Account
         </h1>
         <p className="text-sm text-muted">
-          You’ve been invited to {APP_CONFIG.brandName} as <strong className="text-text font-semibold">{roleLabel}</strong>. Set a password to activate your account.
+          You’ve been invited to{' '}
+          <strong className="text-text font-semibold">{invite.shopName ?? APP_CONFIG.brandName}</strong> as{' '}
+          <strong className="text-text font-semibold">{roleLabel}</strong>. Set a password to activate your account.
         </p>
       </header>
 

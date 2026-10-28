@@ -1,52 +1,74 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEmail, IsNotEmpty, IsOptional, IsString, IsIn } from 'class-validator';
-import { UserStatus } from '#common/enums';
+import { IsEmail, IsIn, IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator';
+import { Role, UserStatus } from '#common/enums';
+import { NormalizePhone, ToLowerCase, Trim } from '#common/transformers';
+import { IsIndianPhone } from '#common/validators';
+import { UserInvitationResponseDto } from './user-invitation-response.dto.js';
+
+const NAME_MAX = 80;
+const DUTY_MAX = 60;
 
 export class AddVendorStaffDto {
-  @ApiProperty({ example: 'Senthil Butcher' })
+  @ApiProperty({ example: 'Senthil Kumar', maxLength: NAME_MAX })
+  @Trim()
   @IsString()
   @IsNotEmpty()
+  @MaxLength(NAME_MAX)
   name!: string;
 
   @ApiProperty({ example: 'senthil.cuts@gmail.com' })
-  @IsEmail()
+  @Trim()
+  @ToLowerCase()
+  @IsEmail({}, { message: 'Enter a valid email address' })
   email!: string;
 
-  @ApiPropertyOptional({ example: '+919876543210' })
+  @ApiPropertyOptional({ example: '9876543210', description: 'Indian mobile; stored as +91…' })
   @IsOptional()
-  @IsString()
+  @NormalizePhone()
+  @IsIndianPhone()
   phone?: string;
 
-  @ApiPropertyOptional({ example: 'Master Cutter / Butcher' })
+  @ApiPropertyOptional({ example: 'Master cutter', maxLength: DUTY_MAX })
   @IsOptional()
+  @Trim()
   @IsString()
+  @MaxLength(DUTY_MAX)
   dutyTitle?: string;
 }
 
 export class UpdateVendorStaffDto {
-  @ApiPropertyOptional({ example: 'Senthil Butcher' })
+  @ApiPropertyOptional({ example: 'Senthil Kumar', maxLength: NAME_MAX })
   @IsOptional()
+  @Trim()
   @IsString()
+  @IsNotEmpty()
+  @MaxLength(NAME_MAX)
   name?: string;
 
-  @ApiPropertyOptional({ example: '+919876543210' })
+  @ApiPropertyOptional({ example: '9876543210' })
   @IsOptional()
-  @IsString()
+  @NormalizePhone()
+  @IsIndianPhone()
   phone?: string;
 
-  @ApiPropertyOptional({ enum: [UserStatus.ACTIVE, UserStatus.SUSPENDED], description: 'Suspend or re-activate a staff member' })
+  @ApiPropertyOptional({
+    enum: [UserStatus.ACTIVE, UserStatus.SUSPENDED],
+    description: 'Suspend or re-activate a staff member',
+  })
   @IsOptional()
   @IsIn([UserStatus.ACTIVE, UserStatus.SUSPENDED])
   status?: UserStatus.ACTIVE | UserStatus.SUSPENDED;
 
-  @ApiPropertyOptional({ example: 'Master Cutter / Butcher' })
+  @ApiPropertyOptional({ example: 'Counter & billing', maxLength: DUTY_MAX })
   @IsOptional()
+  @Trim()
   @IsString()
+  @MaxLength(DUTY_MAX)
   dutyTitle?: string;
 }
 
 export class VendorStaffMemberDto {
-  @ApiProperty()
+  @ApiProperty({ format: 'uuid' })
   id!: string;
 
   @ApiProperty()
@@ -58,33 +80,23 @@ export class VendorStaffMemberDto {
   @ApiPropertyOptional()
   phone?: string;
 
-  @ApiProperty()
-  role!: string;
+  @ApiProperty({ enum: [Role.VENDOR_OWNER, Role.VENDOR_STAFF], enumName: 'ShopTeamRole' })
+  role!: Role.VENDOR_OWNER | Role.VENDOR_STAFF;
 
-  @ApiProperty({ enum: UserStatus })
+  @ApiProperty({ enum: UserStatus, enumName: 'UserStatus' })
   status!: UserStatus;
-
-  @ApiProperty()
-  shopId!: string;
 
   @ApiPropertyOptional()
   dutyTitle?: string;
 
-  @ApiProperty()
+  @ApiProperty({ description: 'When they joined the shop (account creation)' })
   createdAt!: string;
 }
 
 export class VendorStaffListResponseDto {
-  @ApiProperty({ type: [VendorStaffMemberDto] })
+  @ApiProperty({ type: [VendorStaffMemberDto], description: 'Owner first, then staff by name' })
   staff!: VendorStaffMemberDto[];
 
-  @ApiProperty({ type: [Object] })
-  invitations!: Array<{
-    id: string;
-    email: string;
-    name?: string;
-    dutyTitle?: string;
-    status: string;
-    expiresAt: string;
-  }>;
+  @ApiProperty({ type: [UserInvitationResponseDto], description: 'Invites not yet accepted (never includes links)' })
+  invitations!: UserInvitationResponseDto[];
 }

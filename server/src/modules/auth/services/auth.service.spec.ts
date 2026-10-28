@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { Role, UserStatus } from '#common/enums';
 import { AppException, ErrorCode } from '#common/exceptions';
 import type { AppConfigService } from '#config';
-import type { UsersService } from '#modules/users';
+import type { ShopNameLookup, UserInvitationRepository, UsersService } from '#modules/users';
 import type { RefreshSessionRepository } from '../repositories/refresh-session.repository.js';
 import { AuthService } from './auth.service.js';
 import type { OtpService } from './otp.service.js';
@@ -29,6 +29,7 @@ const setup = (user: ReturnType<typeof makeUser> | null) => {
   const users = {
     findByEmail: vi.fn().mockResolvedValue(user),
     findOrCreateByEmail: vi.fn(),
+    createOrActivateInvitedUser: vi.fn((data: { role: Role }) => Promise.resolve({ ...makeUser(data.role), ...data })),
   };
   const tokens = { signAccessToken: vi.fn().mockReturnValue('access'), signRefreshToken: vi.fn().mockReturnValue('refresh') };
   const sessions = {
@@ -39,6 +40,7 @@ const setup = (user: ReturnType<typeof makeUser> | null) => {
     findByToken: vi.fn(),
     findByEmail: vi.fn(),
     updateByIdOrThrow: vi.fn(),
+    updateById: vi.fn(),
   };
   const service = new AuthService(
     config,
@@ -46,7 +48,8 @@ const setup = (user: ReturnType<typeof makeUser> | null) => {
     tokens as unknown as TokenService,
     users as unknown as UsersService,
     sessions as unknown as RefreshSessionRepository,
-    invitations as unknown as any,
+    invitations as unknown as UserInvitationRepository,
+    { nameOf: vi.fn().mockResolvedValue('Muthu Mutton Stall') } as unknown as ShopNameLookup,
   );
   return { service, otp, users, invitations };
 };
@@ -103,5 +106,47 @@ describe('AuthService — admin portal sign-in', () => {
   it('treats deleted accounts as unknown credentials', async () => {
     const { service } = setup(makeUser(Role.ADMIN, UserStatus.DELETED));
     await expectCode(service.verifyPortalOtp({ email: 'ops@tnmeat.in', otp: '123456' }), ErrorCode.AUTH_INVALID_CREDENTIALS);
+  });
+});
+
+describe('AuthService — accepting a shop staff invite', () => {
+  const staffInvite = {
+    _id: 'inv-1',
+    email: 'ops@tnmeat.in',
+    role: Role.VENDOR_STAFF,
+    shopId: 'shop-1',
+    status: 'PENDING',
+    expiresAt: new Date(Date.now() + 60_000),
+  };
+  const accept = (account: ReturnType<typeof makeUser> | null) => {
+    const ctx = setup(account);
+    ctx.invitations.findByToken.mockResolvedValue(staffInvite);
+    return { ...ctx, result: ctx.service.acceptInvitationAndSetPassword({ token: 't', password: 'Mutton@2026' }) };
+  };
+
+  it.each([
+    ['a new email', null],
+    ['a customer', makeUser(Role.CUSTOMER)],
+  ])('lets %s join the shop', async (_label, account) => {
+    const { result, users } = accept(account);
+    await expect(result).resolves.toMatchObject({ user: { role: Role.VENDOR_STAFF } });
+    expect(users.createOrActivateInvitedUser).toHaveBeenCalledWith(expect.objectContaining({ role: Role.VENDOR_STAFF, shopId: 'shop-1' }));
+  });
+
+  it.each([
+    ['became an owner', makeUser(Role.VENDOR_OWNER)],
+    ['joined the admin team', makeUser(Role.OPERATIONS)],
+    ['is suspended', makeUser(Role.CUSTOMER, UserStatus.SUSPENDED)],
+  ])('refuses and cancels the invite when the account %s since', async (_label, account) => {
+    const { result, users, invitations } = accept(account);
+    await expectCode(result, ErrorCode.BUSINESS_RULE_VIOLATION);
+    expect(users.createOrActivateInvitedUser).not.toHaveBeenCalled();
+    expect(invitations.updateById).toHaveBeenCalledWith('inv-1', { status: 'REVOKED' });
+  });
+
+  it('names the shop on the invite details', async () => {
+    const { service, invitations } = setup(null);
+    invitations.findByToken.mockResolvedValue(staffInvite);
+    await expect(service.getInvitationDetails('t')).resolves.toMatchObject({ shopName: 'Muthu Mutton Stall' });
   });
 });

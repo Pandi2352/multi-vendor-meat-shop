@@ -49,7 +49,7 @@ Key docs:
 - Never trust client-sent `vendorId` / `shopId` / `userId` for ownership; derive from the authenticated user.
 - Every endpoint has Swagger decorators via the shared composites (`@ApiStandardResponses`, `@ApiPaginatedResponse`, `@Auth()`).
 - Errors throw `AppException` with an `ErrorCode`. No raw strings in `throw new Error()`.
-- Invitations only through `InvitationsService.issue()` / `resend()` (users module): never write invitation tokens yourself, never return or list them. Existing accounts are never re-roled at invite time; the role is applied when the invite is accepted.
+- Invitations only through `InvitationsService.issue()` / `resend()` (users module): never write invitation tokens yourself, never return or list them. Existing accounts are never re-roled at invite time; the role is applied when the invite is accepted. Shop staff invites go through `VendorStaffService`: no account is created until they accept, and `canJoinShopAsStaff` is checked at invite and again at accept.
 - Password resets only through `PasswordResetService` (auth module). New portal passwords use `@IsAccountPassword()` on the server and `zNewPassword()` in the admin app (same 8–128 limits). Never reveal whether an email has an account.
 - `@Auth(roles)` says who may call an endpoint; `@Permissions(...)` says what they may do. Every vendor endpoint that is not open to all shop staff carries `@Permissions()` (owner work: `product.manage`, `shop.manage`, `staff.manage`, `settlement.read`, `payout.request`). Add each new vendor endpoint to `src/modules/vendor-permissions.spec.ts`.
 - `@CurrentShop()` is the only way to get the shop a request acts on. Vendors always get their own shop; only the admin team may choose one (`x-shop-id`).

@@ -24,3 +24,5 @@ export * from './services/addresses.service.js';
 export * from './services/admin-users.service.js';
 export * from './users.module.js';
 export * from './services/invitations.service.js';
+export * from './services/shop-name.lookup.js';
+export * from './services/staff-invite-rules.js';
