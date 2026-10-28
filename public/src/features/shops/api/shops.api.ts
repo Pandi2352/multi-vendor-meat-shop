@@ -5,6 +5,7 @@ export type Shop = components['schemas']['ShopResponseDto'] & {
   distanceMeters?: number;
   ratingAverage?: number;
   ratingCount?: number;
+  nameTa?: string;
 };
 
 export const shopsApi = {

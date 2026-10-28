@@ -10,6 +10,7 @@ import type {
 } from '../api';
 import { CUT_TYPES } from '../constants';
 import { ProductFormPresets } from './product-form-presets';
+import { QuickCutPresets, type QuickCutPreset } from './quick-cut-presets';
 
 interface ProductFormModalProps {
   product: VendorProduct | null;
@@ -67,16 +68,26 @@ export function ProductFormModal({
 
   if (!isOpen) return null;
 
+  const handlePresetSelect = (preset: QuickCutPreset) => {
+    setName(preset.name);
+    setCutType(preset.cutType);
+    setPriceInRupees(preset.pricePerKg);
+    setMrpInRupees(preset.mrpPerKg);
+    setMinGrams(preset.minGrams);
+    setAllowedWeights(preset.allowedWeights);
+    setAllowedPreps(preset.allowedPreps);
+    const match = categories.find((c) => c.name.toLowerCase().includes(preset.categoryMatch));
+    if (match) setCategoryId(match.id);
+  };
+
   const toggleWeight = (grams: number) => {
     setAllowedWeights((prev) =>
-      prev.includes(grams) ? prev.filter((w) => w !== grams) : [...prev, grams].sort((a, b) => a - b)
+      prev.includes(grams) ? prev.filter((w) => w !== grams) : [...prev, grams].sort((a, b) => a - b),
     );
   };
 
   const togglePrep = (prep: PreparationOption) => {
-    setAllowedPreps((prev) =>
-      prev.includes(prep) ? prev.filter((p) => p !== prep) : [...prev, prep]
-    );
+    setAllowedPreps((prev) => (prev.includes(prep) ? prev.filter((p) => p !== prep) : [...prev, prep]));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -97,12 +108,10 @@ export function ProductFormModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-[1px] animate-in fade-in duration-150">
-      <div className="bg-surface border border-border rounded-md w-full max-w-lg p-5 space-y-4 max-h-[90vh] overflow-y-auto">
+      <div className="bg-surface border border-border rounded-md w-full max-w-lg p-5 space-y-3.5 max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between pb-2 border-b border-border">
           <div>
-            <h3 className="text-base font-semibold text-text">
-              {product ? 'Edit Meat Cut' : 'Add New Meat Cut'}
-            </h3>
+            <h3 className="text-base font-semibold text-text">{product ? 'Edit Meat Cut' : 'Add New Meat Cut'}</h3>
             <p className="text-xs text-muted">Daily fresh butchery catalogue & pricing</p>
           </div>
           <button onClick={onClose} className="text-muted hover:text-text p-1 rounded-md">
@@ -110,8 +119,9 @@ export function ProductFormModal({
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4 text-xs">
-          {/* Category & Cut Type */}
+        {!product && <QuickCutPresets onSelect={handlePresetSelect} />}
+
+        <form onSubmit={handleSubmit} className="space-y-3.5 text-xs">
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="font-medium text-text block mb-1">Meat Category</label>
@@ -140,7 +150,6 @@ export function ProductFormModal({
             </div>
           </div>
 
-          {/* Cut Name */}
           <div>
             <label className="font-medium text-text block mb-1">Cut Display Name</label>
             <input
@@ -153,7 +162,6 @@ export function ProductFormModal({
             />
           </div>
 
-          {/* Pricing & Min Order */}
           <div className="grid grid-cols-3 gap-3">
             <div>
               <label className="font-medium text-text block mb-1">Price / kg (₹)</label>
@@ -192,7 +200,6 @@ export function ProductFormModal({
             </div>
           </div>
 
-          {/* Presets Component */}
           <ProductFormPresets
             selectedWeights={allowedWeights}
             onToggleWeight={toggleWeight}
@@ -200,8 +207,7 @@ export function ProductFormModal({
             onTogglePrep={togglePrep}
           />
 
-          {/* Switches: Daily fresh & In-stock */}
-          <div className="p-3 rounded-md bg-surface-muted border border-border space-y-2">
+          <div className="p-2.5 rounded-md bg-surface-muted border border-border space-y-1.5">
             <label className="flex items-center gap-2 cursor-pointer">
               <input
                 type="checkbox"
@@ -225,7 +231,6 @@ export function ProductFormModal({
             </label>
           </div>
 
-          {/* Actions */}
           <div className="flex items-center justify-end gap-2 pt-2 border-t border-border">
             <Button variant="outline" size="sm" type="button" onClick={onClose}>
               Cancel

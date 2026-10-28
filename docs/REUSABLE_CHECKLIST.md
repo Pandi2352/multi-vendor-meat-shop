@@ -423,6 +423,9 @@ modules/<feature>/
 - [x] `favourites` — `favourites` collection (`Favourite` schema, `FavouriteRepository`, `FavouritesService`, `FavouritesController`), live stall stock enrichment, and fast customer id lookup (`/favourites`, `GET /api/v1/favourites`, `GET /api/v1/favourites/ids`, `POST /api/v1/favourites/:productId/toggle`, `DELETE /api/v1/favourites/:productId`) 🧪 (unit + e2e)
 - [x] `reorder` — 1-click past order reorder (`POST /api/v1/orders/:id/reorder`, `ReorderButton`) with out-of-stock item handling and single-shop cart population 🧪 (unit + e2e)
 - [x] `favourites` (public) — `FavouriteButton`, `FavouriteCard`, `FavouritesPage` (`/favourites`), and storefront header `Saved` link with live count badge 🧪
+- [x] `vendor-onboarding` (admin) — dedicated full pages (`/admin/vendors/new`, `/admin/vendors/:id/edit`), 5 categorized sections, dense zero-empty-space layout (`VendorFormIdentityCard`, `VendorFormPremisesCard`, `VendorFormCredentialsScheduleCard`), and post-creation activation panel with direct invitation link
+- [x] `quick-cut-presets` (admin) — 1-click popular Tamil Nadu butchery cut filler (`QuickCutPresets`) for Country Chicken (நாட்டுக்கோழி), Mutton Curry & Biryani Cuts, Broiler Chicken, and Seer Fish
+- [x] `bilingual-stall-card` (public) — storefront shop card displaying Tamil signage (`shop.nameTa`), live delivery ETA, and verified FSSAI credentials
 - [ ] `pagination.ts` defaults, `upload.ts` limits
 - [ ] `types/api.generated.ts` (generated), `types/common.ts` (`ID = string`, `Paginated<T>`, `ApiResponse<T>`, `SelectOption`)
 

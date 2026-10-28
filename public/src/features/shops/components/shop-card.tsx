@@ -42,6 +42,9 @@ export function ShopCard({ shop }: ShopCardProps) {
             </div>
             <div>
               <h4 className="font-bold text-sm text-text leading-tight">{shop.name}</h4>
+              {shop.nameTa && (
+                <p className="text-[11px] text-muted font-sans mt-0.5">{shop.nameTa}</p>
+              )}
               <p className="text-xs text-muted flex items-center gap-1 mt-0.5">
                 <MapPin className="h-3 w-3 text-muted shrink-0" />
                 <span>{shop.address.locality || shop.address.line1}, {shop.address.city}</span>
