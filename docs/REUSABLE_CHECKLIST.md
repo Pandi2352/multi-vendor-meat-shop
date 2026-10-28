@@ -383,6 +383,7 @@ modules/<feature>/
 - [x] Vendor Products Catalogue (`/vendor/products`): Meat cuts, per-kg pricing (₹/paise), package sizes (250g, 500g, 1kg), butchery prep options (Skin-on, Skin-off, Cleaned, Small pieces), daily freshness & stock status toggle
 - [x] Vendor Stall Staff Management (`/vendor/staff`): Stall cutters, billing staff, dispatch handlers, invite links, active/suspended toggle, shop isolation
 - [x] Vendor Shop Profile Operations (`/vendor/shops`): Operating schedule, delivery radius, base delivery fee, butchery schedule, stall switcher for Admin multi-tenant management
+- [x] Customer Order Tracking & Handover OTP (`public/`): Live pickup status, courier partner contact card with direct call button (`tel:`), 4-digit delivery handover OTP, and resilient Gmail SMTP OTP delivery with resend capabilities (`POST /api/v1/delivery/tasks/order/:orderId/resend-otp`)
 - [ ] Shared `useAppMutation` — success toast, error toast, invalidate keys, optimistic update option
 - [ ] Shared `usePaginatedQuery` — page/limit/sort from URL state
 

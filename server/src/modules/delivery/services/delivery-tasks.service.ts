@@ -6,11 +6,13 @@ import type { PaginatedResult } from '#common/dto';
 import { OrderRepository, OrderEventRepository } from '#modules/orders';
 import { ShopsService } from '#modules/shops';
 import { FinanceService } from '#modules/finance';
+import { DeliveryNotificationService } from './delivery-notification.service.js';
 import { DeliveryTaskRepository } from '../repositories/delivery-task.repository.js';
 import type { DeliveryTask } from '../schemas/delivery-task.schema.js';
 import type { AssignDeliveryTaskDto } from '../dto/assign-delivery-task.dto.js';
 import type { VerifyDeliveryOtpDto } from '../dto/verify-delivery-otp.dto.js';
 import type { QueryDeliveryTasksDto } from '../dto/query-delivery-tasks.dto.js';
+import type { ResendDeliveryOtpResponseDto } from '../dto/resend-delivery-otp-response.dto.js';
 import { toDeliveryTaskResponseDto } from '../mappers/delivery-task.mapper.js';
 import type { DeliveryTaskResponseDto } from '../dto/delivery-task-response.dto.js';
 
@@ -22,6 +24,7 @@ export class DeliveryTasksService {
     private readonly eventRepo: OrderEventRepository,
     private readonly shops: ShopsService,
     private readonly finance: FinanceService,
+    private readonly notification: DeliveryNotificationService,
   ) {}
 
   async createOrGetTaskForOrder(orderId: string): Promise<DeliveryTaskResponseDto> {
@@ -59,6 +62,8 @@ export class DeliveryTasksService {
       otpHash,
       otpPlain: plainOtp,
     });
+
+    void this.notification.sendDeliveryOtp(task.customerId, task.orderNumber, task.shopName, plainOtp, task.codAmountPaise);
 
     return toDeliveryTaskResponseDto(task, true);
   }
@@ -210,5 +215,31 @@ export class DeliveryTasksService {
       throw new NotFoundAppException('DeliveryTask', orderId);
     }
     return toDeliveryTaskResponseDto(task, true);
+  }
+
+  async resendDeliveryOtp(orderId: string, customerId: string): Promise<ResendDeliveryOtpResponseDto> {
+    const task = await this.taskRepo.findByOrderId(orderId);
+    if (!task || task.customerId !== customerId) {
+      throw new NotFoundAppException('DeliveryTask', orderId);
+    }
+    if (!task.otpPlain) {
+      throw new AppException(ErrorCode.DELIVERY_INVALID_STATE, {
+        message: 'OTP is no longer available or task is already delivered',
+      });
+    }
+
+    const maskedEmail = await this.notification.resendDeliveryOtp(
+      customerId,
+      task.orderNumber,
+      task.shopName,
+      task.otpPlain,
+      task.codAmountPaise,
+    );
+
+    return {
+      success: true,
+      maskedEmail,
+      message: 'Delivery OTP has been sent to your Gmail inbox via SMTP.',
+    };
   }
 }

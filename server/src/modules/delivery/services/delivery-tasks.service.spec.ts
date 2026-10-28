@@ -50,6 +50,10 @@ describe('DeliveryTasksService', () => {
     const finance = {
       recordOrderDelivered: vi.fn().mockResolvedValue({}),
     };
+    const notification = {
+      sendDeliveryOtp: vi.fn().mockResolvedValue('test@gmail.com'),
+      resendDeliveryOtp: vi.fn().mockResolvedValue('te***@gmail.com'),
+    };
 
     service = new DeliveryTasksService(
       taskRepo as unknown as DeliveryTaskRepository,
@@ -57,6 +61,7 @@ describe('DeliveryTasksService', () => {
       eventRepo as unknown as OrderEventRepository,
       shops as never,
       finance as never,
+      notification as never,
     );
   });
 
@@ -200,5 +205,21 @@ describe('DeliveryTasksService', () => {
     await expect(
       service.verifyOtpAndDeliver('task-123', 'partner-123', { otp: '0000', collectedCod: true }),
     ).rejects.toThrow(AppException);
+  });
+
+  it('resends delivery OTP to customer email', async () => {
+    taskRepo.findByOrderId!.mockResolvedValue({
+      _id: 'task-123',
+      orderId: 'order-123',
+      customerId: 'cust-123',
+      orderNumber: 'TN-20261023-0001',
+      shopName: 'Madurai Fresh Mutton Stall',
+      otpPlain: '4321',
+      codAmountPaise: 42500,
+    } as never);
+
+    const result = await service.resendDeliveryOtp('order-123', 'cust-123');
+    expect(result.success).toBe(true);
+    expect(result.maskedEmail).toBe('te***@gmail.com');
   });
 });

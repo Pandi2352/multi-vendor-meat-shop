@@ -6,6 +6,7 @@ import { AppLogger } from '#infra/logger';
 import type { EmailMessage } from './templates/email-layout.js';
 import { invitationEmail, type InvitationEmailData } from './templates/invitation.template.js';
 import { otpEmail } from './templates/otp.template.js';
+import { deliveryOtpEmail, type DeliveryOtpEmailData } from './templates/delivery-otp.template.js';
 import { passwordChangedEmail, type PasswordChangedEmailData } from './templates/password-changed.template.js';
 import { passwordResetEmail, type PasswordResetEmailData } from './templates/password-reset.template.js';
 
@@ -40,6 +41,15 @@ export class MailService {
       from: this.config.mail.from,
     });
     return this.deliver(to, message, 'OTP');
+  }
+
+  sendDeliveryOtpEmail(to: string, data: Omit<DeliveryOtpEmailData, 'appName' | 'from'>): Promise<void> {
+    const message = deliveryOtpEmail({
+      ...data,
+      appName: this.config.app.displayName,
+      from: this.config.mail.from,
+    });
+    return this.deliver(to, message, 'delivery OTP');
   }
 
   sendInvitationEmail(to: string, data: Omit<InvitationEmailData, 'appName'>): Promise<void> {

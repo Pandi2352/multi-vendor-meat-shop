@@ -24,4 +24,9 @@ export const ordersApi = {
 
   getDeliveryTask: (orderId: string): Promise<DeliveryTaskResponse> =>
     http.get<DeliveryTaskResponse>(`/api/v1/delivery/tasks/order/${encodeURIComponent(orderId)}`),
+
+  resendDeliveryOtp: (orderId: string): Promise<{ success: boolean; maskedEmail: string; message: string }> =>
+    http.post<{ success: boolean; maskedEmail: string; message: string }>(
+      `/api/v1/delivery/tasks/order/${encodeURIComponent(orderId)}/resend-otp`,
+    ),
 };

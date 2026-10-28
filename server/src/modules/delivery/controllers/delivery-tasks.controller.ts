@@ -15,6 +15,7 @@ import { DeliveryTasksService } from '../services/delivery-tasks.service.js';
 import { DeliveryTaskResponseDto } from '../dto/delivery-task-response.dto.js';
 import { QueryDeliveryTasksDto } from '../dto/query-delivery-tasks.dto.js';
 import { VerifyDeliveryOtpDto } from '../dto/verify-delivery-otp.dto.js';
+import { ResendDeliveryOtpResponseDto } from '../dto/resend-delivery-otp-response.dto.js';
 
 @ApiTags(SwaggerTag.DELIVERY)
 @Auth(Role.DELIVERY_PARTNER, Role.CUSTOMER, Role.ADMIN)
@@ -32,6 +33,18 @@ export class DeliveryTasksController {
     @UuidParam('orderId') orderId: string,
   ): Promise<DeliveryTaskResponseDto> {
     return this.delivery.getCustomerTaskByOrderId(orderId, customerId);
+  }
+
+  @Post('order/:orderId/resend-otp')
+  @Auth(Role.CUSTOMER, Role.ADMIN)
+  @ApiOperation({ summary: 'Resend delivery handover OTP to customer email via Gmail SMTP' })
+  @ApiOkEnvelope(ResendDeliveryOtpResponseDto)
+  @ApiStandardResponses()
+  resendDeliveryOtp(
+    @CurrentUser('id') customerId: string,
+    @UuidParam('orderId') orderId: string,
+  ): Promise<ResendDeliveryOtpResponseDto> {
+    return this.delivery.resendDeliveryOtp(orderId, customerId);
   }
 
   @Get()

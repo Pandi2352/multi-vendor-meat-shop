@@ -19,12 +19,21 @@ export const useOrderDetail = (id: string, options?: { enabled?: boolean; refetc
   });
 };
 
-export const useOrderDeliveryTask = (orderId: string, options?: { enabled?: boolean }) => {
+export const useOrderDeliveryTask = (
+  orderId: string,
+  options?: { enabled?: boolean; refetchInterval?: number },
+) => {
   return useQuery({
     queryKey: orderKeys.deliveryTask(orderId),
     queryFn: () => ordersApi.getDeliveryTask(orderId),
     enabled: options?.enabled ?? Boolean(orderId),
-    refetchInterval: 10_000,
+    refetchInterval: options?.refetchInterval ?? 5_000,
+  });
+};
+
+export const useResendDeliveryOtp = () => {
+  return useMutation({
+    mutationFn: (orderId: string) => ordersApi.resendDeliveryOtp(orderId),
   });
 };
 

@@ -3,6 +3,8 @@ export * from './api/keys';
 export * from './api/use-orders';
 export * from './components/order-status-badge';
 export * from './components/order-timeline';
+export * from './components/live-order-tracker';
+export * from './components/order-items-summary';
 export * from './components/checkout-modal';
 export * from './pages/orders-page';
 export * from './pages/order-detail-page';
